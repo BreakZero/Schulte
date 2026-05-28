@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+import kotlin.apply
 
 plugins {
   alias(libs.plugins.androidApplication)
@@ -23,6 +25,20 @@ android {
   namespace = "org.easy.schulte"
   compileSdk = libs.versions.android.compileSdk.get().toInt()
 
+  val keystorePropertiesFile = rootProject.file("keystore/keystore.properties")
+  val keystoreProperties = Properties().apply {
+    load(keystorePropertiesFile.inputStream())
+  }
+
+  signingConfigs {
+    create("release") {
+      storeFile = rootProject.file("keystore/${keystoreProperties.getProperty("storeFile")}")
+      storePassword = keystoreProperties.getProperty("storePassword")
+      keyAlias = keystoreProperties.getProperty("keyAlias")
+      keyPassword = keystoreProperties.getProperty("keyPassword")
+    }
+  }
+
   defaultConfig {
     applicationId = "org.easy.schulte"
     minSdk = libs.versions.android.minSdk.get().toInt()
@@ -38,6 +54,7 @@ android {
   buildTypes {
     getByName("release") {
       isMinifyEnabled = false
+      signingConfig = signingConfigs.getByName("release")
     }
   }
   compileOptions {
