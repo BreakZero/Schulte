@@ -1,32 +1,105 @@
 package org.easy.schulte.core.domain
 
 import org.easy.schulte.core.model.AiAnalysis
+import org.easy.schulte.core.model.GridSpec
 import org.easy.schulte.core.model.MarkMode
 import org.easy.schulte.core.model.ScoreLevel
 import org.easy.schulte.core.model.TrainingReport
-import org.easy.schulte.core.ui.formatSeconds
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
+import schulte.shared.generated.resources.Res
+import schulte.shared.generated.resources.grid_spec_five_title
+import schulte.shared.generated.resources.grid_spec_four_title
+import schulte.shared.generated.resources.grid_spec_seven_title
+import schulte.shared.generated.resources.grid_spec_three_title
+import schulte.shared.generated.resources.local_ai_errors_none
+import schulte.shared.generated.resources.local_ai_errors_with_count
+import schulte.shared.generated.resources.local_ai_next_error_goal_none
+import schulte.shared.generated.resources.local_ai_next_error_goal_with_count
+import schulte.shared.generated.resources.local_ai_next_time_goal
+import schulte.shared.generated.resources.local_ai_recommended_spec
+import schulte.shared.generated.resources.local_ai_speed_excellent
+import schulte.shared.generated.resources.local_ai_speed_improvable
+import schulte.shared.generated.resources.local_ai_suggestion_accuracy_first
+import schulte.shared.generated.resources.local_ai_suggestion_daily
+import schulte.shared.generated.resources.local_ai_suggestion_upgrade
+import schulte.shared.generated.resources.local_ai_summary
+import schulte.shared.generated.resources.mark_mode_assisted_title
+import schulte.shared.generated.resources.mark_mode_standard_title
+import schulte.shared.generated.resources.score_level_below
+import schulte.shared.generated.resources.score_level_excellent
+import schulte.shared.generated.resources.score_level_good
+import schulte.shared.generated.resources.score_level_pass
+import schulte.shared.generated.resources.score_level_practice
+import schulte.shared.generated.resources.seconds_format
 
-internal fun createLocalAiAnalysis(report: TrainingReport): AiAnalysis {
+internal suspend fun createLocalAiAnalysis(report: TrainingReport): AiAnalysis {
   val target = report.nextTargetSeconds ?: report.elapsedSeconds.toInt().coerceAtLeast(1)
   return AiAnalysis(
-    summary = "你在 ${report.gridSpec.title} ${report.markMode.title} 下完成时间为 ${formatSeconds(report.elapsedMillis)}，错误 ${report.errorCount} 次，整体表现为${report.scoreLevel.title}。",
+    summary = getString(
+      Res.string.local_ai_summary,
+      getString(report.gridSpec.titleResource),
+      getString(report.markMode.titleResource),
+      formatSecondsResource(report.elapsedMillis),
+      report.errorCount,
+      getString(report.scoreLevel.titleResource),
+    ),
     speed = if (report.scoreLevel == ScoreLevel.Excellent) {
-      "完成时间已达到当前年龄段优秀水平，可以尝试保持速度的同时降低错误次数。"
+      getString(Res.string.local_ai_speed_excellent)
     } else {
-      "当前速度仍有提升空间，建议先稳定扫描节奏，再逐步压缩完成时间。"
+      getString(Res.string.local_ai_speed_improvable)
     },
     errors = if (report.errorCount == 0) {
-      "本次没有错误点击，说明目标切换较稳定。下一步可以在保持准确率的前提下提速。"
+      getString(Res.string.local_ai_errors_none)
     } else {
-      "本次出现 ${report.errorCount} 次错误，可能来自目标切换时的注意力偏移。建议先锁定下一个目标，再点击。"
+      getString(Res.string.local_ai_errors_with_count, report.errorCount)
     },
-    nextTimeGoal = "$target 秒以内",
-    nextErrorGoal = if (report.errorCount == 0) "保持 0 次" else "${(report.errorCount - 1).coerceAtLeast(0)} 次以内",
-    recommendedSpec = "${report.gridSpec.title} ${MarkMode.BriefFeedbackOnly.title}",
+    nextTimeGoal = getString(Res.string.local_ai_next_time_goal, target),
+    nextErrorGoal = if (report.errorCount == 0) {
+      getString(Res.string.local_ai_next_error_goal_none)
+    } else {
+      getString(Res.string.local_ai_next_error_goal_with_count, (report.errorCount - 1).coerceAtLeast(0))
+    },
+    recommendedSpec = getString(
+      Res.string.local_ai_recommended_spec,
+      getString(report.gridSpec.titleResource),
+      getString(MarkMode.BriefFeedbackOnly.titleResource),
+    ),
     suggestions = listOf(
-      "每天练习 3 组，每组间隔 30 秒",
-      "优先保证准确率，再提升速度",
-      "连续 3 次稳定后，再尝试更高规格",
+      getString(Res.string.local_ai_suggestion_daily),
+      getString(Res.string.local_ai_suggestion_accuracy_first),
+      getString(Res.string.local_ai_suggestion_upgrade),
     ),
   )
 }
+
+private suspend fun formatSecondsResource(millis: Long): String {
+  val seconds = millis / 1000
+  val centis = (millis % 1000) / 10
+  return getString(Res.string.seconds_format, seconds, centis.twoDigits())
+}
+
+private fun Long.twoDigits(): String = if (this < 10) "0$this" else toString()
+
+private val GridSpec.titleResource: StringResource
+  get() = when (this) {
+    GridSpec.Three -> Res.string.grid_spec_three_title
+    GridSpec.Four -> Res.string.grid_spec_four_title
+    GridSpec.Five -> Res.string.grid_spec_five_title
+    GridSpec.Seven -> Res.string.grid_spec_seven_title
+  }
+
+private val MarkMode.titleResource: StringResource
+  get() = when (this) {
+    MarkMode.BriefFeedbackOnly -> Res.string.mark_mode_standard_title
+    MarkMode.AssistedMarking -> Res.string.mark_mode_assisted_title
+  }
+
+private val ScoreLevel.titleResource: StringResource
+  get() = when (this) {
+    ScoreLevel.Excellent -> Res.string.score_level_excellent
+    ScoreLevel.Good -> Res.string.score_level_good
+    ScoreLevel.Pass -> Res.string.score_level_pass
+    ScoreLevel.Below -> Res.string.score_level_below
+    ScoreLevel.Practice -> Res.string.score_level_practice
+  }

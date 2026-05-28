@@ -36,9 +36,21 @@ import org.easy.schulte.core.ui.QuietText
 import org.easy.schulte.core.ui.SchulteScaffold
 import org.easy.schulte.core.ui.SectionTitle
 import org.easy.schulte.core.ui.SelectCard
+import org.easy.schulte.core.ui.difficultyText
+import org.easy.schulte.core.ui.titleText
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import schulte.shared.generated.resources.Res
+import schulte.shared.generated.resources.action_start_training
+import schulte.shared.generated.resources.app_title
+import schulte.shared.generated.resources.config_daily_tip_body
+import schulte.shared.generated.resources.config_daily_tip_title
+import schulte.shared.generated.resources.config_headline
+import schulte.shared.generated.resources.config_subtitle
 import schulte.shared.generated.resources.ic_settings_24
+import schulte.shared.generated.resources.section_age_group
+import schulte.shared.generated.resources.section_grid_spec
+import schulte.shared.generated.resources.section_training_mode
 
 @Composable
 internal fun ConfigScreen(
@@ -46,7 +58,7 @@ internal fun ConfigScreen(
   onAction: (ConfigAction) -> Unit,
 ) {
   SchulteScaffold(
-    title = "舒尔特方格训练",
+    title = stringResource(Res.string.app_title),
     actions = {
       IconButton(onClick = { onAction(ConfigAction.OpenSettings) }) {
         Icon(
@@ -64,43 +76,43 @@ internal fun ConfigScreen(
       verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
       Text(
-        text = "开始一次专注力训练",
+        text = stringResource(Res.string.config_headline),
         style = MaterialTheme.typography.headlineMedium,
         fontWeight = FontWeight.Bold,
         color = Color(0xFF162033),
       )
       Text(
-        text = "按顺序点击数字，训练视觉搜索与注意力集中",
+        text = stringResource(Res.string.config_subtitle),
         color = QuietText,
         style = MaterialTheme.typography.bodyMedium,
       )
       InfoCard(
-        title = "建议每日练习 3~5 分钟",
-        body = "保持自然呼吸，尽量不要移动视线中心",
+        title = stringResource(Res.string.config_daily_tip_title),
+        body = stringResource(Res.string.config_daily_tip_body),
       )
-      SectionTitle("方格规格")
+      SectionTitle(stringResource(Res.string.section_grid_spec))
       Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
         GridSpec.entries.forEach { spec ->
           SelectCard(
             modifier = Modifier.weight(1f),
             selected = state.selectedGrid == spec,
-            title = spec.title,
-            subtitle = spec.difficulty,
+            title = spec.titleText(),
+            subtitle = spec.difficultyText(),
             onClick = { onAction(ConfigAction.SelectGrid(spec)) },
           )
         }
       }
-      SectionTitle("年龄段")
+      SectionTitle(stringResource(Res.string.section_age_group))
       FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         AgeGroup.entries.forEach { ageGroup ->
           FilterChip(
             selected = state.selectedAgeGroup == ageGroup,
             onClick = { onAction(ConfigAction.SelectAgeGroup(ageGroup)) },
-            label = { Text(ageGroup.title) },
+            label = { Text(ageGroup.titleText()) },
           )
         }
       }
-      SectionTitle("训练模式")
+      SectionTitle(stringResource(Res.string.section_training_mode))
       Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         MarkMode.entries.forEach { mode ->
           ModeCard(
@@ -119,7 +131,7 @@ internal fun ConfigScreen(
         colors = ButtonDefaults.buttonColors(containerColor = FocusBlue),
         shape = RoundedCornerShape(8.dp),
       ) {
-        Text("开始训练", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+        Text(stringResource(Res.string.action_start_training), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
       }
     }
   }

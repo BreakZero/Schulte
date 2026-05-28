@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import org.easy.schulte.core.model.SchulteState
+import org.easy.schulte.core.model.SettingsMessage
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.InfoCard
 import org.easy.schulte.core.ui.KeyValueRow
@@ -35,6 +36,33 @@ import org.easy.schulte.core.ui.SchulteScaffold
 import org.easy.schulte.core.ui.SectionTitle
 import org.easy.schulte.core.ui.SuccessGreen
 import org.easy.schulte.core.ui.SwitchRow
+import org.easy.schulte.core.ui.text
+import org.easy.schulte.core.ui.titleText
+import org.jetbrains.compose.resources.stringResource
+import schulte.shared.generated.resources.Res
+import schulte.shared.generated.resources.action_clear_config
+import schulte.shared.generated.resources.action_hide
+import schulte.shared.generated.resources.action_save_settings
+import schulte.shared.generated.resources.action_show
+import schulte.shared.generated.resources.action_test_connection
+import schulte.shared.generated.resources.section_ai_settings
+import schulte.shared.generated.resources.section_training_settings
+import schulte.shared.generated.resources.settings_ai_enabled_subtitle
+import schulte.shared.generated.resources.settings_ai_enabled_title
+import schulte.shared.generated.resources.settings_api_key
+import schulte.shared.generated.resources.settings_api_key_placeholder
+import schulte.shared.generated.resources.settings_assist_subtitle
+import schulte.shared.generated.resources.settings_assist_title
+import schulte.shared.generated.resources.settings_base_url
+import schulte.shared.generated.resources.settings_base_url_placeholder
+import schulte.shared.generated.resources.settings_default_age_group
+import schulte.shared.generated.resources.settings_default_grid
+import schulte.shared.generated.resources.settings_default_mark_mode
+import schulte.shared.generated.resources.settings_model_name
+import schulte.shared.generated.resources.settings_model_name_placeholder
+import schulte.shared.generated.resources.settings_privacy_body
+import schulte.shared.generated.resources.settings_privacy_title
+import schulte.shared.generated.resources.settings_title
 
 @Composable
 internal fun SettingsScreen(
@@ -42,8 +70,7 @@ internal fun SettingsScreen(
   onAction: (SettingsAction) -> Unit,
 ) {
   SchulteScaffold(
-    title = "设置",
-    navigationText = "返回",
+    title = stringResource(Res.string.settings_title),
     onNavigationClick = { onAction(SettingsAction.BackFromSettings) },
   ) {
     Column(
@@ -54,82 +81,91 @@ internal fun SettingsScreen(
       verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
       SchulteCard {
-        SectionTitle("训练设置")
-        KeyValueRow("默认方格规格", state.selectedGrid.title)
-        KeyValueRow("默认年龄段", state.selectedAgeGroup.title)
-        KeyValueRow("默认训练模式", state.selectedMarkMode.title)
+        SectionTitle(stringResource(Res.string.section_training_settings))
+        KeyValueRow(stringResource(Res.string.settings_default_grid), state.selectedGrid.titleText())
+        KeyValueRow(stringResource(Res.string.settings_default_age_group), state.selectedAgeGroup.titleText())
+        KeyValueRow(stringResource(Res.string.settings_default_mark_mode), state.selectedMarkMode.titleText())
         SwitchRow(
-          title = "辅助模式显示已完成标记",
-          subtitle = "开启后成绩仅作为练习参考",
+          title = stringResource(Res.string.settings_assist_title),
+          subtitle = stringResource(Res.string.settings_assist_subtitle),
           checked = state.aiSettings.assistedMarkingEnabled,
           onCheckedChange = { onAction(SettingsAction.ToggleAssistSetting(it)) },
         )
       }
       SchulteCard {
-        SectionTitle("AI 设置")
+        SectionTitle(stringResource(Res.string.section_ai_settings))
         SwitchRow(
-          title = "启用 AI 分析",
-          subtitle = "只影响训练后的增强报告",
+          title = stringResource(Res.string.settings_ai_enabled_title),
+          subtitle = stringResource(Res.string.settings_ai_enabled_subtitle),
           checked = state.aiSettings.aiEnabled,
           onCheckedChange = { onAction(SettingsAction.ToggleAiEnabled(it)) },
         )
-        OutlinedTextField(
-          value = state.aiSettings.apiKey,
-          onValueChange = { onAction(SettingsAction.UpdateApiKey(it)) },
-          modifier = Modifier.fillMaxWidth(),
-          label = { Text("API Key") },
-          placeholder = { Text("请输入你的 API Key") },
-          visualTransformation = if (state.apiKeyVisible) VisualTransformation.None else PasswordVisualTransformation(),
-          keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-          trailingIcon = {
-            TextButton(onClick = { onAction(SettingsAction.ToggleApiKeyVisibility) }) {
-              Text(if (state.apiKeyVisible) "隐藏" else "显示")
+        if (state.aiSettings.aiEnabled) {
+          OutlinedTextField(
+            value = state.aiSettings.apiKey,
+            onValueChange = { onAction(SettingsAction.UpdateApiKey(it)) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(Res.string.settings_api_key)) },
+            placeholder = { Text(stringResource(Res.string.settings_api_key_placeholder)) },
+            visualTransformation = if (state.apiKeyVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+              TextButton(onClick = { onAction(SettingsAction.ToggleApiKeyVisibility) }) {
+                Text(
+                  if (state.apiKeyVisible) stringResource(Res.string.action_hide) else stringResource(
+                    Res.string.action_show
+                  )
+                )
+              }
+            },
+            singleLine = true,
+          )
+          OutlinedTextField(
+            value = state.aiSettings.baseUrl,
+            onValueChange = { onAction(SettingsAction.UpdateBaseUrl(it)) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(Res.string.settings_base_url)) },
+            placeholder = { Text(stringResource(Res.string.settings_base_url_placeholder)) },
+            singleLine = true,
+          )
+          OutlinedTextField(
+            value = state.aiSettings.modelName,
+            onValueChange = { onAction(SettingsAction.UpdateModelName(it)) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(Res.string.settings_model_name)) },
+            placeholder = { Text(stringResource(Res.string.settings_model_name_placeholder)) },
+            singleLine = true,
+          )
+          Row(
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.fillMaxWidth()
+          ) {
+            FilledTonalButton(
+              onClick = { onAction(SettingsAction.TestAiConnection) },
+              modifier = Modifier.weight(1f),
+              shape = RoundedCornerShape(8.dp),
+            ) {
+              Text(stringResource(Res.string.action_test_connection))
             }
-          },
-          singleLine = true,
-        )
-        OutlinedTextField(
-          value = state.aiSettings.baseUrl,
-          onValueChange = { onAction(SettingsAction.UpdateBaseUrl(it)) },
-          modifier = Modifier.fillMaxWidth(),
-          label = { Text("Base URL") },
-          placeholder = { Text("例如：https://api.openai.com/v1") },
-          singleLine = true,
-        )
-        OutlinedTextField(
-          value = state.aiSettings.modelName,
-          onValueChange = { onAction(SettingsAction.UpdateModelName(it)) },
-          modifier = Modifier.fillMaxWidth(),
-          label = { Text("模型名称") },
-          placeholder = { Text("例如：gpt-4o-mini") },
-          singleLine = true,
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-          FilledTonalButton(
-            onClick = { onAction(SettingsAction.TestAiConnection) },
-            modifier = Modifier.weight(1f),
-            shape = RoundedCornerShape(8.dp),
-          ) {
-            Text("测试连接")
-          }
-          OutlinedButton(
-            onClick = { onAction(SettingsAction.ClearAiSettings) },
-            modifier = Modifier.weight(1f),
-            shape = RoundedCornerShape(8.dp),
-          ) {
-            Text("清除配置")
+            OutlinedButton(
+              onClick = { onAction(SettingsAction.ClearAiSettings) },
+              modifier = Modifier.weight(1f),
+              shape = RoundedCornerShape(8.dp),
+            ) {
+              Text(stringResource(Res.string.action_clear_config))
+            }
           }
         }
         AnimatedVisibility(state.settingsMessage != null) {
           Text(
-            text = state.settingsMessage.orEmpty(),
-            color = if (state.settingsMessage == "连接配置可用" || state.settingsMessage == "设置已保存") SuccessGreen else QuietText,
+            text = state.settingsMessage?.text().orEmpty(),
+            color = if (state.settingsMessage?.isSuccess == true) SuccessGreen else QuietText,
           )
         }
       }
       InfoCard(
-        title = "隐私与说明",
-        body = "API Key 仅保存在本地设备。训练报告仅在用户点击 AI 分析时发送。AI 建议仅供训练参考，不作为医学或心理诊断。",
+        title = stringResource(Res.string.settings_privacy_title),
+        body = stringResource(Res.string.settings_privacy_body),
       )
       Button(
         onClick = { onAction(SettingsAction.SaveSettings) },
@@ -139,8 +175,11 @@ internal fun SettingsScreen(
         colors = ButtonDefaults.buttonColors(containerColor = FocusBlue),
         shape = RoundedCornerShape(8.dp),
       ) {
-        Text("保存设置")
+        Text(stringResource(Res.string.action_save_settings))
       }
     }
   }
 }
+
+private val SettingsMessage.isSuccess: Boolean
+  get() = this == SettingsMessage.ConnectionAvailable || this == SettingsMessage.Saved

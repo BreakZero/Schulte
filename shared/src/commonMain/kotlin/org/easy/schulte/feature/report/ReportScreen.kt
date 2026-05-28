@@ -42,9 +42,42 @@ import org.easy.schulte.core.ui.SchulteCard
 import org.easy.schulte.core.ui.SchulteScaffold
 import org.easy.schulte.core.ui.ScoreBadge
 import org.easy.schulte.core.ui.SectionTitle
-import org.easy.schulte.core.ui.SuccessGreen
 import org.easy.schulte.core.ui.WarningAmber
-import org.easy.schulte.core.ui.formatSeconds
+import org.easy.schulte.core.ui.formatSecondsText
+import org.easy.schulte.core.ui.titleText
+import org.jetbrains.compose.resources.stringResource
+import schulte.shared.generated.resources.Res
+import schulte.shared.generated.resources.action_back_home
+import schulte.shared.generated.resources.action_generate_ai_analysis
+import schulte.shared.generated.resources.action_open_settings
+import schulte.shared.generated.resources.action_try_again
+import schulte.shared.generated.resources.ai_analyzing
+import schulte.shared.generated.resources.ai_disclaimer
+import schulte.shared.generated.resources.ai_entry_disabled_body
+import schulte.shared.generated.resources.ai_entry_disabled_title
+import schulte.shared.generated.resources.ai_entry_enabled_body
+import schulte.shared.generated.resources.ai_entry_enabled_title
+import schulte.shared.generated.resources.ai_needs_settings
+import schulte.shared.generated.resources.count_times
+import schulte.shared.generated.resources.no
+import schulte.shared.generated.resources.report_age_group
+import schulte.shared.generated.resources.report_completion_summary
+import schulte.shared.generated.resources.report_elapsed_time
+import schulte.shared.generated.resources.report_error_count
+import schulte.shared.generated.resources.report_grid_spec
+import schulte.shared.generated.resources.report_is_official_score
+import schulte.shared.generated.resources.report_score_note_official
+import schulte.shared.generated.resources.report_score_note_practice
+import schulte.shared.generated.resources.report_score_note_title
+import schulte.shared.generated.resources.report_title
+import schulte.shared.generated.resources.report_training_mode
+import schulte.shared.generated.resources.score_below_message
+import schulte.shared.generated.resources.score_excellent_message
+import schulte.shared.generated.resources.score_good_message
+import schulte.shared.generated.resources.score_pass_message
+import schulte.shared.generated.resources.score_practice_message
+import schulte.shared.generated.resources.section_report_overview
+import schulte.shared.generated.resources.yes
 
 @Composable
 internal fun ReportScreen(
@@ -52,7 +85,7 @@ internal fun ReportScreen(
   onAction: (ReportAction) -> Unit,
 ) {
   val report = state.report ?: return
-  SchulteScaffold(title = "本次训练报告") {
+  SchulteScaffold(title = stringResource(Res.string.report_title)) {
     Column(
       modifier = Modifier
         .fillMaxSize()
@@ -61,17 +94,21 @@ internal fun ReportScreen(
       verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
       Text(
-        text = "完成一次 ${report.gridSpec.title} ${report.markMode.title}",
+        text = stringResource(
+          Res.string.report_completion_summary,
+          report.gridSpec.titleText(),
+          report.markMode.titleText(),
+        ),
         color = QuietText,
       )
       ResultHeroCard(report)
       ReportOverview(report)
       InfoCard(
-        title = "评分说明",
+        title = stringResource(Res.string.report_score_note_title),
         body = if (report.isOfficialScore) {
-          "根据当前规格、年龄段与完成时间进行等级判断。错误次数暂作为辅助指标展示。"
+          stringResource(Res.string.report_score_note_official)
         } else {
-          "本次使用辅助标记，完成时间和错误次数仅作为练习参考。"
+          stringResource(Res.string.report_score_note_practice)
         },
       )
       AiEntryCard(state = state, onAction = onAction)
@@ -84,7 +121,7 @@ internal fun ReportScreen(
           colors = ButtonDefaults.buttonColors(containerColor = FocusBlue),
           shape = RoundedCornerShape(8.dp),
         ) {
-          Text("再来一次")
+          Text(stringResource(Res.string.action_try_again))
         }
         OutlinedButton(
           onClick = { onAction(ReportAction.BackToConfig) },
@@ -93,7 +130,7 @@ internal fun ReportScreen(
             .height(50.dp),
           shape = RoundedCornerShape(8.dp),
         ) {
-          Text("返回首页")
+          Text(stringResource(Res.string.action_back_home))
         }
       }
     }
@@ -108,7 +145,11 @@ private fun AiEntryCard(
   val configured = state.aiSettings.isConfigured
   SchulteCard {
     Text(
-      text = if (configured) "AI 增强分析" else "AI 增强分析未启用",
+      text = if (configured) {
+        stringResource(Res.string.ai_entry_enabled_title)
+      } else {
+        stringResource(Res.string.ai_entry_disabled_title)
+      },
       style = MaterialTheme.typography.titleMedium,
       fontWeight = FontWeight.SemiBold,
       color = Color(0xFF162033),
@@ -116,14 +157,14 @@ private fun AiEntryCard(
     Spacer(Modifier.height(8.dp))
     Text(
       text = if (configured) {
-        "让 AI 根据本次训练表现，生成专注力训练建议"
+        stringResource(Res.string.ai_entry_enabled_body)
       } else {
-        "配置 API Key 和 Base URL 后，可以生成个性化训练建议。不配置 AI 也可以正常使用基础训练和成绩报告。"
+        stringResource(Res.string.ai_entry_disabled_body)
       },
       color = QuietText,
     )
     AnimatedVisibility(state.aiAnalysisState == AiAnalysisState.NeedsSettings) {
-      Text("请先完成 AI 配置", color = WarningAmber, modifier = Modifier.padding(top = 8.dp))
+      Text(stringResource(Res.string.ai_needs_settings), color = WarningAmber, modifier = Modifier.padding(top = 8.dp))
     }
     Spacer(Modifier.height(12.dp))
     Button(
@@ -139,14 +180,14 @@ private fun AiEntryCard(
     ) {
       Text(
         when {
-          state.aiAnalysisState == AiAnalysisState.Loading -> "分析中..."
-          configured -> "生成 AI 分析"
-          else -> "前往设置"
+          state.aiAnalysisState == AiAnalysisState.Loading -> stringResource(Res.string.ai_analyzing)
+          configured -> stringResource(Res.string.action_generate_ai_analysis)
+          else -> stringResource(Res.string.action_open_settings)
         },
       )
     }
     Spacer(Modifier.height(8.dp))
-    Text("AI 建议仅供训练参考，不作为医学或心理诊断", color = QuietText, fontSize = 12.sp)
+    Text(stringResource(Res.string.ai_disclaimer), color = QuietText, fontSize = 12.sp)
   }
 }
 
@@ -159,9 +200,9 @@ private fun ResultHeroCard(report: TrainingReport) {
       verticalAlignment = Alignment.Top,
     ) {
       Column {
-        Text("完成时间", color = QuietText)
+        Text(stringResource(Res.string.report_elapsed_time), color = QuietText)
         Text(
-          text = formatSeconds(report.elapsedMillis),
+          text = formatSecondsText(report.elapsedMillis),
           fontSize = 40.sp,
           fontWeight = FontWeight.Bold,
           color = Color(0xFF14213D),
@@ -172,11 +213,11 @@ private fun ResultHeroCard(report: TrainingReport) {
     Spacer(Modifier.height(8.dp))
     Text(
       text = when (report.scoreLevel) {
-        ScoreLevel.Excellent -> "你的视觉搜索速度表现很好"
-        ScoreLevel.Good -> "你的完成速度较好，保持稳定节奏"
-        ScoreLevel.Pass -> "已达到基础完成标准"
-        ScoreLevel.Below -> "建议先放慢节奏，优先保证准确"
-        ScoreLevel.Practice -> "辅助模式成绩仅供练习参考"
+        ScoreLevel.Excellent -> stringResource(Res.string.score_excellent_message)
+        ScoreLevel.Good -> stringResource(Res.string.score_good_message)
+        ScoreLevel.Pass -> stringResource(Res.string.score_pass_message)
+        ScoreLevel.Below -> stringResource(Res.string.score_below_message)
+        ScoreLevel.Practice -> stringResource(Res.string.score_practice_message)
       },
       color = QuietText,
     )
@@ -186,12 +227,15 @@ private fun ResultHeroCard(report: TrainingReport) {
 @Composable
 private fun ReportOverview(report: TrainingReport) {
   SchulteCard {
-    SectionTitle("数据概览")
-    KeyValueRow("方格规格", report.gridSpec.title)
-    KeyValueRow("年龄段", report.ageGroup.title)
-    KeyValueRow("训练模式", report.markMode.title)
-    KeyValueRow("错误次数", "${report.errorCount} 次")
-    KeyValueRow("完成时间", formatSeconds(report.elapsedMillis))
-    KeyValueRow("是否正式成绩", if (report.isOfficialScore) "是" else "否")
+    SectionTitle(stringResource(Res.string.section_report_overview))
+    KeyValueRow(stringResource(Res.string.report_grid_spec), report.gridSpec.titleText())
+    KeyValueRow(stringResource(Res.string.report_age_group), report.ageGroup.titleText())
+    KeyValueRow(stringResource(Res.string.report_training_mode), report.markMode.titleText())
+    KeyValueRow(stringResource(Res.string.report_error_count), stringResource(Res.string.count_times, report.errorCount))
+    KeyValueRow(stringResource(Res.string.report_elapsed_time), formatSecondsText(report.elapsedMillis))
+    KeyValueRow(
+      stringResource(Res.string.report_is_official_score),
+      if (report.isOfficialScore) stringResource(Res.string.yes) else stringResource(Res.string.no),
+    )
   }
 }

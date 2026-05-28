@@ -13,7 +13,7 @@ data class SchulteState(
   val report: TrainingReport? = null,
   val aiSettings: AiSettings = AiSettings(),
   val apiKeyVisible: Boolean = false,
-  val settingsMessage: String? = null,
+  val settingsMessage: SettingsMessage? = null,
   val aiAnalysis: AiAnalysis? = null,
   val aiAnalysisState: AiAnalysisState = AiAnalysisState.Idle,
 )

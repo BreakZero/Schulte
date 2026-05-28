@@ -64,7 +64,7 @@ internal fun ScoreBadge(scoreLevel: ScoreLevel) {
       .padding(horizontal = 14.dp, vertical = 7.dp),
     contentAlignment = Alignment.Center,
   ) {
-    Text(scoreLevel.title, color = color, fontWeight = FontWeight.SemiBold)
+    Text(scoreLevel.titleText(), color = color, fontWeight = FontWeight.SemiBold)
   }
 }
 
@@ -154,8 +154,8 @@ internal fun ModeCard(
           .border(1.dp, if (selected) FocusBlue else QuietText, CircleShape),
       )
       Column {
-        Text(mode.title, fontWeight = FontWeight.SemiBold, color = Color(0xFF172033))
-        Text(mode.description, color = QuietText, fontSize = 13.sp)
+        Text(mode.titleText(), fontWeight = FontWeight.SemiBold, color = Color(0xFF172033))
+        Text(mode.descriptionText(), color = QuietText, fontSize = 13.sp)
       }
     }
   }
@@ -242,7 +242,6 @@ internal fun SectionTitle(text: String) {
 @Composable
 internal fun SchulteScaffold(
   title: String,
-  navigationText: String? = null,
   onNavigationClick: (() -> Unit)? = null,
   actions: @Composable RowScope.() -> Unit = {},
   content: @Composable () -> Unit,
@@ -289,12 +288,6 @@ internal fun formatTimer(millis: Long): String {
   val seconds = (totalCentis / 100) % 60
   val centis = totalCentis % 100
   return "${minutes.twoDigits()}:${seconds.twoDigits()}.${centis.twoDigits()}"
-}
-
-internal fun formatSeconds(millis: Long): String {
-  val seconds = millis / 1000
-  val centis = (millis % 1000) / 10
-  return "$seconds.${centis.twoDigits()} 秒"
 }
 
 internal fun Long.twoDigits(): String = if (this < 10) "0$this" else toString()

@@ -37,6 +37,18 @@ import org.easy.schulte.core.ui.QuietText
 import org.easy.schulte.core.ui.SchulteScaffold
 import org.easy.schulte.core.ui.StatCard
 import org.easy.schulte.core.ui.formatTimer
+import org.easy.schulte.core.ui.trainingTitleText
+import org.jetbrains.compose.resources.stringResource
+import schulte.shared.generated.resources.Res
+import schulte.shared.generated.resources.action_exit_training
+import schulte.shared.generated.resources.action_restart
+import schulte.shared.generated.resources.count_times
+import schulte.shared.generated.resources.training_assist_body
+import schulte.shared.generated.resources.training_assist_title
+import schulte.shared.generated.resources.training_current_target
+import schulte.shared.generated.resources.training_current_target_value
+import schulte.shared.generated.resources.training_error
+import schulte.shared.generated.resources.training_timer
 
 @Composable
 internal fun TrainingScreen(
@@ -44,8 +56,7 @@ internal fun TrainingScreen(
   onAction: (TrainingAction) -> Unit,
 ) {
   SchulteScaffold(
-    title = state.selectedMarkMode.title.replace("模式", "训练"),
-    navigationText = "返回",
+    title = state.selectedMarkMode.trainingTitleText(),
     onNavigationClick = { onAction(TrainingAction.ExitTraining) },
   ) {
     Column(
@@ -58,12 +69,23 @@ internal fun TrainingScreen(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
       ) {
-        StatCard("当前目标", "请点击 ${state.currentTarget}", Modifier.weight(1.2f))
-        StatCard("计时", formatTimer(state.elapsedMillis), Modifier.weight(1f))
-        StatCard("错误", "${state.errorCount} 次", Modifier.weight(1f))
+        StatCard(
+          stringResource(Res.string.training_current_target),
+          stringResource(Res.string.training_current_target_value, state.currentTarget),
+          Modifier.weight(1.2f),
+        )
+        StatCard(stringResource(Res.string.training_timer), formatTimer(state.elapsedMillis), Modifier.weight(1f))
+        StatCard(
+          stringResource(Res.string.training_error),
+          stringResource(Res.string.count_times, state.errorCount),
+          Modifier.weight(1f),
+        )
       }
       if (state.selectedMarkMode == MarkMode.AssistedMarking) {
-        InfoCard(title = "辅助模式", body = "已点击数字会弱化显示，成绩仅供练习参考")
+        InfoCard(
+          title = stringResource(Res.string.training_assist_title),
+          body = stringResource(Res.string.training_assist_body),
+        )
       }
       SchulteGrid(state = state, onCellClick = { onAction(TrainingAction.CellClick(it)) })
       Spacer(Modifier.weight(1f))
@@ -75,7 +97,7 @@ internal fun TrainingScreen(
             .height(48.dp),
           shape = RoundedCornerShape(8.dp),
         ) {
-          Text("重新开始")
+          Text(stringResource(Res.string.action_restart))
         }
         OutlinedButton(
           onClick = { onAction(TrainingAction.ExitTraining) },
@@ -84,7 +106,7 @@ internal fun TrainingScreen(
             .height(48.dp),
           shape = RoundedCornerShape(8.dp),
         ) {
-          Text("退出训练")
+          Text(stringResource(Res.string.action_exit_training))
         }
       }
     }

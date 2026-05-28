@@ -33,10 +33,11 @@ internal class AdviceViewModel(
     updateState { it.copy(aiAnalysisState = AiAnalysisState.Loading) }
     scope.launch {
       delay(700)
+      val analysis = createLocalAiAnalysis(report)
       updateState {
         it.copy(
           aiAnalysisState = AiAnalysisState.Success,
-          aiAnalysis = createLocalAiAnalysis(report),
+          aiAnalysis = analysis,
         )
       }
       onAiAnalysisCompleted()

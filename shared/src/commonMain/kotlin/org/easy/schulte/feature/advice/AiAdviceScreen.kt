@@ -25,6 +25,20 @@ import org.easy.schulte.core.ui.KeyValueRow
 import org.easy.schulte.core.ui.SchulteCard
 import org.easy.schulte.core.ui.SchulteScaffold
 import org.easy.schulte.core.ui.SectionTitle
+import org.jetbrains.compose.resources.stringResource
+import schulte.shared.generated.resources.Res
+import schulte.shared.generated.resources.action_back_report
+import schulte.shared.generated.resources.action_train_again
+import schulte.shared.generated.resources.advice_error_count
+import schulte.shared.generated.resources.advice_errors
+import schulte.shared.generated.resources.advice_recommended_spec
+import schulte.shared.generated.resources.advice_speed
+import schulte.shared.generated.resources.advice_summary
+import schulte.shared.generated.resources.advice_target_time
+import schulte.shared.generated.resources.advice_title
+import schulte.shared.generated.resources.bullet_item
+import schulte.shared.generated.resources.section_next_goal
+import schulte.shared.generated.resources.section_training_suggestions
 
 @Composable
 internal fun AiAdviceScreen(
@@ -33,8 +47,7 @@ internal fun AiAdviceScreen(
 ) {
   val analysis = state.aiAnalysis ?: return
   SchulteScaffold(
-    title = "AI 训练建议",
-    navigationText = "报告",
+    title = stringResource(Res.string.advice_title),
     onNavigationClick = { onAction(AdviceAction.BackToReport) },
   ) {
     Column(
@@ -44,19 +57,19 @@ internal fun AiAdviceScreen(
         .padding(20.dp),
       verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-      InfoCard("本次表现总结", analysis.summary)
-      InfoCard("速度表现", analysis.speed)
-      InfoCard("错误情况", analysis.errors)
+      InfoCard(stringResource(Res.string.advice_summary), analysis.summary)
+      InfoCard(stringResource(Res.string.advice_speed), analysis.speed)
+      InfoCard(stringResource(Res.string.advice_errors), analysis.errors)
       SchulteCard {
-        SectionTitle("下一次目标")
-        KeyValueRow("目标时间", analysis.nextTimeGoal)
-        KeyValueRow("错误次数", analysis.nextErrorGoal)
-        KeyValueRow("推荐规格", analysis.recommendedSpec)
+        SectionTitle(stringResource(Res.string.section_next_goal))
+        KeyValueRow(stringResource(Res.string.advice_target_time), analysis.nextTimeGoal)
+        KeyValueRow(stringResource(Res.string.advice_error_count), analysis.nextErrorGoal)
+        KeyValueRow(stringResource(Res.string.advice_recommended_spec), analysis.recommendedSpec)
       }
       SchulteCard {
-        SectionTitle("增强训练建议")
+        SectionTitle(stringResource(Res.string.section_training_suggestions))
         analysis.suggestions.forEach {
-          Text("• $it", color = Color(0xFF223044), modifier = Modifier.padding(top = 8.dp))
+          Text(stringResource(Res.string.bullet_item, it), color = Color(0xFF223044), modifier = Modifier.padding(top = 8.dp))
         }
       }
       Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
@@ -68,7 +81,7 @@ internal fun AiAdviceScreen(
           colors = ButtonDefaults.buttonColors(containerColor = FocusBlue),
           shape = RoundedCornerShape(8.dp),
         ) {
-          Text("再练一次")
+          Text(stringResource(Res.string.action_train_again))
         }
         OutlinedButton(
           onClick = { onAction(AdviceAction.BackToReport) },
@@ -77,7 +90,7 @@ internal fun AiAdviceScreen(
             .height(50.dp),
           shape = RoundedCornerShape(8.dp),
         ) {
-          Text("返回报告")
+          Text(stringResource(Res.string.action_back_report))
         }
       }
     }

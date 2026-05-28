@@ -4,6 +4,7 @@ import org.easy.schulte.core.model.AiAnalysisState
 import org.easy.schulte.core.model.AiSettings
 import org.easy.schulte.core.model.MarkMode
 import org.easy.schulte.core.model.SchulteState
+import org.easy.schulte.core.model.SettingsMessage
 
 internal class SettingsViewModel(
   private val state: () -> SchulteState,
@@ -31,7 +32,7 @@ internal class SettingsViewModel(
       SettingsAction.ClearAiSettings -> updateState {
         it.copy(
           aiSettings = it.aiSettings.copy(aiEnabled = false, apiKey = "", baseUrl = "", modelName = "gpt-4o-mini"),
-          settingsMessage = "AI 配置已清除",
+          settingsMessage = SettingsMessage.AiCleared,
           aiAnalysisState = AiAnalysisState.Idle,
           aiAnalysis = null,
         )
@@ -39,7 +40,7 @@ internal class SettingsViewModel(
 
       SettingsAction.SaveSettings -> updateState {
         it.copy(
-          settingsMessage = "设置已保存",
+          settingsMessage = SettingsMessage.Saved,
           selectedMarkMode = if (it.aiSettings.assistedMarkingEnabled) {
             MarkMode.AssistedMarking
           } else {
@@ -57,13 +58,13 @@ internal class SettingsViewModel(
   private fun testAiConnection() {
     val settings = state().aiSettings
     val message = if (!settings.aiEnabled) {
-      "请先启用 AI 分析"
+      SettingsMessage.EnableAiFirst
     } else if (settings.apiKey.isBlank() || settings.baseUrl.isBlank()) {
-      "请填写 API Key 和 Base URL"
+      SettingsMessage.MissingApiConfig
     } else if (settings.modelName.isBlank()) {
-      "请填写模型名称"
+      SettingsMessage.MissingModel
     } else {
-      "连接配置可用"
+      SettingsMessage.ConnectionAvailable
     }
     updateState { it.copy(settingsMessage = message) }
   }

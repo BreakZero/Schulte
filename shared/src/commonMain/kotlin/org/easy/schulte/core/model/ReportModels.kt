@@ -1,11 +1,11 @@
 package org.easy.schulte.core.model
 
-enum class ScoreLevel(val title: String) {
-  Excellent("优"),
-  Good("良"),
-  Pass("及格"),
-  Below("未达标"),
-  Practice("练习参考"),
+enum class ScoreLevel {
+  Excellent,
+  Good,
+  Pass,
+  Below,
+  Practice,
 }
 
 data class TrainingReport(
