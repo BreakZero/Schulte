@@ -39,16 +39,7 @@ import org.easy.schulte.core.ui.StatCard
 import org.easy.schulte.core.ui.formatTimer
 import org.easy.schulte.core.ui.trainingTitleText
 import org.jetbrains.compose.resources.stringResource
-import schulte.shared.generated.resources.Res
-import schulte.shared.generated.resources.action_exit_training
-import schulte.shared.generated.resources.action_restart
-import schulte.shared.generated.resources.count_times
-import schulte.shared.generated.resources.training_assist_body
-import schulte.shared.generated.resources.training_assist_title
-import schulte.shared.generated.resources.training_current_target
-import schulte.shared.generated.resources.training_current_target_value
-import schulte.shared.generated.resources.training_error
-import schulte.shared.generated.resources.training_timer
+import schulte.shared.generated.resources.*
 
 @Composable
 internal fun TrainingScreen(

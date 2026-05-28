@@ -26,19 +26,7 @@ import org.easy.schulte.core.ui.SchulteCard
 import org.easy.schulte.core.ui.SchulteScaffold
 import org.easy.schulte.core.ui.SectionTitle
 import org.jetbrains.compose.resources.stringResource
-import schulte.shared.generated.resources.Res
-import schulte.shared.generated.resources.action_back_report
-import schulte.shared.generated.resources.action_train_again
-import schulte.shared.generated.resources.advice_error_count
-import schulte.shared.generated.resources.advice_errors
-import schulte.shared.generated.resources.advice_recommended_spec
-import schulte.shared.generated.resources.advice_speed
-import schulte.shared.generated.resources.advice_summary
-import schulte.shared.generated.resources.advice_target_time
-import schulte.shared.generated.resources.advice_title
-import schulte.shared.generated.resources.bullet_item
-import schulte.shared.generated.resources.section_next_goal
-import schulte.shared.generated.resources.section_training_suggestions
+import schulte.shared.generated.resources.*
 
 @Composable
 internal fun AiAdviceScreen(

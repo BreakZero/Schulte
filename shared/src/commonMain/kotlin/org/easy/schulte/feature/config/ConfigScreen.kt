@@ -40,17 +40,7 @@ import org.easy.schulte.core.ui.difficultyText
 import org.easy.schulte.core.ui.titleText
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import schulte.shared.generated.resources.Res
-import schulte.shared.generated.resources.action_start_training
-import schulte.shared.generated.resources.app_title
-import schulte.shared.generated.resources.config_daily_tip_body
-import schulte.shared.generated.resources.config_daily_tip_title
-import schulte.shared.generated.resources.config_headline
-import schulte.shared.generated.resources.config_subtitle
-import schulte.shared.generated.resources.ic_settings_24
-import schulte.shared.generated.resources.section_age_group
-import schulte.shared.generated.resources.section_grid_spec
-import schulte.shared.generated.resources.section_training_mode
+import schulte.shared.generated.resources.*
 
 @Composable
 internal fun ConfigScreen(

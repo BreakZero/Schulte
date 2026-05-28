@@ -43,8 +43,7 @@ import androidx.compose.ui.unit.sp
 import org.easy.schulte.core.model.MarkMode
 import org.easy.schulte.core.model.ScoreLevel
 import org.jetbrains.compose.resources.painterResource
-import schulte.shared.generated.resources.Res
-import schulte.shared.generated.resources.ic_arrow_back_24
+import schulte.shared.generated.resources.*
 
 @Composable
 internal fun ScoreBadge(scoreLevel: ScoreLevel) {

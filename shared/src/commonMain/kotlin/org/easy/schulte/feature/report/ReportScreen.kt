@@ -1,9 +1,7 @@
 package org.easy.schulte.feature.report
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -28,11 +25,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.easy.schulte.core.model.AiAnalysisState
-import org.easy.schulte.core.model.MarkMode
 import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.model.ScoreLevel
 import org.easy.schulte.core.model.TrainingReport
-import org.easy.schulte.core.ui.ErrorRed
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.FocusTeal
 import org.easy.schulte.core.ui.InfoCard
@@ -46,38 +41,7 @@ import org.easy.schulte.core.ui.WarningAmber
 import org.easy.schulte.core.ui.formatSecondsText
 import org.easy.schulte.core.ui.titleText
 import org.jetbrains.compose.resources.stringResource
-import schulte.shared.generated.resources.Res
-import schulte.shared.generated.resources.action_back_home
-import schulte.shared.generated.resources.action_generate_ai_analysis
-import schulte.shared.generated.resources.action_open_settings
-import schulte.shared.generated.resources.action_try_again
-import schulte.shared.generated.resources.ai_analyzing
-import schulte.shared.generated.resources.ai_disclaimer
-import schulte.shared.generated.resources.ai_entry_disabled_body
-import schulte.shared.generated.resources.ai_entry_disabled_title
-import schulte.shared.generated.resources.ai_entry_enabled_body
-import schulte.shared.generated.resources.ai_entry_enabled_title
-import schulte.shared.generated.resources.ai_needs_settings
-import schulte.shared.generated.resources.count_times
-import schulte.shared.generated.resources.no
-import schulte.shared.generated.resources.report_age_group
-import schulte.shared.generated.resources.report_completion_summary
-import schulte.shared.generated.resources.report_elapsed_time
-import schulte.shared.generated.resources.report_error_count
-import schulte.shared.generated.resources.report_grid_spec
-import schulte.shared.generated.resources.report_is_official_score
-import schulte.shared.generated.resources.report_score_note_official
-import schulte.shared.generated.resources.report_score_note_practice
-import schulte.shared.generated.resources.report_score_note_title
-import schulte.shared.generated.resources.report_title
-import schulte.shared.generated.resources.report_training_mode
-import schulte.shared.generated.resources.score_below_message
-import schulte.shared.generated.resources.score_excellent_message
-import schulte.shared.generated.resources.score_good_message
-import schulte.shared.generated.resources.score_pass_message
-import schulte.shared.generated.resources.score_practice_message
-import schulte.shared.generated.resources.section_report_overview
-import schulte.shared.generated.resources.yes
+import schulte.shared.generated.resources.*
 
 @Composable
 internal fun ReportScreen(

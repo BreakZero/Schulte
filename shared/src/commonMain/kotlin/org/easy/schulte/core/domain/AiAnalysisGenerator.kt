@@ -7,31 +7,7 @@ import org.easy.schulte.core.model.ScoreLevel
 import org.easy.schulte.core.model.TrainingReport
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
-import schulte.shared.generated.resources.Res
-import schulte.shared.generated.resources.grid_spec_five_title
-import schulte.shared.generated.resources.grid_spec_four_title
-import schulte.shared.generated.resources.grid_spec_seven_title
-import schulte.shared.generated.resources.grid_spec_three_title
-import schulte.shared.generated.resources.local_ai_errors_none
-import schulte.shared.generated.resources.local_ai_errors_with_count
-import schulte.shared.generated.resources.local_ai_next_error_goal_none
-import schulte.shared.generated.resources.local_ai_next_error_goal_with_count
-import schulte.shared.generated.resources.local_ai_next_time_goal
-import schulte.shared.generated.resources.local_ai_recommended_spec
-import schulte.shared.generated.resources.local_ai_speed_excellent
-import schulte.shared.generated.resources.local_ai_speed_improvable
-import schulte.shared.generated.resources.local_ai_suggestion_accuracy_first
-import schulte.shared.generated.resources.local_ai_suggestion_daily
-import schulte.shared.generated.resources.local_ai_suggestion_upgrade
-import schulte.shared.generated.resources.local_ai_summary
-import schulte.shared.generated.resources.mark_mode_assisted_title
-import schulte.shared.generated.resources.mark_mode_standard_title
-import schulte.shared.generated.resources.score_level_below
-import schulte.shared.generated.resources.score_level_excellent
-import schulte.shared.generated.resources.score_level_good
-import schulte.shared.generated.resources.score_level_pass
-import schulte.shared.generated.resources.score_level_practice
-import schulte.shared.generated.resources.seconds_format
+import schulte.shared.generated.resources.*
 
 internal suspend fun createLocalAiAnalysis(report: TrainingReport): AiAnalysis {
   val target = report.nextTargetSeconds ?: report.elapsedSeconds.toInt().coerceAtLeast(1)

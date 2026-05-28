@@ -8,37 +8,7 @@ import org.easy.schulte.core.model.ScoreLevel
 import org.easy.schulte.core.model.SettingsMessage
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import schulte.shared.generated.resources.Res
-import schulte.shared.generated.resources.age_group_adult
-import schulte.shared.generated.resources.age_group_child
-import schulte.shared.generated.resources.age_group_junior
-import schulte.shared.generated.resources.age_group_teen
-import schulte.shared.generated.resources.grid_spec_five_difficulty
-import schulte.shared.generated.resources.grid_spec_five_title
-import schulte.shared.generated.resources.grid_spec_four_difficulty
-import schulte.shared.generated.resources.grid_spec_four_title
-import schulte.shared.generated.resources.grid_spec_seven_difficulty
-import schulte.shared.generated.resources.grid_spec_seven_title
-import schulte.shared.generated.resources.grid_spec_three_difficulty
-import schulte.shared.generated.resources.grid_spec_three_title
-import schulte.shared.generated.resources.mark_mode_assisted_description
-import schulte.shared.generated.resources.mark_mode_assisted_title
-import schulte.shared.generated.resources.mark_mode_assisted_training_title
-import schulte.shared.generated.resources.mark_mode_standard_description
-import schulte.shared.generated.resources.mark_mode_standard_title
-import schulte.shared.generated.resources.mark_mode_standard_training_title
-import schulte.shared.generated.resources.score_level_below
-import schulte.shared.generated.resources.score_level_excellent
-import schulte.shared.generated.resources.score_level_good
-import schulte.shared.generated.resources.score_level_pass
-import schulte.shared.generated.resources.score_level_practice
-import schulte.shared.generated.resources.seconds_format
-import schulte.shared.generated.resources.settings_message_ai_cleared
-import schulte.shared.generated.resources.settings_message_connection_available
-import schulte.shared.generated.resources.settings_message_enable_ai_first
-import schulte.shared.generated.resources.settings_message_missing_api_config
-import schulte.shared.generated.resources.settings_message_missing_model
-import schulte.shared.generated.resources.settings_message_saved
+import schulte.shared.generated.resources.*
 
 @Composable
 internal fun GridSpec.titleText(): String = stringResource(titleResource)

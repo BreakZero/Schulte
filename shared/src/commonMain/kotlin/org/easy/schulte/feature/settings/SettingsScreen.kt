@@ -39,30 +39,7 @@ import org.easy.schulte.core.ui.SwitchRow
 import org.easy.schulte.core.ui.text
 import org.easy.schulte.core.ui.titleText
 import org.jetbrains.compose.resources.stringResource
-import schulte.shared.generated.resources.Res
-import schulte.shared.generated.resources.action_clear_config
-import schulte.shared.generated.resources.action_hide
-import schulte.shared.generated.resources.action_save_settings
-import schulte.shared.generated.resources.action_show
-import schulte.shared.generated.resources.action_test_connection
-import schulte.shared.generated.resources.section_ai_settings
-import schulte.shared.generated.resources.section_training_settings
-import schulte.shared.generated.resources.settings_ai_enabled_subtitle
-import schulte.shared.generated.resources.settings_ai_enabled_title
-import schulte.shared.generated.resources.settings_api_key
-import schulte.shared.generated.resources.settings_api_key_placeholder
-import schulte.shared.generated.resources.settings_assist_subtitle
-import schulte.shared.generated.resources.settings_assist_title
-import schulte.shared.generated.resources.settings_base_url
-import schulte.shared.generated.resources.settings_base_url_placeholder
-import schulte.shared.generated.resources.settings_default_age_group
-import schulte.shared.generated.resources.settings_default_grid
-import schulte.shared.generated.resources.settings_default_mark_mode
-import schulte.shared.generated.resources.settings_model_name
-import schulte.shared.generated.resources.settings_model_name_placeholder
-import schulte.shared.generated.resources.settings_privacy_body
-import schulte.shared.generated.resources.settings_privacy_title
-import schulte.shared.generated.resources.settings_title
+import schulte.shared.generated.resources.*
 
 @Composable
 internal fun SettingsScreen(
