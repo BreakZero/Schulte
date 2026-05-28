@@ -1,24 +1,130 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# 舒尔特方格训练
 
-* [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+一个基于 Kotlin Multiplatform + Compose Multiplatform 开发的移动端舒尔特方格训练 App，当前聚焦 MVP 阶段的核心训练闭环：配置训练参数、完成数字点击训练、查看训练报告并重新开始。
 
-* [/shared](./shared/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./shared/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./shared/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./shared/src/jvmMain/kotlin)
-    folder is the appropriate location.
+项目需求文档位于 [docs/舒尔特方格训练_需求文档_V0.1.md](./docs/%E8%88%92%E5%B0%94%E7%89%B9%E6%96%B9%E6%A0%BC%E8%AE%AD%E7%BB%83_%E9%9C%80%E6%B1%82%E6%96%87%E6%A1%A3_V0.1.md)。
 
-### Running the apps
+## 项目目标
 
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
+舒尔特方格是一种常见的注意力、视觉搜索和反应速度训练方式。用户需要在随机打乱的数字方格中，从 `1` 开始按顺序点击到最后一个数字。
 
-- Android app: `./gradlew :androidApp:assembleDebug`
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+当前版本目标是让用户完成一次完整训练流程：
 
----
+`训练配置 -> 开始训练 -> 顺序点击 -> 完成计时 -> 查看训练报告 -> 再来一次 / 返回首页`
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+## 当前实现
+
+已实现功能：
+
+- 首页训练配置
+- 方格规格选择：`3x3`、`4x4`、`5x5`、`7x7`
+- 年龄段选择：`3~5岁`、`6~10岁`、`11~17岁`、`18岁以上`
+- 随机数字方格生成
+- 按顺序点击校验，仅允许从 `1` 到 `N` 递增完成
+- 训练过程实时计时，界面显示到 `0.01s` 精度
+- 错误次数统计与错误点击提示
+- 训练报告页展示完成时间、错误次数、方格规格、年龄段和成绩等级
+- 支持“再来一次”和“返回首页”
+- 首页展示当前规格与年龄段对应的评分标准
+
+在需求文档基础上的额外实现：
+
+- 训练模式选择：`标准模式`、`辅助模式`
+- 训练报告支持跳转设置并生成本地 AI 训练建议
+
+## 评分规则
+
+当前评分逻辑与需求文档保持一致，以“方格规格 + 年龄段 + 完成时间”计算等级：
+
+- `优`
+- `良`
+- `及格`
+- `待提升`
+
+说明：
+
+- 错误次数当前仅作为辅助展示指标，不直接参与等级计算
+- 评分标准已内置在共享模型中，覆盖 `3x3`、`4x4`、`5x5`、`7x7` 与全部年龄段组合
+
+## 当前未包含
+
+根据 `docs` 中的 MVP 范围，以下能力仍未纳入当前版本：
+
+- 登录 / 注册
+- 排行榜
+- 历史记录持久化
+- 训练计划与提醒
+- 社区能力
+- 商业化能力
+- 复杂音效与游戏化系统
+
+## 技术栈
+
+- Kotlin Multiplatform
+- Compose Multiplatform
+- Material 3
+- Kotlinx Serialization
+- AndroidX Navigation 3
+- AndroidX SavedState
+
+## 项目结构
+
+```text
+.
+├── shared/            # 共享 Compose UI、状态、模型与业务逻辑
+│   └── src/commonMain/kotlin/org/easy/schulte
+│       ├── feature/home      # 首页 / 配置页
+│       ├── feature/training  # 训练页
+│       ├── feature/report    # 训练报告页
+│       ├── model             # 训练配置、评分标准、结果模型
+│       ├── components        # 通用组件
+│       └── theme             # 主题与颜色定义
+├── androidApp/        # Android 应用入口、Manifest 与平台资源
+├── iosApp/            # iOS 入口工程
+└── docs/              # 需求文档
+```
+
+## 运行方式
+
+### Android
+
+在 macOS / Linux 下：
+
+```bash
+./gradlew :androidApp:assembleDebug
+```
+
+在 Windows 下：
+
+```bash
+.\gradlew.bat :androidApp:assembleDebug
+```
+
+也可以直接使用 Android Studio 运行 Android 目标。
+
+### iOS
+
+使用 Xcode 打开 [`iosApp`](./iosApp) 工程并运行，或通过 IDE 中的 iOS 目标配置启动。
+
+## 默认训练配置
+
+当前默认配置与需求文档一致：
+
+- 方格规格：`5x5`
+- 年龄段：`18岁以上`
+- 训练模式：`标准模式`
+
+## 实现说明
+
+- 首页、训练页、训练报告页均使用共享 `commonMain` 代码实现
+- 路由流转为 `Home -> Training -> Report`
+- 每局训练都会重新随机打乱数字
+- 训练完成后会保留当前配置，方便快速继续下一轮
+
+## 后续可扩展方向
+
+- 增加训练记录存储与历史回顾
+- 为错误次数引入评分惩罚机制
+- 增加暂停 / 恢复与后台切换策略
+- 增加更完整的测试覆盖
+- 增加排行榜或阶段性训练计划
