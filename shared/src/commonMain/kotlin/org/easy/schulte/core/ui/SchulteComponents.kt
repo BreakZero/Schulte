@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +24,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -41,6 +44,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.easy.schulte.core.model.MarkMode
 import org.easy.schulte.core.model.ScoreLevel
+import org.easy.schulte.feature.settings.SettingsAction
+import org.jetbrains.compose.resources.painterResource
+import schulte.shared.generated.resources.Res
+import schulte.shared.generated.resources.ic_arrow_back_24
 
 @Composable
 internal fun ScoreBadge(scoreLevel: ScoreLevel) {
@@ -64,7 +71,12 @@ internal fun ScoreBadge(scoreLevel: ScoreLevel) {
 @Composable
 internal fun InfoCard(title: String, body: String) {
   SchulteCard {
-    Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = Color(0xFF162033))
+    Text(
+      title,
+      style = MaterialTheme.typography.titleMedium,
+      fontWeight = FontWeight.SemiBold,
+      color = Color(0xFF162033)
+    )
     Spacer(Modifier.height(6.dp))
     Text(body, color = QuietText, lineHeight = 21.sp)
   }
@@ -185,7 +197,12 @@ internal fun KeyValueRow(label: String, value: String) {
   ) {
     Text(label, color = QuietText)
     Spacer(Modifier.width(16.dp))
-    Text(value, color = Color(0xFF172033), fontWeight = FontWeight.Medium, textAlign = TextAlign.End)
+    Text(
+      value,
+      color = Color(0xFF172033),
+      fontWeight = FontWeight.Medium,
+      textAlign = TextAlign.End
+    )
   }
 }
 
@@ -227,40 +244,40 @@ internal fun SchulteScaffold(
   title: String,
   navigationText: String? = null,
   onNavigationClick: (() -> Unit)? = null,
-  actionText: String? = null,
-  onActionClick: (() -> Unit)? = null,
+  actions: @Composable RowScope.() -> Unit = {},
   content: @Composable () -> Unit,
 ) {
   Scaffold(
     modifier = Modifier
-      .fillMaxSize()
-      .safeContentPadding(),
+      .fillMaxSize(),
     containerColor = PageBackground,
     contentWindowInsets = WindowInsets(),
     topBar = {
       TopAppBar(
         title = {
-          Text(title, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+          Text(
+            title,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+          )
         },
         navigationIcon = {
-          if (navigationText != null && onNavigationClick != null) {
-            TextButton(onClick = onNavigationClick) {
-              Text(navigationText)
+          if (onNavigationClick != null) {
+            IconButton(onClick = onNavigationClick) {
+              Icon(
+                painter = painterResource(Res.drawable.ic_arrow_back_24),
+                contentDescription = null,
+              )
             }
           }
         },
-        actions = {
-          if (actionText != null && onActionClick != null) {
-            TextButton(onClick = onActionClick) {
-              Text(actionText)
-            }
-          }
-        },
+        actions = actions,
         colors = TopAppBarDefaults.topAppBarColors(containerColor = PageBackground),
       )
     },
   ) { padding ->
-    Box(Modifier.padding(padding)) {
+    Box(Modifier.padding(padding).padding(vertical = 16.dp)) {
       content()
     }
   }

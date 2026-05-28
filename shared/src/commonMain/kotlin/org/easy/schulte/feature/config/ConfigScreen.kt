@@ -15,6 +15,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +36,9 @@ import org.easy.schulte.core.ui.QuietText
 import org.easy.schulte.core.ui.SchulteScaffold
 import org.easy.schulte.core.ui.SectionTitle
 import org.easy.schulte.core.ui.SelectCard
+import org.jetbrains.compose.resources.painterResource
+import schulte.shared.generated.resources.Res
+import schulte.shared.generated.resources.ic_settings_24
 
 @Composable
 internal fun ConfigScreen(
@@ -42,8 +47,14 @@ internal fun ConfigScreen(
 ) {
   SchulteScaffold(
     title = "舒尔特方格训练",
-    actionText = "设置",
-    onActionClick = { onAction(ConfigAction.OpenSettings) },
+    actions = {
+      IconButton(onClick = { onAction(ConfigAction.OpenSettings) }) {
+        Icon(
+          painter = painterResource(Res.drawable.ic_settings_24),
+          contentDescription = null,
+        )
+      }
+    }
   ) {
     Column(
       modifier = Modifier
