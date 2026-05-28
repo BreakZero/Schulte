@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -30,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -44,7 +42,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.easy.schulte.core.model.MarkMode
 import org.easy.schulte.core.model.ScoreLevel
-import org.easy.schulte.feature.settings.SettingsAction
 import org.jetbrains.compose.resources.painterResource
 import schulte.shared.generated.resources.Res
 import schulte.shared.generated.resources.ic_arrow_back_24
@@ -75,7 +72,7 @@ internal fun InfoCard(title: String, body: String) {
       title,
       style = MaterialTheme.typography.titleMedium,
       fontWeight = FontWeight.SemiBold,
-      color = Color(0xFF162033)
+      color = Color(0xFF162033),
     )
     Spacer(Modifier.height(6.dp))
     Text(body, color = QuietText, lineHeight = 21.sp)
@@ -201,7 +198,7 @@ internal fun KeyValueRow(label: String, value: String) {
       value,
       color = Color(0xFF172033),
       fontWeight = FontWeight.Medium,
-      textAlign = TextAlign.End
+      textAlign = TextAlign.End,
     )
   }
 }
@@ -258,7 +255,7 @@ internal fun SchulteScaffold(
             title,
             fontWeight = FontWeight.SemiBold,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
           )
         },
         navigationIcon = {

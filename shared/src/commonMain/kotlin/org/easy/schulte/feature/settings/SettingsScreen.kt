@@ -112,9 +112,13 @@ internal fun SettingsScreen(
             trailingIcon = {
               TextButton(onClick = { onAction(SettingsAction.ToggleApiKeyVisibility) }) {
                 Text(
-                  if (state.apiKeyVisible) stringResource(Res.string.action_hide) else stringResource(
-                    Res.string.action_show
-                  )
+                  if (state.apiKeyVisible) {
+                    stringResource(Res.string.action_hide)
+                  } else {
+                    stringResource(
+                      Res.string.action_show,
+                    )
+                  },
                 )
               }
             },
@@ -138,7 +142,7 @@ internal fun SettingsScreen(
           )
           Row(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
           ) {
             FilledTonalButton(
               onClick = { onAction(SettingsAction.TestAiConnection) },

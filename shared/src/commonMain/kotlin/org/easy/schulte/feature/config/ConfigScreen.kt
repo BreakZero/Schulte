@@ -66,7 +66,7 @@ internal fun ConfigScreen(
           contentDescription = null,
         )
       }
-    }
+    },
   ) {
     Column(
       modifier = Modifier
