@@ -38,109 +38,109 @@ import org.easy.schulte.core.ui.SwitchRow
 
 @Composable
 internal fun SettingsScreen(
-    state: SchulteState,
-    onAction: (SettingsAction) -> Unit,
+  state: SchulteState,
+  onAction: (SettingsAction) -> Unit,
 ) {
-    SchulteScaffold(
-        title = "设置",
-        navigationText = "返回",
-        onNavigationClick = { onAction(SettingsAction.BackFromSettings) },
+  SchulteScaffold(
+    title = "设置",
+    navigationText = "返回",
+    onNavigationClick = { onAction(SettingsAction.BackFromSettings) },
+  ) {
+    Column(
+      modifier = Modifier
+        .fillMaxSize()
+        .verticalScroll(rememberScrollState())
+        .padding(20.dp),
+      verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            SchulteCard {
-                SectionTitle("训练设置")
-                KeyValueRow("默认方格规格", state.selectedGrid.title)
-                KeyValueRow("默认年龄段", state.selectedAgeGroup.title)
-                KeyValueRow("默认训练模式", state.selectedMarkMode.title)
-                SwitchRow(
-                    title = "辅助模式显示已完成标记",
-                    subtitle = "开启后成绩仅作为练习参考",
-                    checked = state.aiSettings.assistedMarkingEnabled,
-                    onCheckedChange = { onAction(SettingsAction.ToggleAssistSetting(it)) },
-                )
+      SchulteCard {
+        SectionTitle("训练设置")
+        KeyValueRow("默认方格规格", state.selectedGrid.title)
+        KeyValueRow("默认年龄段", state.selectedAgeGroup.title)
+        KeyValueRow("默认训练模式", state.selectedMarkMode.title)
+        SwitchRow(
+          title = "辅助模式显示已完成标记",
+          subtitle = "开启后成绩仅作为练习参考",
+          checked = state.aiSettings.assistedMarkingEnabled,
+          onCheckedChange = { onAction(SettingsAction.ToggleAssistSetting(it)) },
+        )
+      }
+      SchulteCard {
+        SectionTitle("AI 设置")
+        SwitchRow(
+          title = "启用 AI 分析",
+          subtitle = "只影响训练后的增强报告",
+          checked = state.aiSettings.aiEnabled,
+          onCheckedChange = { onAction(SettingsAction.ToggleAiEnabled(it)) },
+        )
+        OutlinedTextField(
+          value = state.aiSettings.apiKey,
+          onValueChange = { onAction(SettingsAction.UpdateApiKey(it)) },
+          modifier = Modifier.fillMaxWidth(),
+          label = { Text("API Key") },
+          placeholder = { Text("请输入你的 API Key") },
+          visualTransformation = if (state.apiKeyVisible) VisualTransformation.None else PasswordVisualTransformation(),
+          keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+          trailingIcon = {
+            TextButton(onClick = { onAction(SettingsAction.ToggleApiKeyVisibility) }) {
+              Text(if (state.apiKeyVisible) "隐藏" else "显示")
             }
-            SchulteCard {
-                SectionTitle("AI 设置")
-                SwitchRow(
-                    title = "启用 AI 分析",
-                    subtitle = "只影响训练后的增强报告",
-                    checked = state.aiSettings.aiEnabled,
-                    onCheckedChange = { onAction(SettingsAction.ToggleAiEnabled(it)) },
-                )
-                OutlinedTextField(
-                    value = state.aiSettings.apiKey,
-                    onValueChange = { onAction(SettingsAction.UpdateApiKey(it)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("API Key") },
-                    placeholder = { Text("请输入你的 API Key") },
-                    visualTransformation = if (state.apiKeyVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    trailingIcon = {
-                        TextButton(onClick = { onAction(SettingsAction.ToggleApiKeyVisibility) }) {
-                            Text(if (state.apiKeyVisible) "隐藏" else "显示")
-                        }
-                    },
-                    singleLine = true,
-                )
-                OutlinedTextField(
-                    value = state.aiSettings.baseUrl,
-                    onValueChange = { onAction(SettingsAction.UpdateBaseUrl(it)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Base URL") },
-                    placeholder = { Text("例如：https://api.openai.com/v1") },
-                    singleLine = true,
-                )
-                OutlinedTextField(
-                    value = state.aiSettings.modelName,
-                    onValueChange = { onAction(SettingsAction.UpdateModelName(it)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("模型名称") },
-                    placeholder = { Text("例如：gpt-4o-mini") },
-                    singleLine = true,
-                )
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                    FilledTonalButton(
-                        onClick = { onAction(SettingsAction.TestAiConnection) },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(8.dp),
-                    ) {
-                        Text("测试连接")
-                    }
-                    OutlinedButton(
-                        onClick = { onAction(SettingsAction.ClearAiSettings) },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(8.dp),
-                    ) {
-                        Text("清除配置")
-                    }
-                }
-                AnimatedVisibility(state.settingsMessage != null) {
-                    Text(
-                        text = state.settingsMessage.orEmpty(),
-                        color = if (state.settingsMessage == "连接配置可用" || state.settingsMessage == "设置已保存") SuccessGreen else QuietText,
-                    )
-                }
-            }
-            InfoCard(
-                title = "隐私与说明",
-                body = "API Key 仅保存在本地设备。训练报告仅在用户点击 AI 分析时发送。AI 建议仅供训练参考，不作为医学或心理诊断。",
-            )
-            Button(
-                onClick = { onAction(SettingsAction.SaveSettings) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = FocusBlue),
-                shape = RoundedCornerShape(8.dp),
-            ) {
-                Text("保存设置")
-            }
+          },
+          singleLine = true,
+        )
+        OutlinedTextField(
+          value = state.aiSettings.baseUrl,
+          onValueChange = { onAction(SettingsAction.UpdateBaseUrl(it)) },
+          modifier = Modifier.fillMaxWidth(),
+          label = { Text("Base URL") },
+          placeholder = { Text("例如：https://api.openai.com/v1") },
+          singleLine = true,
+        )
+        OutlinedTextField(
+          value = state.aiSettings.modelName,
+          onValueChange = { onAction(SettingsAction.UpdateModelName(it)) },
+          modifier = Modifier.fillMaxWidth(),
+          label = { Text("模型名称") },
+          placeholder = { Text("例如：gpt-4o-mini") },
+          singleLine = true,
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+          FilledTonalButton(
+            onClick = { onAction(SettingsAction.TestAiConnection) },
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(8.dp),
+          ) {
+            Text("测试连接")
+          }
+          OutlinedButton(
+            onClick = { onAction(SettingsAction.ClearAiSettings) },
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(8.dp),
+          ) {
+            Text("清除配置")
+          }
         }
+        AnimatedVisibility(state.settingsMessage != null) {
+          Text(
+            text = state.settingsMessage.orEmpty(),
+            color = if (state.settingsMessage == "连接配置可用" || state.settingsMessage == "设置已保存") SuccessGreen else QuietText,
+          )
+        }
+      }
+      InfoCard(
+        title = "隐私与说明",
+        body = "API Key 仅保存在本地设备。训练报告仅在用户点击 AI 分析时发送。AI 建议仅供训练参考，不作为医学或心理诊断。",
+      )
+      Button(
+        onClick = { onAction(SettingsAction.SaveSettings) },
+        modifier = Modifier
+          .fillMaxWidth()
+          .height(52.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = FocusBlue),
+        shape = RoundedCornerShape(8.dp),
+      ) {
+        Text("保存设置")
+      }
     }
+  }
 }

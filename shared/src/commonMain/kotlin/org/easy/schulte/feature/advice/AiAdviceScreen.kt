@@ -28,58 +28,58 @@ import org.easy.schulte.core.ui.SectionTitle
 
 @Composable
 internal fun AiAdviceScreen(
-    state: SchulteState,
-    onAction: (AdviceAction) -> Unit,
+  state: SchulteState,
+  onAction: (AdviceAction) -> Unit,
 ) {
-    val analysis = state.aiAnalysis ?: return
-    SchulteScaffold(
-        title = "AI 训练建议",
-        navigationText = "报告",
-        onNavigationClick = { onAction(AdviceAction.BackToReport) },
+  val analysis = state.aiAnalysis ?: return
+  SchulteScaffold(
+    title = "AI 训练建议",
+    navigationText = "报告",
+    onNavigationClick = { onAction(AdviceAction.BackToReport) },
+  ) {
+    Column(
+      modifier = Modifier
+        .fillMaxSize()
+        .verticalScroll(rememberScrollState())
+        .padding(20.dp),
+      verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            InfoCard("本次表现总结", analysis.summary)
-            InfoCard("速度表现", analysis.speed)
-            InfoCard("错误情况", analysis.errors)
-            SchulteCard {
-                SectionTitle("下一次目标")
-                KeyValueRow("目标时间", analysis.nextTimeGoal)
-                KeyValueRow("错误次数", analysis.nextErrorGoal)
-                KeyValueRow("推荐规格", analysis.recommendedSpec)
-            }
-            SchulteCard {
-                SectionTitle("增强训练建议")
-                analysis.suggestions.forEach {
-                    Text("• $it", color = Color(0xFF223044), modifier = Modifier.padding(top = 8.dp))
-                }
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-                Button(
-                    onClick = { onAction(AdviceAction.RestartTraining) },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = FocusBlue),
-                    shape = RoundedCornerShape(8.dp),
-                ) {
-                    Text("再练一次")
-                }
-                OutlinedButton(
-                    onClick = { onAction(AdviceAction.BackToReport) },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(50.dp),
-                    shape = RoundedCornerShape(8.dp),
-                ) {
-                    Text("返回报告")
-                }
-            }
+      InfoCard("本次表现总结", analysis.summary)
+      InfoCard("速度表现", analysis.speed)
+      InfoCard("错误情况", analysis.errors)
+      SchulteCard {
+        SectionTitle("下一次目标")
+        KeyValueRow("目标时间", analysis.nextTimeGoal)
+        KeyValueRow("错误次数", analysis.nextErrorGoal)
+        KeyValueRow("推荐规格", analysis.recommendedSpec)
+      }
+      SchulteCard {
+        SectionTitle("增强训练建议")
+        analysis.suggestions.forEach {
+          Text("• $it", color = Color(0xFF223044), modifier = Modifier.padding(top = 8.dp))
         }
+      }
+      Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+        Button(
+          onClick = { onAction(AdviceAction.RestartTraining) },
+          modifier = Modifier
+            .weight(1f)
+            .height(50.dp),
+          colors = ButtonDefaults.buttonColors(containerColor = FocusBlue),
+          shape = RoundedCornerShape(8.dp),
+        ) {
+          Text("再练一次")
+        }
+        OutlinedButton(
+          onClick = { onAction(AdviceAction.BackToReport) },
+          modifier = Modifier
+            .weight(1f)
+            .height(50.dp),
+          shape = RoundedCornerShape(8.dp),
+        ) {
+          Text("返回报告")
+        }
+      }
     }
+  }
 }
