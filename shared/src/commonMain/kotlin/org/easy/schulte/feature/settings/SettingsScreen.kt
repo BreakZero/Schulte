@@ -20,11 +20,14 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.model.SettingsMessage
 import org.easy.schulte.core.ui.FocusBlue
@@ -39,7 +42,26 @@ import org.easy.schulte.core.ui.SwitchRow
 import org.easy.schulte.core.ui.text
 import org.easy.schulte.core.ui.titleText
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 import schulte.shared.generated.resources.*
+
+@Composable
+internal fun SettingsRoot(
+  onCloseSettings: () -> Unit,
+  viewModel: SettingsViewModel = koinViewModel(),
+) {
+  val state by viewModel.state.collectAsStateWithLifecycle()
+
+  LaunchedEffect(viewModel) {
+    viewModel.events.collect { event ->
+      when (event) {
+        SettingsEvent.CloseSettings -> onCloseSettings()
+      }
+    }
+  }
+
+  SettingsScreen(state = state, onAction = viewModel::onAction)
+}
 
 @Composable
 internal fun SettingsScreen(

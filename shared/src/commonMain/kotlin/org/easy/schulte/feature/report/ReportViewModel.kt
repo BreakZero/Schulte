@@ -1,37 +1,47 @@
 package org.easy.schulte.feature.report
 
-import org.easy.schulte.core.model.AiAnalysisState
-import org.easy.schulte.core.model.SchulteState
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
+import org.easy.schulte.core.data.SchulteRepository
 
 internal class ReportViewModel(
-  private val state: () -> SchulteState,
-  private val updateState: (((SchulteState) -> SchulteState) -> Unit),
-  private val restartTraining: () -> Unit,
-  private val generateAiAnalysis: () -> Unit,
-  private val backToConfig: () -> Unit,
-  private val openSettings: () -> Unit,
-) {
+  private val repository: SchulteRepository,
+) : ViewModel() {
+  val state = repository.state
+
+  private val _events = Channel<ReportEvent>()
+  val events = _events.receiveAsFlow()
+
   fun onAction(action: ReportAction) {
     when (action) {
-      ReportAction.RestartTraining -> restartTraining()
+      ReportAction.RestartTraining -> sendEvent(ReportEvent.RestartTraining)
 
       ReportAction.BackToConfig -> {
-        updateState { it.copy(lastFeedback = null) }
-        backToConfig()
+        repository.exitTraining()
+        sendEvent(ReportEvent.BackToConfig)
       }
 
       ReportAction.OpenSettings -> {
-        updateState { it.copy(settingsMessage = null) }
-        openSettings()
+        repository.clearSettingsMessage()
+        sendEvent(ReportEvent.OpenSettings)
       }
 
       ReportAction.GenerateAiAnalysis -> {
-        if (state().aiSettings.isConfigured) {
-          generateAiAnalysis()
+        if (repository.currentState().aiSettings.isConfigured) {
+          sendEvent(ReportEvent.GenerateAiAnalysis)
         } else {
-          updateState { it.copy(aiAnalysisState = AiAnalysisState.NeedsSettings) }
+          repository.markAiAnalysisNeedsSettings()
         }
       }
+    }
+  }
+
+  private fun sendEvent(event: ReportEvent) {
+    viewModelScope.launch {
+      _events.send(event)
     }
   }
 }

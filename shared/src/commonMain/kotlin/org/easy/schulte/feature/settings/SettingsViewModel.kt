@@ -1,19 +1,25 @@
 package org.easy.schulte.feature.settings
 
-import org.easy.schulte.core.model.AiAnalysisState
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
+import org.easy.schulte.core.data.SchulteRepository
 import org.easy.schulte.core.model.AiSettings
-import org.easy.schulte.core.model.MarkMode
-import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.model.SettingsMessage
 
 internal class SettingsViewModel(
-  private val state: () -> SchulteState,
-  private val updateState: (((SchulteState) -> SchulteState) -> Unit),
-  private val closeSettings: () -> Unit,
-) {
+  private val repository: SchulteRepository,
+) : ViewModel() {
+  val state = repository.state
+
+  private val _events = Channel<SettingsEvent>()
+  val events = _events.receiveAsFlow()
+
   fun onAction(action: SettingsAction) {
     when (action) {
-      SettingsAction.BackFromSettings -> closeSettings()
+      SettingsAction.BackFromSettings -> sendEvent(SettingsEvent.CloseSettings)
 
       is SettingsAction.ToggleAiEnabled -> updateSettings { copy(aiEnabled = action.enabled) }
 
@@ -25,38 +31,22 @@ internal class SettingsViewModel(
 
       is SettingsAction.UpdateModelName -> updateSettings { copy(modelName = action.value) }
 
-      SettingsAction.ToggleApiKeyVisibility -> updateState { it.copy(apiKeyVisible = !it.apiKeyVisible) }
+      SettingsAction.ToggleApiKeyVisibility -> repository.toggleApiKeyVisibility()
 
       SettingsAction.TestAiConnection -> testAiConnection()
 
-      SettingsAction.ClearAiSettings -> updateState {
-        it.copy(
-          aiSettings = it.aiSettings.copy(aiEnabled = false, apiKey = "", baseUrl = "", modelName = "gpt-4o-mini"),
-          settingsMessage = SettingsMessage.AiCleared,
-          aiAnalysisState = AiAnalysisState.Idle,
-          aiAnalysis = null,
-        )
-      }
+      SettingsAction.ClearAiSettings -> repository.clearAiSettings()
 
-      SettingsAction.SaveSettings -> updateState {
-        it.copy(
-          settingsMessage = SettingsMessage.Saved,
-          selectedMarkMode = if (it.aiSettings.assistedMarkingEnabled) {
-            MarkMode.AssistedMarking
-          } else {
-            MarkMode.BriefFeedbackOnly
-          },
-        )
-      }
+      SettingsAction.SaveSettings -> repository.saveSettings()
     }
   }
 
   private fun updateSettings(block: AiSettings.() -> AiSettings) {
-    updateState { it.copy(aiSettings = it.aiSettings.block(), settingsMessage = null) }
+    repository.updateAiSettings(block)
   }
 
   private fun testAiConnection() {
-    val settings = state().aiSettings
+    val settings = repository.currentState().aiSettings
     val message = if (!settings.aiEnabled) {
       SettingsMessage.EnableAiFirst
     } else if (settings.apiKey.isBlank() || settings.baseUrl.isBlank()) {
@@ -66,6 +56,12 @@ internal class SettingsViewModel(
     } else {
       SettingsMessage.ConnectionAvailable
     }
-    updateState { it.copy(settingsMessage = message) }
+    repository.setSettingsMessage(message)
+  }
+
+  private fun sendEvent(event: SettingsEvent) {
+    viewModelScope.launch {
+      _events.send(event)
+    }
   }
 }

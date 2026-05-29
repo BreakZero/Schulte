@@ -1,26 +1,40 @@
 package org.easy.schulte.feature.config
 
-import org.easy.schulte.core.model.SchulteState
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
+import org.easy.schulte.core.data.SchulteRepository
 
 internal class ConfigViewModel(
-  private val updateState: (((SchulteState) -> SchulteState) -> Unit),
-  private val startTraining: () -> Unit,
-  private val openSettings: () -> Unit,
-) {
+  private val repository: SchulteRepository,
+) : ViewModel() {
+  val state = repository.state
+
+  private val _events = Channel<ConfigEvent>()
+  val events = _events.receiveAsFlow()
+
   fun onAction(action: ConfigAction) {
     when (action) {
-      is ConfigAction.SelectGrid -> updateState { it.copy(selectedGrid = action.spec) }
+      is ConfigAction.SelectGrid -> repository.selectGrid(action.spec)
 
-      is ConfigAction.SelectAgeGroup -> updateState { it.copy(selectedAgeGroup = action.ageGroup) }
+      is ConfigAction.SelectAgeGroup -> repository.selectAgeGroup(action.ageGroup)
 
-      is ConfigAction.SelectMarkMode -> updateState { it.copy(selectedMarkMode = action.markMode) }
+      is ConfigAction.SelectMarkMode -> repository.selectMarkMode(action.markMode)
 
-      ConfigAction.StartTraining -> startTraining()
+      ConfigAction.StartTraining -> sendEvent(ConfigEvent.StartTraining)
 
       ConfigAction.OpenSettings -> {
-        updateState { it.copy(settingsMessage = null) }
-        openSettings()
+        repository.clearSettingsMessage()
+        sendEvent(ConfigEvent.OpenSettings)
       }
+    }
+  }
+
+  private fun sendEvent(event: ConfigEvent) {
+    viewModelScope.launch {
+      _events.send(event)
     }
   }
 }

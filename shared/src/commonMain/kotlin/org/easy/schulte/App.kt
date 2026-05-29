@@ -4,12 +4,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -18,58 +14,42 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
-import org.easy.schulte.app.SchulteViewModel
 import org.easy.schulte.core.model.AiAdviceRoute
 import org.easy.schulte.core.model.AppRoute
 import org.easy.schulte.core.model.ConfigRoute
-import org.easy.schulte.core.model.NavigationMode
 import org.easy.schulte.core.model.ReportRoute
-import org.easy.schulte.core.model.SchulteEvent
 import org.easy.schulte.core.model.SettingsRoute
 import org.easy.schulte.core.model.TrainingRoute
 import org.easy.schulte.core.ui.PageBackground
-import org.easy.schulte.feature.advice.AiAdviceScreen
-import org.easy.schulte.feature.config.ConfigScreen
-import org.easy.schulte.feature.report.ReportAction
-import org.easy.schulte.feature.report.ReportScreen
-import org.easy.schulte.feature.settings.SettingsScreen
-import org.easy.schulte.feature.training.TrainingAction
-import org.easy.schulte.feature.training.TrainingScreen
+import org.easy.schulte.di.appModule
+import org.easy.schulte.feature.advice.AiAdviceRoot
+import org.easy.schulte.feature.config.ConfigRoot
+import org.easy.schulte.feature.report.ReportRoot
+import org.easy.schulte.feature.settings.SettingsRoot
+import org.easy.schulte.feature.training.TrainingRoot
+import org.koin.compose.KoinApplication
+import org.koin.dsl.koinConfiguration
 
 @Composable
 @Preview
 fun App() {
-  MaterialTheme {
-    val viewModel = viewModel { SchulteViewModel() }
-    SchulteRoot(viewModel = viewModel)
+  KoinApplication(
+    configuration = koinConfiguration {
+      modules(appModule)
+    },
+  ) {
+    MaterialTheme {
+      SchulteRoot()
+    }
   }
 }
 
 @Composable
-fun SchulteRoot(viewModel: SchulteViewModel = viewModel { SchulteViewModel() }) {
-  val state by viewModel.state.collectAsStateWithLifecycle()
+internal fun SchulteRoot() {
   val backStack = rememberNavBackStack(
     configuration = appSavedStateConfiguration,
     ConfigRoute,
   )
-
-  LaunchedEffect(viewModel) {
-    viewModel.events.collect { event ->
-      when (event) {
-        is SchulteEvent.TrainingCompleted -> backStack.replaceTop(ReportRoute)
-
-        SchulteEvent.AiAnalysisCompleted -> backStack.navigate(AiAdviceRoute)
-
-        is SchulteEvent.Navigate -> when (event.mode) {
-          NavigationMode.Push -> backStack.navigate(event.route)
-          NavigationMode.ReplaceTop -> backStack.replaceTop(event.route)
-          NavigationMode.ResetToRoot -> backStack.resetTo(event.route)
-        }
-
-        SchulteEvent.NavigateUp -> backStack.navigateUp()
-      }
-    }
-  }
 
   Surface(
     modifier = Modifier.fillMaxSize(),
@@ -80,26 +60,42 @@ fun SchulteRoot(viewModel: SchulteViewModel = viewModel { SchulteViewModel() }) 
       modifier = Modifier.fillMaxSize(),
       onBack = {
         when (backStack.lastOrNull()) {
-          TrainingRoute -> viewModel.onTrainingAction(TrainingAction.ExitTraining)
-          ReportRoute -> viewModel.onReportAction(ReportAction.BackToConfig)
+          TrainingRoute,
+          ReportRoute,
+          -> backStack.resetTo(ConfigRoute)
+
           else -> backStack.navigateUp()
         }
       },
       entryProvider = entryProvider {
         entry<ConfigRoute> {
-          ConfigScreen(state = state, onAction = viewModel::onConfigAction)
+          ConfigRoot(
+            onStartTraining = { backStack.resetTo(TrainingRoute) },
+            onOpenSettings = { backStack.navigate(SettingsRoute) },
+          )
         }
         entry<TrainingRoute> {
-          TrainingScreen(state = state, onAction = viewModel::onTrainingAction)
+          TrainingRoot(
+            onTrainingCompleted = { backStack.replaceTop(ReportRoute) },
+            onTrainingExited = { backStack.resetTo(ConfigRoute) },
+          )
         }
         entry<ReportRoute> {
-          ReportScreen(state = state, onAction = viewModel::onReportAction)
+          ReportRoot(
+            onRestartTraining = { backStack.resetTo(TrainingRoute) },
+            onGenerateAiAnalysis = { backStack.navigate(AiAdviceRoute) },
+            onBackToConfig = { backStack.resetTo(ConfigRoute) },
+            onOpenSettings = { backStack.navigate(SettingsRoute) },
+          )
         }
         entry<AiAdviceRoute> {
-          AiAdviceScreen(state = state, onAction = viewModel::onAdviceAction)
+          AiAdviceRoot(
+            onRestartTraining = { backStack.resetTo(TrainingRoute) },
+            onBackToReport = { backStack.navigateUp() },
+          )
         }
         entry<SettingsRoute> {
-          SettingsScreen(state = state, onAction = viewModel::onSettingsAction)
+          SettingsRoot(onCloseSettings = { backStack.navigateUp() })
         }
       },
     )
