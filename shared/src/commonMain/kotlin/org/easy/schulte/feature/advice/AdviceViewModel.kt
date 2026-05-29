@@ -1,46 +1,50 @@
 package org.easy.schulte.feature.advice
 
-import kotlinx.coroutines.CoroutineScope
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import org.easy.schulte.core.domain.createLocalAiAnalysis
-import org.easy.schulte.core.model.AiAnalysisState
-import org.easy.schulte.core.model.SchulteState
+import org.easy.schulte.core.data.SchulteRepository
+import org.easy.schulte.core.domain.AiAnalysisGenerator
 
 internal class AdviceViewModel(
-  private val state: () -> SchulteState,
-  private val updateState: (((SchulteState) -> SchulteState) -> Unit),
-  private val scope: CoroutineScope,
-  private val restartTraining: () -> Unit,
-  private val backToReport: () -> Unit,
-  private val onAiAnalysisCompleted: () -> Unit,
-) {
+  private val repository: SchulteRepository,
+  private val aiAnalysisGenerator: AiAnalysisGenerator,
+) : ViewModel() {
+  val state = repository.state
+
+  private val _events = Channel<AdviceEvent>()
+  val events = _events.receiveAsFlow()
+
   fun onAction(action: AdviceAction) {
     when (action) {
-      AdviceAction.RestartTraining -> restartTraining()
-      AdviceAction.BackToReport -> backToReport()
+      AdviceAction.RestartTraining -> sendEvent(AdviceEvent.RestartTraining)
+      AdviceAction.BackToReport -> sendEvent(AdviceEvent.BackToReport)
     }
   }
 
   fun generateAiAnalysis() {
-    val report = state().report ?: return
-    val settings = state().aiSettings
+    val report = repository.currentState().report ?: return
+    val settings = repository.currentState().aiSettings
     if (!settings.isConfigured) {
-      updateState { it.copy(aiAnalysisState = AiAnalysisState.NeedsSettings) }
+      repository.markAiAnalysisNeedsSettings()
       return
     }
 
-    updateState { it.copy(aiAnalysisState = AiAnalysisState.Loading) }
-    scope.launch {
+    repository.markAiAnalysisLoading()
+    viewModelScope.launch {
       delay(700)
-      val analysis = createLocalAiAnalysis(report)
-      updateState {
-        it.copy(
-          aiAnalysisState = AiAnalysisState.Success,
-          aiAnalysis = analysis,
-        )
-      }
-      onAiAnalysisCompleted()
+      val analysis = aiAnalysisGenerator.createLocalAiAnalysis(report)
+      repository.setAiAnalysis(analysis)
+      sendEvent(AdviceEvent.AiAnalysisCompleted)
+    }
+  }
+
+  private fun sendEvent(event: AdviceEvent) {
+    viewModelScope.launch {
+      _events.send(event)
     }
   }
 }

@@ -9,44 +9,46 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import schulte.shared.generated.resources.*
 
-internal suspend fun createLocalAiAnalysis(report: TrainingReport): AiAnalysis {
-  val target = report.nextTargetSeconds ?: report.elapsedSeconds.toInt().coerceAtLeast(1)
-  return AiAnalysis(
-    summary = getString(
-      Res.string.local_ai_summary,
-      getString(report.gridSpec.titleResource),
-      getString(report.markMode.titleResource),
-      formatSecondsResource(report.elapsedMillis),
-      report.errorCount,
-      getString(report.scoreLevel.titleResource),
-    ),
-    speed = if (report.scoreLevel == ScoreLevel.Excellent) {
-      getString(Res.string.local_ai_speed_excellent)
-    } else {
-      getString(Res.string.local_ai_speed_improvable)
-    },
-    errors = if (report.errorCount == 0) {
-      getString(Res.string.local_ai_errors_none)
-    } else {
-      getString(Res.string.local_ai_errors_with_count, report.errorCount)
-    },
-    nextTimeGoal = getString(Res.string.local_ai_next_time_goal, target),
-    nextErrorGoal = if (report.errorCount == 0) {
-      getString(Res.string.local_ai_next_error_goal_none)
-    } else {
-      getString(Res.string.local_ai_next_error_goal_with_count, (report.errorCount - 1).coerceAtLeast(0))
-    },
-    recommendedSpec = getString(
-      Res.string.local_ai_recommended_spec,
-      getString(report.gridSpec.titleResource),
-      getString(MarkMode.BriefFeedbackOnly.titleResource),
-    ),
-    suggestions = listOf(
-      getString(Res.string.local_ai_suggestion_daily),
-      getString(Res.string.local_ai_suggestion_accuracy_first),
-      getString(Res.string.local_ai_suggestion_upgrade),
-    ),
-  )
+internal class AiAnalysisGenerator {
+  suspend fun createLocalAiAnalysis(report: TrainingReport): AiAnalysis {
+    val target = report.nextTargetSeconds ?: report.elapsedSeconds.toInt().coerceAtLeast(1)
+    return AiAnalysis(
+      summary = getString(
+        Res.string.local_ai_summary,
+        getString(report.gridSpec.titleResource),
+        getString(report.markMode.titleResource),
+        formatSecondsResource(report.elapsedMillis),
+        report.errorCount,
+        getString(report.scoreLevel.titleResource),
+      ),
+      speed = if (report.scoreLevel == ScoreLevel.Excellent) {
+        getString(Res.string.local_ai_speed_excellent)
+      } else {
+        getString(Res.string.local_ai_speed_improvable)
+      },
+      errors = if (report.errorCount == 0) {
+        getString(Res.string.local_ai_errors_none)
+      } else {
+        getString(Res.string.local_ai_errors_with_count, report.errorCount)
+      },
+      nextTimeGoal = getString(Res.string.local_ai_next_time_goal, target),
+      nextErrorGoal = if (report.errorCount == 0) {
+        getString(Res.string.local_ai_next_error_goal_none)
+      } else {
+        getString(Res.string.local_ai_next_error_goal_with_count, (report.errorCount - 1).coerceAtLeast(0))
+      },
+      recommendedSpec = getString(
+        Res.string.local_ai_recommended_spec,
+        getString(report.gridSpec.titleResource),
+        getString(MarkMode.BriefFeedbackOnly.titleResource),
+      ),
+      suggestions = listOf(
+        getString(Res.string.local_ai_suggestion_daily),
+        getString(Res.string.local_ai_suggestion_accuracy_first),
+        getString(Res.string.local_ai_suggestion_upgrade),
+      ),
+    )
+  }
 }
 
 private suspend fun formatSecondsResource(millis: Long): String {

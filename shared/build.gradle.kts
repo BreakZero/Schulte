@@ -50,6 +50,8 @@ kotlin {
       implementation(libs.androidx.lifecycle.runtimeCompose)
       implementation(libs.jetbrains.navigation3.ui)
       implementation(libs.kotlinx.serialization.core)
+      implementation(libs.koin.compose)
+      implementation(libs.koin.compose.viewmodel)
     }
     commonTest.dependencies {
       implementation(libs.kotlin.test)

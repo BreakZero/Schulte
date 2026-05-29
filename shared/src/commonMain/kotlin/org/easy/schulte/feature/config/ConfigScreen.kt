@@ -20,11 +20,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.easy.schulte.core.model.AgeGroup
 import org.easy.schulte.core.model.GridSpec
 import org.easy.schulte.core.model.MarkMode
@@ -40,7 +43,28 @@ import org.easy.schulte.core.ui.difficultyText
 import org.easy.schulte.core.ui.titleText
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 import schulte.shared.generated.resources.*
+
+@Composable
+internal fun ConfigRoot(
+  onStartTraining: () -> Unit,
+  onOpenSettings: () -> Unit,
+  viewModel: ConfigViewModel = koinViewModel(),
+) {
+  val state by viewModel.state.collectAsStateWithLifecycle()
+
+  LaunchedEffect(viewModel) {
+    viewModel.events.collect { event ->
+      when (event) {
+        ConfigEvent.StartTraining -> onStartTraining()
+        ConfigEvent.OpenSettings -> onOpenSettings()
+      }
+    }
+  }
+
+  ConfigScreen(state = state, onAction = viewModel::onAction)
+}
 
 @Composable
 internal fun ConfigScreen(

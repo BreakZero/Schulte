@@ -18,12 +18,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.easy.schulte.core.model.AiAnalysisState
 import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.model.ScoreLevel
@@ -41,7 +44,32 @@ import org.easy.schulte.core.ui.WarningAmber
 import org.easy.schulte.core.ui.formatSecondsText
 import org.easy.schulte.core.ui.titleText
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 import schulte.shared.generated.resources.*
+
+@Composable
+internal fun ReportRoot(
+  onRestartTraining: () -> Unit,
+  onGenerateAiAnalysis: () -> Unit,
+  onBackToConfig: () -> Unit,
+  onOpenSettings: () -> Unit,
+  viewModel: ReportViewModel = koinViewModel(),
+) {
+  val state by viewModel.state.collectAsStateWithLifecycle()
+
+  LaunchedEffect(viewModel) {
+    viewModel.events.collect { event ->
+      when (event) {
+        ReportEvent.RestartTraining -> onRestartTraining()
+        ReportEvent.GenerateAiAnalysis -> onGenerateAiAnalysis()
+        ReportEvent.BackToConfig -> onBackToConfig()
+        ReportEvent.OpenSettings -> onOpenSettings()
+      }
+    }
+  }
+
+  ReportScreen(state = state, onAction = viewModel::onAction)
+}
 
 @Composable
 internal fun ReportScreen(

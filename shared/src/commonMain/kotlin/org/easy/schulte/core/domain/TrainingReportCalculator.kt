@@ -8,23 +8,25 @@ import org.easy.schulte.core.model.ScoreLevel
 import org.easy.schulte.core.model.TrainingReport
 import kotlin.math.max
 
-internal fun createReport(state: SchulteState): TrainingReport {
-  val isOfficial = state.selectedMarkMode == MarkMode.BriefFeedbackOnly
-  val level = if (isOfficial) {
-    scoreLevel(state.selectedGrid, state.ageGroupOrSelected(), state.elapsedMillis)
-  } else {
-    ScoreLevel.Practice
+internal class TrainingReportCalculator {
+  fun createReport(state: SchulteState): TrainingReport {
+    val isOfficial = state.selectedMarkMode == MarkMode.BriefFeedbackOnly
+    val level = if (isOfficial) {
+      scoreLevel(state.selectedGrid, state.ageGroupOrSelected(), state.elapsedMillis)
+    } else {
+      ScoreLevel.Practice
+    }
+    return TrainingReport(
+      gridSpec = state.selectedGrid,
+      ageGroup = state.ageGroupOrSelected(),
+      markMode = state.selectedMarkMode,
+      elapsedMillis = max(state.elapsedMillis, 10L),
+      errorCount = state.errorCount,
+      scoreLevel = level,
+      isOfficialScore = isOfficial,
+      nextTargetSeconds = nextTargetSeconds(state.selectedGrid, state.ageGroupOrSelected(), level),
+    )
   }
-  return TrainingReport(
-    gridSpec = state.selectedGrid,
-    ageGroup = state.ageGroupOrSelected(),
-    markMode = state.selectedMarkMode,
-    elapsedMillis = max(state.elapsedMillis, 10L),
-    errorCount = state.errorCount,
-    scoreLevel = level,
-    isOfficialScore = isOfficial,
-    nextTargetSeconds = nextTargetSeconds(state.selectedGrid, state.ageGroupOrSelected(), level),
-  )
 }
 
 private fun SchulteState.ageGroupOrSelected(): AgeGroup = selectedAgeGroup

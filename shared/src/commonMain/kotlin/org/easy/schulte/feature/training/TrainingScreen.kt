@@ -18,6 +18,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.easy.schulte.core.model.MarkMode
 import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.ui.CardBackground
@@ -39,7 +42,38 @@ import org.easy.schulte.core.ui.StatCard
 import org.easy.schulte.core.ui.formatTimer
 import org.easy.schulte.core.ui.trainingTitleText
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 import schulte.shared.generated.resources.*
+
+@Composable
+internal fun TrainingRoot(
+  onTrainingCompleted: () -> Unit,
+  onTrainingExited: () -> Unit,
+  viewModel: TrainingViewModel = koinViewModel(),
+) {
+  val state by viewModel.state.collectAsStateWithLifecycle()
+
+  LaunchedEffect(viewModel) {
+    viewModel.events.collect { event ->
+      when (event) {
+        is TrainingEvent.Completed -> onTrainingCompleted()
+        TrainingEvent.Exited -> onTrainingExited()
+      }
+    }
+  }
+
+  LaunchedEffect(Unit) {
+    viewModel.startTraining()
+  }
+
+  DisposableEffect(Unit) {
+    onDispose {
+      viewModel.disposeTraining()
+    }
+  }
+
+  TrainingScreen(state = state, onAction = viewModel::onAction)
+}
 
 @Composable
 internal fun TrainingScreen(
