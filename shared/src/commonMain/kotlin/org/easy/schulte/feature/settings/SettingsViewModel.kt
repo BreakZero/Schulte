@@ -20,23 +20,14 @@ internal class SettingsViewModel(
   fun onAction(action: SettingsAction) {
     when (action) {
       SettingsAction.BackFromSettings -> sendEvent(SettingsEvent.CloseSettings)
-
       is SettingsAction.ToggleAiEnabled -> updateSettings { copy(aiEnabled = action.enabled) }
-
       is SettingsAction.ToggleAssistSetting -> updateSettings { copy(assistedMarkingEnabled = action.enabled) }
-
       is SettingsAction.UpdateApiKey -> updateSettings { copy(apiKey = action.value) }
-
       is SettingsAction.UpdateBaseUrl -> updateSettings { copy(baseUrl = action.value) }
-
       is SettingsAction.UpdateModelName -> updateSettings { copy(modelName = action.value) }
-
       SettingsAction.ToggleApiKeyVisibility -> repository.toggleApiKeyVisibility()
-
       SettingsAction.TestAiConnection -> testAiConnection()
-
       SettingsAction.ClearAiSettings -> repository.clearAiSettings()
-
       SettingsAction.SaveSettings -> repository.saveSettings()
     }
   }
