@@ -16,4 +16,11 @@ data class SchulteState(
   val settingsMessage: SettingsMessage? = null,
   val aiAnalysis: AiAnalysis? = null,
   val aiAnalysisState: AiAnalysisState = AiAnalysisState.Idle,
+  val records: List<TrainingRecord> = emptyList(),
+  val recordSummary: TrainingRecordSummary = TrainingRecordSummary(),
+  val progressComparison: ProgressComparison? = null,
+  val recordGridFilter: RecordGridFilter = RecordGridFilter.All,
+  val recordModeFilter: RecordModeFilter = RecordModeFilter.All,
+  val recordTimeFilter: RecordTimeFilter = RecordTimeFilter.All,
+  val showClearRecordsDialog: Boolean = false,
 )

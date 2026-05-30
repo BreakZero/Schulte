@@ -8,6 +8,9 @@ import org.easy.schulte.core.model.AiSettings
 import org.easy.schulte.core.model.CellFeedback
 import org.easy.schulte.core.model.GridSpec
 import org.easy.schulte.core.model.MarkMode
+import org.easy.schulte.core.model.RecordGridFilter
+import org.easy.schulte.core.model.RecordModeFilter
+import org.easy.schulte.core.model.RecordTimeFilter
 import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.model.SettingsMessage
 import org.easy.schulte.core.model.TrainingReport
@@ -35,6 +38,12 @@ internal interface SchulteRepository {
   fun clearAiSettings()
   fun saveSettings()
   fun setSettingsMessage(message: SettingsMessage)
+  fun selectRecordGridFilter(filter: RecordGridFilter)
+  fun selectRecordModeFilter(filter: RecordModeFilter)
+  fun selectRecordTimeFilter(filter: RecordTimeFilter)
+  fun requestClearTrainingRecords()
+  fun cancelClearTrainingRecords()
+  fun clearTrainingRecords()
 
   fun markAiAnalysisNeedsSettings()
   fun markAiAnalysisLoading()

@@ -28,8 +28,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.easy.schulte.core.model.AiAnalysisState
+import org.easy.schulte.core.model.ProgressComparison
 import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.model.ScoreLevel
+import org.easy.schulte.core.model.TrainingRecordSummary
 import org.easy.schulte.core.model.TrainingReport
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.FocusTeal
@@ -51,6 +53,7 @@ import schulte.shared.generated.resources.*
 internal fun ReportRoot(
   onRestartTraining: () -> Unit,
   onGenerateAiAnalysis: () -> Unit,
+  onOpenRecords: () -> Unit,
   onBackToConfig: () -> Unit,
   onOpenSettings: () -> Unit,
   viewModel: ReportViewModel = koinViewModel(),
@@ -62,6 +65,7 @@ internal fun ReportRoot(
       when (event) {
         ReportEvent.RestartTraining -> onRestartTraining()
         ReportEvent.GenerateAiAnalysis -> onGenerateAiAnalysis()
+        ReportEvent.OpenRecords -> onOpenRecords()
         ReportEvent.BackToConfig -> onBackToConfig()
         ReportEvent.OpenSettings -> onOpenSettings()
       }
@@ -94,7 +98,10 @@ internal fun ReportScreen(
         color = QuietText,
       )
       ResultHeroCard(report)
+      ProgressCard(state.progressComparison)
       ReportOverview(report)
+      RecentPerformanceCard(state.recordSummary)
+      NextGoalCard(state.progressComparison, report)
       InfoCard(
         title = stringResource(Res.string.report_score_note_title),
         body = if (report.isOfficialScore) {
@@ -116,14 +123,23 @@ internal fun ReportScreen(
           Text(stringResource(Res.string.action_try_again))
         }
         OutlinedButton(
-          onClick = { onAction(ReportAction.BackToConfig) },
+          onClick = { onAction(ReportAction.OpenRecords) },
           modifier = Modifier
             .weight(1f)
             .height(50.dp),
           shape = RoundedCornerShape(8.dp),
         ) {
-          Text(stringResource(Res.string.action_back_home))
+          Text("查看记录")
         }
+      }
+      OutlinedButton(
+        onClick = { onAction(ReportAction.BackToConfig) },
+        modifier = Modifier
+          .fillMaxWidth()
+          .height(48.dp),
+        shape = RoundedCornerShape(8.dp),
+      ) {
+        Text(stringResource(Res.string.action_back_home))
       }
     }
   }
@@ -230,4 +246,61 @@ private fun ReportOverview(report: TrainingReport) {
       if (report.isOfficialScore) stringResource(Res.string.yes) else stringResource(Res.string.no),
     )
   }
+}
+
+@Composable
+private fun ProgressCard(comparison: ProgressComparison?) {
+  SchulteCard {
+    val current = comparison?.currentRecord
+    Row(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.SpaceBetween,
+      verticalAlignment = Alignment.CenterVertically,
+    ) {
+      SectionTitle(if (current?.previousRecordId == null) "首次记录已保存" else "本次进步")
+      if (current?.isPersonalBest == true) {
+        Text("个人最佳", color = Color(0xFF16A34A), fontWeight = FontWeight.SemiBold)
+      }
+    }
+    Text(
+      text = comparison?.summaryText ?: "训练记录已保存。",
+      color = QuietText,
+      lineHeight = 21.sp,
+    )
+  }
+}
+
+@Composable
+private fun RecentPerformanceCard(summary: TrainingRecordSummary) {
+  SchulteCard {
+    SectionTitle("最近表现")
+    KeyValueRow("最近 5 次平均", summary.recentAverageTimeMillis?.let { formatSecondsText(it) } ?: "暂无")
+    KeyValueRow(
+      "平均错误",
+      summary.recentAverageErrorCount?.let { "${roundOneDecimal(it)} 次" } ?: "暂无",
+    )
+    KeyValueRow("当前最佳", summary.bestRecord?.let { formatSecondsText(it.elapsedTimeMillis) } ?: "暂无")
+  }
+}
+
+@Composable
+private fun NextGoalCard(
+  comparison: ProgressComparison?,
+  report: TrainingReport,
+) {
+  SchulteCard {
+    SectionTitle("下一次目标")
+    KeyValueRow("目标时间", report.nextTargetSeconds?.let { "$it 秒以内" } ?: "保持当前节奏")
+    KeyValueRow("错误次数", "${report.errorCount.coerceAtMost(1)} 次以内")
+    Text(
+      comparison?.nextGoalText ?: "建议继续使用 ${report.gridSpec.titleText()} ${report.markMode.titleText()}。",
+      color = QuietText,
+      lineHeight = 21.sp,
+    )
+  }
+}
+
+private fun roundOneDecimal(value: Double): String {
+  val rounded = (value * 10).toInt() / 10.0
+  return rounded.toString()
 }

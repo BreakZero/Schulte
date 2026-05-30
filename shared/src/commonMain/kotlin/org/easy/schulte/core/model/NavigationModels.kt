@@ -20,3 +20,6 @@ data object AiAdviceRoute : AppRoute
 
 @Serializable
 data object SettingsRoute : AppRoute
+
+@Serializable
+data object TrainingRecordsRoute : AppRoute

@@ -1,0 +1,63 @@
+CREATE TABLE training_record (
+  id TEXT NOT NULL PRIMARY KEY,
+  created_at INTEGER NOT NULL,
+  grid_size INTEGER NOT NULL,
+  age_group TEXT NOT NULL,
+  mark_mode TEXT NOT NULL,
+  elapsed_time_millis INTEGER NOT NULL,
+  error_count INTEGER NOT NULL,
+  score_level TEXT NOT NULL,
+  is_personal_best INTEGER NOT NULL,
+  previous_record_id TEXT,
+  improvement_status TEXT NOT NULL,
+  time_delta_millis INTEGER,
+  error_delta INTEGER
+);
+
+CREATE INDEX training_record_conditions_idx
+ON training_record(grid_size, age_group, mark_mode, created_at);
+
+selectAll:
+SELECT *
+FROM training_record
+ORDER BY created_at DESC;
+
+selectByConditions:
+SELECT *
+FROM training_record
+WHERE grid_size = ? AND age_group = ? AND mark_mode = ?
+ORDER BY created_at DESC;
+
+insertRecord:
+INSERT OR REPLACE INTO training_record(
+  id,
+  created_at,
+  grid_size,
+  age_group,
+  mark_mode,
+  elapsed_time_millis,
+  error_count,
+  score_level,
+  is_personal_best,
+  previous_record_id,
+  improvement_status,
+  time_delta_millis,
+  error_delta
+)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteAll:
+DELETE FROM training_record;
+
+deleteOldest:
+DELETE FROM training_record
+WHERE id IN (
+  SELECT id
+  FROM training_record
+  ORDER BY created_at ASC
+  LIMIT ?
+);
+
+countAll:
+SELECT COUNT(*)
+FROM training_record;

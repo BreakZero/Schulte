@@ -25,6 +25,8 @@ internal class ConfigViewModel(
 
       ConfigAction.StartTraining -> sendEvent(ConfigEvent.StartTraining)
 
+      ConfigAction.OpenRecords -> sendEvent(ConfigEvent.OpenRecords)
+
       ConfigAction.OpenSettings -> {
         repository.clearSettingsMessage()
         sendEvent(ConfigEvent.OpenSettings)

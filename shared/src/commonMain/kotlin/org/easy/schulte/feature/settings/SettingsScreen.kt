@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
@@ -39,6 +40,7 @@ import org.easy.schulte.core.ui.SchulteScaffold
 import org.easy.schulte.core.ui.SectionTitle
 import org.easy.schulte.core.ui.SuccessGreen
 import org.easy.schulte.core.ui.SwitchRow
+import org.easy.schulte.core.ui.WarningAmber
 import org.easy.schulte.core.ui.text
 import org.easy.schulte.core.ui.titleText
 import org.jetbrains.compose.resources.stringResource
@@ -68,6 +70,24 @@ internal fun SettingsScreen(
   state: SchulteState,
   onAction: (SettingsAction) -> Unit,
 ) {
+  if (state.showClearRecordsDialog) {
+    AlertDialog(
+      onDismissRequest = { onAction(SettingsAction.CancelClearTrainingRecords) },
+      title = { Text("清空训练记录") },
+      text = { Text("训练记录仅保存在本地设备。清空后无法恢复。") },
+      confirmButton = {
+        TextButton(onClick = { onAction(SettingsAction.ConfirmClearTrainingRecords) }) {
+          Text("确认清空", color = WarningAmber)
+        }
+      },
+      dismissButton = {
+        TextButton(onClick = { onAction(SettingsAction.CancelClearTrainingRecords) }) {
+          Text("取消")
+        }
+      },
+    )
+  }
+
   SchulteScaffold(
     title = stringResource(Res.string.settings_title),
     onNavigationClick = { onAction(SettingsAction.BackFromSettings) },
@@ -166,6 +186,19 @@ internal fun SettingsScreen(
           )
         }
       }
+      SchulteCard {
+        SectionTitle("数据管理")
+        KeyValueRow("本地训练记录", "${state.recordSummary.totalCount} 条")
+        Text("训练记录仅保存在本地设备。清空后无法恢复。", color = QuietText)
+        OutlinedButton(
+          onClick = { onAction(SettingsAction.RequestClearTrainingRecords) },
+          modifier = Modifier.fillMaxWidth(),
+          shape = RoundedCornerShape(8.dp),
+          enabled = state.recordSummary.totalCount > 0,
+        ) {
+          Text("清空训练记录")
+        }
+      }
       InfoCard(
         title = stringResource(Res.string.settings_privacy_title),
         body = stringResource(Res.string.settings_privacy_body),
@@ -185,4 +218,6 @@ internal fun SettingsScreen(
 }
 
 private val SettingsMessage.isSuccess: Boolean
-  get() = this == SettingsMessage.ConnectionAvailable || this == SettingsMessage.Saved
+  get() = this == SettingsMessage.ConnectionAvailable ||
+    this == SettingsMessage.Saved ||
+    this == SettingsMessage.RecordsCleared
