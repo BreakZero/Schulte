@@ -3,9 +3,9 @@ package org.easy.schulte.core.data
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import org.easy.schulte.core.model.AgeGroup
 import org.easy.schulte.core.model.AccountForm
 import org.easy.schulte.core.model.AccountMessage
+import org.easy.schulte.core.model.AgeGroup
 import org.easy.schulte.core.model.AiAnalysis
 import org.easy.schulte.core.model.AiAnalysisState
 import org.easy.schulte.core.model.AiSettings
