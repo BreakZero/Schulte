@@ -23,4 +23,20 @@ data class SchulteState(
   val recordModeFilter: RecordModeFilter = RecordModeFilter.All,
   val recordTimeFilter: RecordTimeFilter = RecordTimeFilter.All,
   val showClearRecordsDialog: Boolean = false,
+  val accounts: List<UserAccount> = emptyList(),
+  val currentUserId: String? = null,
+  val accountForm: AccountForm = AccountForm(),
+  val accountMessage: AccountMessage? = null,
+  val showLinkLocalRecordsDialog: Boolean = false,
+  val showLogoutDialog: Boolean = false,
+  val competitiveProfile: CompetitiveProfile = CompetitiveProfile(),
 )
+
+val SchulteState.currentUser: UserAccount?
+  get() = accounts.firstOrNull { it.userId == currentUserId }
+
+val SchulteState.isLoggedIn: Boolean
+  get() = currentUser != null
+
+val SchulteState.unlinkedLocalRecordCount: Int
+  get() = records.count { it.ownerUserId == null }

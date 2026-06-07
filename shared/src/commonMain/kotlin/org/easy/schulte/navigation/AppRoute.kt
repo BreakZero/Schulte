@@ -1,4 +1,4 @@
-package org.easy.schulte.core.model
+package org.easy.schulte.navigation
 
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
@@ -23,3 +23,21 @@ data object SettingsRoute : AppRoute
 
 @Serializable
 data object TrainingRecordsRoute : AppRoute
+
+@Serializable
+data object ProfileRoute : AppRoute
+
+@Serializable
+data object LoginRoute : AppRoute
+
+@Serializable
+data object RegisterRoute : AppRoute
+
+@Serializable
+data object EditProfileRoute : AppRoute
+
+@Serializable
+data object AccountSettingsRoute : AppRoute
+
+@Serializable
+data object PkSoonRoute : AppRoute

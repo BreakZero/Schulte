@@ -8,12 +8,13 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.easy.schulte.core.data.SchulteRepository
 import org.easy.schulte.core.domain.AiAnalysisGenerator
+import org.easy.schulte.state.adviceStateIn
 
 internal class AdviceViewModel(
   private val repository: SchulteRepository,
   private val aiAnalysisGenerator: AiAnalysisGenerator,
 ) : ViewModel() {
-  val state = repository.state
+  val state = repository.adviceStateIn(viewModelScope)
 
   private val _events = Channel<AdviceEvent>()
   val events = _events.receiveAsFlow()

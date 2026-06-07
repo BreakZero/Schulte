@@ -7,6 +7,7 @@ import org.easy.schulte.core.data.SqlDelightTrainingRecordStore
 import org.easy.schulte.core.data.TrainingRecordStore
 import org.easy.schulte.core.domain.AiAnalysisGenerator
 import org.easy.schulte.core.domain.TrainingReportCalculator
+import org.easy.schulte.feature.account.AccountViewModel
 import org.easy.schulte.feature.advice.AdviceViewModel
 import org.easy.schulte.feature.config.ConfigViewModel
 import org.easy.schulte.feature.records.TrainingRecordsViewModel
@@ -26,6 +27,7 @@ internal fun appModule(databaseDriverFactory: DatabaseDriverFactory) = module {
   viewModelOf(::TrainingViewModel)
   viewModelOf(::ReportViewModel)
   viewModelOf(::AdviceViewModel)
+  viewModelOf(::AccountViewModel)
   viewModelOf(::SettingsViewModel)
   viewModelOf(::TrainingRecordsViewModel)
 }

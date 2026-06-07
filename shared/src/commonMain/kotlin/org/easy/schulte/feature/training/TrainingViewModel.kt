@@ -9,14 +9,16 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.easy.schulte.core.data.SchulteRepository
 import org.easy.schulte.core.domain.TrainingReportCalculator
+import org.easy.schulte.core.domain.TrainingReportInput
 import org.easy.schulte.core.model.MarkMode
+import org.easy.schulte.state.trainingStateIn
 import kotlin.random.Random
 
 internal class TrainingViewModel(
   private val repository: SchulteRepository,
   private val reportCalculator: TrainingReportCalculator,
 ) : ViewModel() {
-  val state = repository.state
+  val state = repository.trainingStateIn(viewModelScope)
 
   private val _events = Channel<TrainingEvent>()
   val events = _events.receiveAsFlow()
@@ -91,7 +93,16 @@ internal class TrainingViewModel(
 
   private fun completeTraining() {
     timerJob?.cancel()
-    val report = reportCalculator.createReport(repository.currentState())
+    val current = repository.currentState()
+    val report = reportCalculator.createReport(
+      TrainingReportInput(
+        gridSpec = current.selectedGrid,
+        ageGroup = current.selectedAgeGroup,
+        markMode = current.selectedMarkMode,
+        elapsedMillis = current.elapsedMillis,
+        errorCount = current.errorCount,
+      ),
+    )
     repository.finishTraining(report)
     sendEvent(TrainingEvent.Completed(report))
   }

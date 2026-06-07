@@ -3,9 +3,8 @@ package org.easy.schulte.core.data
 import kotlinx.coroutines.flow.StateFlow
 import org.easy.schulte.core.model.AgeGroup
 import org.easy.schulte.core.model.AiAnalysis
-import org.easy.schulte.core.model.AiAnalysisState
 import org.easy.schulte.core.model.AiSettings
-import org.easy.schulte.core.model.CellFeedback
+import org.easy.schulte.core.model.Gender
 import org.easy.schulte.core.model.GridSpec
 import org.easy.schulte.core.model.MarkMode
 import org.easy.schulte.core.model.RecordGridFilter
@@ -44,6 +43,25 @@ internal interface SchulteRepository {
   fun requestClearTrainingRecords()
   fun cancelClearTrainingRecords()
   fun clearTrainingRecords()
+
+  fun updateLoginRegisterId(value: String)
+  fun updateAccountNickname(value: String)
+  fun updateAccountPassword(value: String)
+  fun updateAccountConfirmPassword(value: String)
+  fun updateAccountGender(gender: Gender)
+  fun updateAgreementAccepted(accepted: Boolean)
+  fun clearAccountForm()
+  fun registerAccount()
+  fun loginAccount()
+  fun updateCurrentProfile()
+  fun requestLinkLocalRecords()
+  fun linkLocalRecords()
+  fun dismissLinkLocalRecords()
+  fun requestLogout()
+  fun cancelLogout()
+  fun logout()
+  fun markRegisterIdCopied()
+  fun clearAccountMessage()
 
   fun markAiAnalysisNeedsSettings()
   fun markAiAnalysisLoading()

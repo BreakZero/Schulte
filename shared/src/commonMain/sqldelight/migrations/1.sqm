@@ -1,0 +1,10 @@
+ALTER TABLE training_record ADD COLUMN owner_user_id TEXT;
+
+CREATE TABLE user_account (
+  user_id TEXT NOT NULL PRIMARY KEY,
+  register_id TEXT NOT NULL UNIQUE,
+  nickname TEXT NOT NULL,
+  password TEXT NOT NULL,
+  gender TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);

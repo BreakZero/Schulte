@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.InfoCard
 import org.easy.schulte.core.ui.KeyValueRow
@@ -61,7 +60,7 @@ internal fun AiAdviceRoot(
 
 @Composable
 internal fun AiAdviceScreen(
-  state: SchulteState,
+  state: AdviceState,
   onAction: (AdviceAction) -> Unit,
 ) {
   val analysis = state.aiAnalysis ?: return

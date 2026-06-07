@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.easy.schulte.core.model.MarkMode
-import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.ui.CardBackground
 import org.easy.schulte.core.ui.ErrorRed
 import org.easy.schulte.core.ui.InfoCard
@@ -77,7 +76,7 @@ internal fun TrainingRoot(
 
 @Composable
 internal fun TrainingScreen(
-  state: SchulteState,
+  state: TrainingState,
   onAction: (TrainingAction) -> Unit,
 ) {
   SchulteScaffold(
@@ -140,7 +139,7 @@ internal fun TrainingScreen(
 
 @Composable
 private fun SchulteGrid(
-  state: SchulteState,
+  state: TrainingState,
   onCellClick: (Int) -> Unit,
 ) {
   val size = state.selectedGrid.size
