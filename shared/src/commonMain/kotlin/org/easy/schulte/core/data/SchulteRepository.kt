@@ -3,9 +3,7 @@ package org.easy.schulte.core.data
 import kotlinx.coroutines.flow.StateFlow
 import org.easy.schulte.core.model.AgeGroup
 import org.easy.schulte.core.model.AiAnalysis
-import org.easy.schulte.core.model.AiAnalysisState
 import org.easy.schulte.core.model.AiSettings
-import org.easy.schulte.core.model.CellFeedback
 import org.easy.schulte.core.model.Gender
 import org.easy.schulte.core.model.GridSpec
 import org.easy.schulte.core.model.MarkMode

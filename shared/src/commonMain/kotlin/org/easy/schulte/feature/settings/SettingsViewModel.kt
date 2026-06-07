@@ -8,11 +8,12 @@ import kotlinx.coroutines.launch
 import org.easy.schulte.core.data.SchulteRepository
 import org.easy.schulte.core.model.AiSettings
 import org.easy.schulte.core.model.SettingsMessage
+import org.easy.schulte.state.settingsStateIn
 
 internal class SettingsViewModel(
   private val repository: SchulteRepository,
 ) : ViewModel() {
-  val state = repository.state
+  val state = repository.settingsStateIn(viewModelScope)
 
   private val _events = Channel<SettingsEvent>()
   val events = _events.receiveAsFlow()

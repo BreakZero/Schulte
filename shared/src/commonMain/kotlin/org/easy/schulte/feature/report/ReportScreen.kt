@@ -29,12 +29,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.easy.schulte.core.model.AiAnalysisState
 import org.easy.schulte.core.model.ProgressComparison
-import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.model.ScoreLevel
 import org.easy.schulte.core.model.TrainingRecordSummary
 import org.easy.schulte.core.model.TrainingReport
-import org.easy.schulte.core.model.currentUser
-import org.easy.schulte.core.model.isLoggedIn
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.FocusTeal
 import org.easy.schulte.core.ui.InfoCard
@@ -81,7 +78,7 @@ internal fun ReportRoot(
 
 @Composable
 internal fun ReportScreen(
-  state: SchulteState,
+  state: ReportState,
   onAction: (ReportAction) -> Unit,
 ) {
   val report = state.report ?: return
@@ -95,7 +92,7 @@ internal fun ReportScreen(
     ) {
       Text(
         text = if (state.isLoggedIn) {
-          "已保存到账号：${state.currentUser?.nickname.orEmpty()}"
+          "已保存到账号：${state.currentUserNickname}"
         } else {
           "已保存为本地记录"
         },
@@ -172,10 +169,10 @@ private fun LoginAttributionCard(onOpenProfile: () -> Unit) {
 
 @Composable
 private fun AiEntryCard(
-  state: SchulteState,
+  state: ReportState,
   onAction: (ReportAction) -> Unit,
 ) {
-  val configured = state.aiSettings.isConfigured
+  val configured = state.aiConfigured
   SchulteCard {
     Text(
       text = if (configured) {

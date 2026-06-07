@@ -29,10 +29,7 @@ import org.easy.schulte.core.model.ImprovementStatus
 import org.easy.schulte.core.model.RecordGridFilter
 import org.easy.schulte.core.model.RecordModeFilter
 import org.easy.schulte.core.model.RecordTimeFilter
-import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.model.TrainingRecord
-import org.easy.schulte.core.model.currentUser
-import org.easy.schulte.core.model.isLoggedIn
 import org.easy.schulte.core.platform.currentTimeMillis
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.KeyValueRow
@@ -68,7 +65,7 @@ internal fun TrainingRecordsRoot(
 
 @Composable
 internal fun TrainingRecordsScreen(
-  state: SchulteState,
+  state: TrainingRecordsState,
   onAction: (TrainingRecordsAction) -> Unit,
 ) {
   SchulteScaffold(
@@ -97,10 +94,10 @@ internal fun TrainingRecordsScreen(
 }
 
 @Composable
-private fun RecordsOwnershipCard(state: SchulteState) {
+private fun RecordsOwnershipCard(state: TrainingRecordsState) {
   SchulteCard {
     Text(
-      if (state.isLoggedIn) "当前记录归属到账号：${state.currentUser?.nickname.orEmpty()}" else "当前为本地记录",
+      if (state.isLoggedIn) "当前记录归属到账号：${state.currentUserNickname}" else "当前为本地记录",
       fontWeight = FontWeight.SemiBold,
       color = Color(0xFF172033),
     )
@@ -113,7 +110,7 @@ private fun RecordsOwnershipCard(state: SchulteState) {
 }
 
 @Composable
-private fun SummaryGrid(state: SchulteState) {
+private fun SummaryGrid(state: TrainingRecordsState) {
   val summary = state.recordSummary
   Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
@@ -129,7 +126,7 @@ private fun SummaryGrid(state: SchulteState) {
 
 @Composable
 private fun Filters(
-  state: SchulteState,
+  state: TrainingRecordsState,
   onAction: (TrainingRecordsAction) -> Unit,
 ) {
   SchulteCard {
@@ -217,7 +214,7 @@ private fun EmptyRecords(onStartTraining: () -> Unit) {
   }
 }
 
-private fun SchulteState.filteredRecords(): List<TrainingRecord> {
+private fun TrainingRecordsState.filteredRecords(): List<TrainingRecord> {
   val now = currentTimeMillis()
   val minCreatedAt = recordTimeFilter.days?.let { now - it * 24L * 60 * 60 * 1000 }
   return records.filter { record ->

@@ -42,10 +42,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.easy.schulte.core.model.AccountMessage
 import org.easy.schulte.core.model.Gender
-import org.easy.schulte.core.model.SchulteState
-import org.easy.schulte.core.model.currentUser
-import org.easy.schulte.core.model.isLoggedIn
-import org.easy.schulte.core.model.unlinkedLocalRecordCount
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.FocusTeal
 import org.easy.schulte.core.ui.InfoCard
@@ -193,7 +189,7 @@ private fun AccountEvents(
 
 @Composable
 internal fun ProfileScreen(
-  state: SchulteState,
+  state: AccountState,
   onAction: (AccountAction) -> Unit,
 ) {
   SchulteScaffold(title = "我的", onNavigationClick = { onAction(AccountAction.Back) }) {
@@ -240,7 +236,7 @@ private fun GuestProfile(onAction: (AccountAction) -> Unit) {
 
 @Composable
 private fun SignedInProfile(
-  state: SchulteState,
+  state: AccountState,
   onAction: (AccountAction) -> Unit,
 ) {
   val user = state.currentUser ?: return
@@ -275,7 +271,7 @@ private fun SignedInProfile(
 }
 
 @Composable
-private fun TrainingStatsCard(state: SchulteState) {
+private fun TrainingStatsCard(state: AccountState) {
   val summary = state.recordSummary
   SchulteCard {
     SectionTitle("训练数据")
@@ -288,12 +284,12 @@ private fun TrainingStatsCard(state: SchulteState) {
       StatCard("最近一次", summary.latestRecord?.createdAt?.dateText() ?: "暂无", Modifier.weight(1f))
     }
     KeyValueRow("标准模式最佳", summary.bestRecord?.let { formatSecondsText(it.elapsedTimeMillis) } ?: "暂无")
-    KeyValueRow("辅助模式训练", "${state.records.count { it.markMode.name == "AssistedMarking" }} 次")
+    KeyValueRow("辅助模式训练", "${state.assistedTrainingCount} 次")
   }
 }
 
 @Composable
-private fun CompetitionCard(state: SchulteState) {
+private fun CompetitionCard(state: AccountState) {
   val profile = state.competitiveProfile
   SchulteCard {
     SectionTitle("竞技资料")
@@ -308,7 +304,7 @@ private fun CompetitionCard(state: SchulteState) {
 
 @Composable
 private fun LoginScreen(
-  state: SchulteState,
+  state: AccountState,
   onAction: (AccountAction) -> Unit,
 ) {
   SchulteScaffold(title = "登录", onNavigationClick = { onAction(AccountAction.Back) }) {
@@ -344,7 +340,7 @@ private fun LoginScreen(
 
 @Composable
 private fun RegisterScreen(
-  state: SchulteState,
+  state: AccountState,
   onAction: (AccountAction) -> Unit,
 ) {
   SchulteScaffold(title = "注册账号", onNavigationClick = { onAction(AccountAction.Back) }) {
@@ -389,7 +385,7 @@ private fun RegisterScreen(
 
 @Composable
 private fun EditProfileScreen(
-  state: SchulteState,
+  state: AccountState,
   onAction: (AccountAction) -> Unit,
 ) {
   val user = state.currentUser ?: return
@@ -428,7 +424,7 @@ private fun EditProfileScreen(
 
 @Composable
 private fun AccountSettingsScreen(
-  state: SchulteState,
+  state: AccountState,
   onAction: (AccountAction) -> Unit,
 ) {
   val user = state.currentUser ?: return
@@ -463,7 +459,7 @@ private fun AccountSettingsScreen(
 
 @Composable
 private fun PkSoonScreen(
-  state: SchulteState,
+  state: AccountState,
   onAction: (AccountAction) -> Unit,
 ) {
   SchulteScaffold(title = "线上 PK 即将上线", onNavigationClick = { onAction(AccountAction.Back) }) {
@@ -487,7 +483,7 @@ private fun PkSoonScreen(
 
 @Composable
 private fun AccountDialogs(
-  state: SchulteState,
+  state: AccountState,
   onAction: (AccountAction) -> Unit,
 ) {
   if (state.showLinkLocalRecordsDialog) {

@@ -32,9 +32,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.easy.schulte.core.model.AgeGroup
 import org.easy.schulte.core.model.GridSpec
 import org.easy.schulte.core.model.MarkMode
-import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.model.TrainingRecord
-import org.easy.schulte.core.model.isLoggedIn
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.InfoCard
 import org.easy.schulte.core.ui.ModeCard
@@ -76,7 +74,7 @@ internal fun ConfigRoot(
 
 @Composable
 internal fun ConfigScreen(
-  state: SchulteState,
+  state: ConfigState,
   onAction: (ConfigAction) -> Unit,
 ) {
   SchulteScaffold(
@@ -113,7 +111,7 @@ internal fun ConfigScreen(
         body = stringResource(Res.string.config_daily_tip_body),
       )
       RecentTrainingCard(
-        latestRecord = state.recordSummary.latestRecord,
+        latestRecord = state.latestRecord,
         isLoggedIn = state.isLoggedIn,
         onOpenRecords = { onAction(ConfigAction.OpenRecords) },
       )
@@ -159,7 +157,7 @@ internal fun ConfigScreen(
         shape = RoundedCornerShape(8.dp),
       ) {
         Text(
-          if (state.records.isEmpty()) "开始首次训练" else stringResource(Res.string.action_start_training),
+          if (!state.hasRecords) "开始首次训练" else stringResource(Res.string.action_start_training),
           fontSize = 16.sp,
           fontWeight = FontWeight.SemiBold,
         )

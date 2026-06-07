@@ -6,11 +6,12 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.easy.schulte.core.data.SchulteRepository
+import org.easy.schulte.state.trainingRecordsStateIn
 
 internal class TrainingRecordsViewModel(
   private val repository: SchulteRepository,
 ) : ViewModel() {
-  val state = repository.state
+  val state = repository.trainingRecordsStateIn(viewModelScope)
 
   private val _events = Channel<TrainingRecordsEvent>()
   val events = _events.receiveAsFlow()

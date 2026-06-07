@@ -30,11 +30,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.model.SettingsMessage
-import org.easy.schulte.core.model.currentUser
-import org.easy.schulte.core.model.isLoggedIn
-import org.easy.schulte.core.model.unlinkedLocalRecordCount
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.InfoCard
 import org.easy.schulte.core.ui.KeyValueRow
@@ -73,7 +69,7 @@ internal fun SettingsRoot(
 
 @Composable
 internal fun SettingsScreen(
-  state: SchulteState,
+  state: SettingsState,
   onAction: (SettingsAction) -> Unit,
 ) {
   if (state.showClearRecordsDialog) {
@@ -195,15 +191,15 @@ internal fun SettingsScreen(
       }
       SchulteCard {
         SectionTitle("数据管理")
-        KeyValueRow("本地训练记录", "${state.recordSummary.totalCount} 条")
-        KeyValueRow("当前账号记录", if (state.isLoggedIn) "${state.records.count { it.ownerUserId == state.currentUser?.userId }} 条" else "未登录")
+        KeyValueRow("本地训练记录", "${state.totalRecordCount} 条")
+        KeyValueRow("当前账号记录", if (state.isLoggedIn) "${state.currentAccountRecordCount} 条" else "未登录")
         KeyValueRow("未关联本地记录", "${state.unlinkedLocalRecordCount} 条")
         Text("训练记录仅保存在本地设备。清空后无法恢复。", color = QuietText)
         OutlinedButton(
           onClick = { onAction(SettingsAction.RequestClearTrainingRecords) },
           modifier = Modifier.fillMaxWidth(),
           shape = RoundedCornerShape(8.dp),
-          enabled = state.recordSummary.totalCount > 0,
+          enabled = state.totalRecordCount > 0,
         ) {
           Text("清空训练记录")
         }
@@ -228,15 +224,15 @@ internal fun SettingsScreen(
 
 @Composable
 private fun AccountAndGuestCard(
-  state: SchulteState,
+  state: SettingsState,
   onAction: (SettingsAction) -> Unit,
 ) {
   SchulteCard {
     SectionTitle("账号与游客体验")
     if (state.isLoggedIn) {
-      Text("已登录：${state.currentUser?.nickname.orEmpty()}", fontWeight = FontWeight.SemiBold)
+      Text("已登录：${state.currentUserNickname}", fontWeight = FontWeight.SemiBold)
       Text("训练记录会归属到当前账号。可在我的页面编辑资料、查看段位与胜率占位。", color = QuietText)
-      KeyValueRow("注册 ID", state.currentUser?.registerId.orEmpty())
+      KeyValueRow("注册 ID", state.currentUserRegisterId)
     } else {
       Text("游客体验中", fontWeight = FontWeight.SemiBold)
       Text("无需登录即可训练、查看本地记录和基础报告。注册或登录后，可将本地记录关联到账号。", color = QuietText)

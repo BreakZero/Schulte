@@ -3,33 +3,38 @@ package org.easy.schulte.core.domain
 import org.easy.schulte.core.model.AgeGroup
 import org.easy.schulte.core.model.GridSpec
 import org.easy.schulte.core.model.MarkMode
-import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.model.ScoreLevel
 import org.easy.schulte.core.model.TrainingReport
 import kotlin.math.max
 
 internal class TrainingReportCalculator {
-  fun createReport(state: SchulteState): TrainingReport {
-    val isOfficial = state.selectedMarkMode == MarkMode.BriefFeedbackOnly
+  fun createReport(input: TrainingReportInput): TrainingReport {
+    val isOfficial = input.markMode == MarkMode.BriefFeedbackOnly
     val level = if (isOfficial) {
-      scoreLevel(state.selectedGrid, state.ageGroupOrSelected(), state.elapsedMillis)
+      scoreLevel(input.gridSpec, input.ageGroup, input.elapsedMillis)
     } else {
       ScoreLevel.Practice
     }
     return TrainingReport(
-      gridSpec = state.selectedGrid,
-      ageGroup = state.ageGroupOrSelected(),
-      markMode = state.selectedMarkMode,
-      elapsedMillis = max(state.elapsedMillis, 10L),
-      errorCount = state.errorCount,
+      gridSpec = input.gridSpec,
+      ageGroup = input.ageGroup,
+      markMode = input.markMode,
+      elapsedMillis = max(input.elapsedMillis, 10L),
+      errorCount = input.errorCount,
       scoreLevel = level,
       isOfficialScore = isOfficial,
-      nextTargetSeconds = nextTargetSeconds(state.selectedGrid, state.ageGroupOrSelected(), level),
+      nextTargetSeconds = nextTargetSeconds(input.gridSpec, input.ageGroup, level),
     )
   }
 }
 
-private fun SchulteState.ageGroupOrSelected(): AgeGroup = selectedAgeGroup
+internal data class TrainingReportInput(
+  val gridSpec: GridSpec,
+  val ageGroup: AgeGroup,
+  val markMode: MarkMode,
+  val elapsedMillis: Long,
+  val errorCount: Int,
+)
 
 private fun scoreLevel(gridSpec: GridSpec, ageGroup: AgeGroup, elapsedMillis: Long): ScoreLevel {
   val seconds = elapsedMillis / 1000.0

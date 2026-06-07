@@ -7,11 +7,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.easy.schulte.core.data.SchulteRepository
 import org.easy.schulte.core.model.isLoggedIn
+import org.easy.schulte.state.accountStateIn
 
 internal class AccountViewModel(
   private val repository: SchulteRepository,
 ) : ViewModel() {
-  val state = repository.state
+  val state = repository.accountStateIn(viewModelScope)
 
   private val _events = Channel<AccountEvent>()
   val events = _events.receiveAsFlow()
