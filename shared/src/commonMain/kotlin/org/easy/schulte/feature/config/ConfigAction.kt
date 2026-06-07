@@ -9,5 +9,6 @@ sealed interface ConfigAction {
   data class SelectAgeGroup(val ageGroup: AgeGroup) : ConfigAction
   data class SelectMarkMode(val markMode: MarkMode) : ConfigAction
   data object StartTraining : ConfigAction
+  data object OpenRecords : ConfigAction
   data object OpenSettings : ConfigAction
 }

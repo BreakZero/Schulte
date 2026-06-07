@@ -5,7 +5,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -14,16 +13,19 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
+import org.easy.schulte.core.data.DatabaseDriverFactory
 import org.easy.schulte.core.model.AiAdviceRoute
 import org.easy.schulte.core.model.AppRoute
 import org.easy.schulte.core.model.ConfigRoute
 import org.easy.schulte.core.model.ReportRoute
 import org.easy.schulte.core.model.SettingsRoute
+import org.easy.schulte.core.model.TrainingRecordsRoute
 import org.easy.schulte.core.model.TrainingRoute
 import org.easy.schulte.core.ui.PageBackground
 import org.easy.schulte.di.appModule
 import org.easy.schulte.feature.advice.AiAdviceRoot
 import org.easy.schulte.feature.config.ConfigRoot
+import org.easy.schulte.feature.records.TrainingRecordsRoot
 import org.easy.schulte.feature.report.ReportRoot
 import org.easy.schulte.feature.settings.SettingsRoot
 import org.easy.schulte.feature.training.TrainingRoot
@@ -31,11 +33,10 @@ import org.koin.compose.KoinApplication
 import org.koin.dsl.koinConfiguration
 
 @Composable
-@Preview
-fun App() {
+fun App(databaseDriverFactory: DatabaseDriverFactory) {
   KoinApplication(
     configuration = koinConfiguration {
-      modules(appModule)
+      modules(appModule(databaseDriverFactory))
     },
   ) {
     MaterialTheme {
@@ -71,6 +72,7 @@ internal fun SchulteRoot() {
         entry<ConfigRoute> {
           ConfigRoot(
             onStartTraining = { backStack.resetTo(TrainingRoute) },
+            onOpenRecords = { backStack.navigate(TrainingRecordsRoute) },
             onOpenSettings = { backStack.navigate(SettingsRoute) },
           )
         }
@@ -84,6 +86,7 @@ internal fun SchulteRoot() {
           ReportRoot(
             onRestartTraining = { backStack.resetTo(TrainingRoute) },
             onGenerateAiAnalysis = { backStack.navigate(AiAdviceRoute) },
+            onOpenRecords = { backStack.navigate(TrainingRecordsRoute) },
             onBackToConfig = { backStack.resetTo(ConfigRoute) },
             onOpenSettings = { backStack.navigate(SettingsRoute) },
           )
@@ -96,6 +99,12 @@ internal fun SchulteRoot() {
         }
         entry<SettingsRoute> {
           SettingsRoot(onCloseSettings = { backStack.navigateUp() })
+        }
+        entry<TrainingRecordsRoute> {
+          TrainingRecordsRoot(
+            onBack = { backStack.navigateUp() },
+            onStartTraining = { backStack.resetTo(TrainingRoute) },
+          )
         }
       },
     )
@@ -110,6 +119,7 @@ private val appSavedStateConfiguration = SavedStateConfiguration {
       subclass(ReportRoute::class, ReportRoute.serializer())
       subclass(AiAdviceRoute::class, AiAdviceRoute.serializer())
       subclass(SettingsRoute::class, SettingsRoute.serializer())
+      subclass(TrainingRecordsRoute::class, TrainingRecordsRoute.serializer())
     }
   }
 }

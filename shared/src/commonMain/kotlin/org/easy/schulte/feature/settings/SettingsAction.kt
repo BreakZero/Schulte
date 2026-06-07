@@ -10,5 +10,8 @@ sealed interface SettingsAction {
   data object ToggleApiKeyVisibility : SettingsAction
   data object TestAiConnection : SettingsAction
   data object ClearAiSettings : SettingsAction
+  data object RequestClearTrainingRecords : SettingsAction
+  data object CancelClearTrainingRecords : SettingsAction
+  data object ConfirmClearTrainingRecords : SettingsAction
   data object SaveSettings : SettingsAction
 }

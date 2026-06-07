@@ -95,6 +95,7 @@ private val ScoreLevel.titleResource: StringResource
 private val SettingsMessage.textResource: StringResource
   get() = when (this) {
     SettingsMessage.AiCleared -> Res.string.settings_message_ai_cleared
+    SettingsMessage.RecordsCleared -> Res.string.settings_message_records_cleared
     SettingsMessage.Saved -> Res.string.settings_message_saved
     SettingsMessage.EnableAiFirst -> Res.string.settings_message_enable_ai_first
     SettingsMessage.MissingApiConfig -> Res.string.settings_message_missing_api_config

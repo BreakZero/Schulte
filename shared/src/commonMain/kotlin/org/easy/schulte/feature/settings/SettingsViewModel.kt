@@ -28,6 +28,9 @@ internal class SettingsViewModel(
       SettingsAction.ToggleApiKeyVisibility -> repository.toggleApiKeyVisibility()
       SettingsAction.TestAiConnection -> testAiConnection()
       SettingsAction.ClearAiSettings -> repository.clearAiSettings()
+      SettingsAction.RequestClearTrainingRecords -> repository.requestClearTrainingRecords()
+      SettingsAction.CancelClearTrainingRecords -> repository.cancelClearTrainingRecords()
+      SettingsAction.ConfirmClearTrainingRecords -> repository.clearTrainingRecords()
       SettingsAction.SaveSettings -> repository.saveSettings()
     }
   }

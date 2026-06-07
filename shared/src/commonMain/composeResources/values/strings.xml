@@ -110,9 +110,10 @@
     <string name="action_test_connection">测试连接</string>
     <string name="action_clear_config">清除配置</string>
     <string name="settings_privacy_title">隐私与说明</string>
-    <string name="settings_privacy_body">API Key 仅保存在本地设备。训练报告仅在用户点击 AI 分析时发送。AI 建议仅供训练参考，不作为医学或心理诊断。</string>
+    <string name="settings_privacy_body">训练记录和 API Key 仅保存在本地设备。AI 分析仅在你点击生成时使用本次报告和最近训练摘要。你可以随时清空本地训练记录。AI 建议仅供训练参考，不作为医学或心理诊断。</string>
     <string name="action_save_settings">保存设置</string>
     <string name="settings_message_ai_cleared">AI 配置已清除</string>
+    <string name="settings_message_records_cleared">训练记录已清空</string>
     <string name="settings_message_saved">设置已保存</string>
     <string name="settings_message_enable_ai_first">请先启用 AI 分析</string>
     <string name="settings_message_missing_api_config">请填写 API Key 和 Base URL</string>

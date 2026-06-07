@@ -29,6 +29,8 @@ internal class ReportViewModel(
         sendEvent(ReportEvent.OpenSettings)
       }
 
+      ReportAction.OpenRecords -> sendEvent(ReportEvent.OpenRecords)
+
       ReportAction.GenerateAiAnalysis -> {
         if (repository.currentState().aiSettings.isConfigured) {
           sendEvent(ReportEvent.GenerateAiAnalysis)

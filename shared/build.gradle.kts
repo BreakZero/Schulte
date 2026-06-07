@@ -6,6 +6,7 @@ plugins {
   alias(libs.plugins.composeMultiplatform)
   alias(libs.plugins.composeCompiler)
   alias(libs.plugins.kotlinSerialization)
+  alias(libs.plugins.sqldelight)
 }
 
 kotlin {
@@ -16,6 +17,7 @@ kotlin {
     iosTarget.binaries.framework {
       baseName = "Shared"
       isStatic = true
+      linkerOpts("-lsqlite3")
     }
   }
 
@@ -38,6 +40,7 @@ kotlin {
   sourceSets {
     androidMain.dependencies {
       implementation(libs.compose.uiToolingPreview)
+      implementation(libs.sqldelight.android.driver)
     }
     commonMain.dependencies {
       implementation(libs.compose.runtime)
@@ -52,6 +55,10 @@ kotlin {
       implementation(libs.kotlinx.serialization.core)
       implementation(libs.koin.compose)
       implementation(libs.koin.compose.viewmodel)
+      implementation(libs.sqldelight.runtime)
+    }
+    iosMain.dependencies {
+      implementation(libs.sqldelight.native.driver)
     }
     commonTest.dependencies {
       implementation(libs.kotlin.test)
@@ -61,4 +68,12 @@ kotlin {
 
 dependencies {
   androidRuntimeClasspath(libs.compose.uiTooling)
+}
+
+sqldelight {
+  databases {
+    create("SchulteDatabase") {
+      packageName.set("org.easy.schulte.db")
+    }
+  }
 }
