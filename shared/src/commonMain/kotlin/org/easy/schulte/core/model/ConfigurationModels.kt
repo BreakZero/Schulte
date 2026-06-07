@@ -33,17 +33,21 @@ data class FeatureConfiguration(
 
 fun AppConfiguration.toFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration = when (feature) {
   ConfigurationFeature.Config,
-  ConfigurationFeature.Training -> FeatureConfiguration(
+  ConfigurationFeature.Training,
+  -> FeatureConfiguration(
     feature = feature,
     selectedGrid = selectedGrid,
     selectedAgeGroup = selectedAgeGroup,
     selectedMarkMode = selectedMarkMode,
   )
+
   ConfigurationFeature.Report,
-  ConfigurationFeature.Advice -> FeatureConfiguration(
+  ConfigurationFeature.Advice,
+  -> FeatureConfiguration(
     feature = feature,
     aiSettings = aiSettings,
   )
+
   ConfigurationFeature.Settings -> FeatureConfiguration(
     feature = feature,
     selectedGrid = selectedGrid,
@@ -51,11 +55,13 @@ fun AppConfiguration.toFeatureConfiguration(feature: ConfigurationFeature): Feat
     selectedMarkMode = selectedMarkMode,
     aiSettings = aiSettings,
   )
+
   ConfigurationFeature.Records -> FeatureConfiguration(
     feature = feature,
     recordGridFilter = recordGridFilter,
     recordModeFilter = recordModeFilter,
     recordTimeFilter = recordTimeFilter,
   )
+
   ConfigurationFeature.Account -> FeatureConfiguration(feature = feature)
 }

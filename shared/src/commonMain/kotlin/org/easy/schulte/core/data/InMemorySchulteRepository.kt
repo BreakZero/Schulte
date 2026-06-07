@@ -51,8 +51,7 @@ internal class InMemorySchulteRepository(
 
   override fun currentConfiguration(): AppConfiguration = configurationStore.getConfiguration()
 
-  override fun currentFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration =
-    configurationStore.getFeatureConfiguration(feature)
+  override fun currentFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration = configurationStore.getFeatureConfiguration(feature)
 
   override fun observeFeatureConfiguration(feature: ConfigurationFeature): Flow<FeatureConfiguration> = configurationStore.observeFeatureConfiguration(feature)
 

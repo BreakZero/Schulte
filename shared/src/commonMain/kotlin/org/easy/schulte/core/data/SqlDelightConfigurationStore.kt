@@ -25,8 +25,7 @@ internal class SqlDelightConfigurationStore(
 
   override fun getConfiguration(): AppConfiguration = configuration.value
 
-  override fun getFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration =
-    configuration.value.toFeatureConfiguration(feature)
+  override fun getFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration = configuration.value.toFeatureConfiguration(feature)
 
   override fun observeFeatureConfiguration(feature: ConfigurationFeature): Flow<FeatureConfiguration> = configuration.map { it.toFeatureConfiguration(feature) }
 

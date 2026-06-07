@@ -22,26 +22,19 @@ import org.easy.schulte.feature.report.ReportState
 import org.easy.schulte.feature.settings.SettingsState
 import org.easy.schulte.feature.training.TrainingState
 
-internal fun SchulteRepository.configStateIn(scope: CoroutineScope): StateFlow<ConfigState> =
-  featureStateIn(scope, ConfigurationFeature.Config, ::toConfigState)
+internal fun SchulteRepository.configStateIn(scope: CoroutineScope): StateFlow<ConfigState> = featureStateIn(scope, ConfigurationFeature.Config, ::toConfigState)
 
-internal fun SchulteRepository.trainingStateIn(scope: CoroutineScope): StateFlow<TrainingState> =
-  featureStateIn(scope, ConfigurationFeature.Training, ::toTrainingState)
+internal fun SchulteRepository.trainingStateIn(scope: CoroutineScope): StateFlow<TrainingState> = featureStateIn(scope, ConfigurationFeature.Training, ::toTrainingState)
 
-internal fun SchulteRepository.reportStateIn(scope: CoroutineScope): StateFlow<ReportState> =
-  featureStateIn(scope, ConfigurationFeature.Report, ::toReportState)
+internal fun SchulteRepository.reportStateIn(scope: CoroutineScope): StateFlow<ReportState> = featureStateIn(scope, ConfigurationFeature.Report, ::toReportState)
 
-internal fun SchulteRepository.adviceStateIn(scope: CoroutineScope): StateFlow<AdviceState> =
-  featureStateIn(scope, ConfigurationFeature.Advice, ::toAdviceState)
+internal fun SchulteRepository.adviceStateIn(scope: CoroutineScope): StateFlow<AdviceState> = featureStateIn(scope, ConfigurationFeature.Advice, ::toAdviceState)
 
-internal fun SchulteRepository.settingsStateIn(scope: CoroutineScope): StateFlow<SettingsState> =
-  featureStateIn(scope, ConfigurationFeature.Settings, ::toSettingsState)
+internal fun SchulteRepository.settingsStateIn(scope: CoroutineScope): StateFlow<SettingsState> = featureStateIn(scope, ConfigurationFeature.Settings, ::toSettingsState)
 
-internal fun SchulteRepository.trainingRecordsStateIn(scope: CoroutineScope): StateFlow<TrainingRecordsState> =
-  featureStateIn(scope, ConfigurationFeature.Records, ::toTrainingRecordsState)
+internal fun SchulteRepository.trainingRecordsStateIn(scope: CoroutineScope): StateFlow<TrainingRecordsState> = featureStateIn(scope, ConfigurationFeature.Records, ::toTrainingRecordsState)
 
-internal fun SchulteRepository.accountStateIn(scope: CoroutineScope): StateFlow<AccountState> =
-  featureStateIn(scope, ConfigurationFeature.Account, ::toAccountState)
+internal fun SchulteRepository.accountStateIn(scope: CoroutineScope): StateFlow<AccountState> = featureStateIn(scope, ConfigurationFeature.Account, ::toAccountState)
 
 private fun <T> SchulteRepository.featureStateIn(
   scope: CoroutineScope,
