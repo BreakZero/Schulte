@@ -1,9 +1,12 @@
 package org.easy.schulte.core.data
 
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import org.easy.schulte.core.model.AgeGroup
 import org.easy.schulte.core.model.AiAnalysis
 import org.easy.schulte.core.model.AiSettings
+import org.easy.schulte.core.model.ConfigurationFeature
+import org.easy.schulte.core.model.FeatureConfiguration
 import org.easy.schulte.core.model.Gender
 import org.easy.schulte.core.model.GridSpec
 import org.easy.schulte.core.model.MarkMode
@@ -18,6 +21,7 @@ internal interface SchulteRepository {
   val state: StateFlow<SchulteState>
 
   fun currentState(): SchulteState
+  fun observeFeatureConfiguration(feature: ConfigurationFeature): Flow<FeatureConfiguration>
 
   fun selectGrid(spec: GridSpec)
   fun selectAgeGroup(ageGroup: AgeGroup)

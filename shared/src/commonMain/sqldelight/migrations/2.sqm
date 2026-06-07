@@ -1,0 +1,7 @@
+CREATE TABLE configuration_entry (
+  feature TEXT NOT NULL,
+  config_key TEXT NOT NULL,
+  config_value TEXT NOT NULL,
+  updated_at INTEGER NOT NULL,
+  PRIMARY KEY(feature, config_key)
+);

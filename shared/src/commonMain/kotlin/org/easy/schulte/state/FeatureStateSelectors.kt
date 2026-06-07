@@ -3,10 +3,12 @@ package org.easy.schulte.state
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import org.easy.schulte.core.data.SchulteRepository
+import org.easy.schulte.core.model.ConfigurationFeature
+import org.easy.schulte.core.model.FeatureConfiguration
 import org.easy.schulte.core.model.MarkMode
 import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.model.currentUser
@@ -20,31 +22,51 @@ import org.easy.schulte.feature.report.ReportState
 import org.easy.schulte.feature.settings.SettingsState
 import org.easy.schulte.feature.training.TrainingState
 
-internal fun SchulteRepository.configStateIn(scope: CoroutineScope): StateFlow<ConfigState> = featureStateIn(scope, SchulteState::toConfigState)
+internal fun SchulteRepository.configStateIn(scope: CoroutineScope): StateFlow<ConfigState> =
+  featureStateIn(scope, ConfigurationFeature.Config, SchulteState::toConfigState)
 
-internal fun SchulteRepository.trainingStateIn(scope: CoroutineScope): StateFlow<TrainingState> = featureStateIn(scope, SchulteState::toTrainingState)
+internal fun SchulteRepository.trainingStateIn(scope: CoroutineScope): StateFlow<TrainingState> =
+  featureStateIn(scope, ConfigurationFeature.Training, SchulteState::toTrainingState)
 
-internal fun SchulteRepository.reportStateIn(scope: CoroutineScope): StateFlow<ReportState> = featureStateIn(scope, SchulteState::toReportState)
+internal fun SchulteRepository.reportStateIn(scope: CoroutineScope): StateFlow<ReportState> =
+  featureStateIn(scope, ConfigurationFeature.Report, SchulteState::toReportState)
 
-internal fun SchulteRepository.adviceStateIn(scope: CoroutineScope): StateFlow<AdviceState> = featureStateIn(scope, SchulteState::toAdviceState)
+internal fun SchulteRepository.adviceStateIn(scope: CoroutineScope): StateFlow<AdviceState> =
+  featureStateIn(scope, ConfigurationFeature.Advice, SchulteState::toAdviceState)
 
-internal fun SchulteRepository.settingsStateIn(scope: CoroutineScope): StateFlow<SettingsState> = featureStateIn(scope, SchulteState::toSettingsState)
+internal fun SchulteRepository.settingsStateIn(scope: CoroutineScope): StateFlow<SettingsState> =
+  featureStateIn(scope, ConfigurationFeature.Settings, SchulteState::toSettingsState)
 
-internal fun SchulteRepository.trainingRecordsStateIn(scope: CoroutineScope): StateFlow<TrainingRecordsState> = featureStateIn(scope, SchulteState::toTrainingRecordsState)
+internal fun SchulteRepository.trainingRecordsStateIn(scope: CoroutineScope): StateFlow<TrainingRecordsState> =
+  featureStateIn(scope, ConfigurationFeature.Records, SchulteState::toTrainingRecordsState)
 
-internal fun SchulteRepository.accountStateIn(scope: CoroutineScope): StateFlow<AccountState> = featureStateIn(scope, SchulteState::toAccountState)
+internal fun SchulteRepository.accountStateIn(scope: CoroutineScope): StateFlow<AccountState> =
+  featureStateIn(scope, ConfigurationFeature.Account, SchulteState::toAccountState)
 
 private fun <T> SchulteRepository.featureStateIn(
   scope: CoroutineScope,
+  feature: ConfigurationFeature,
   mapper: (SchulteState) -> T,
 ): StateFlow<T> = state
-  .map(mapper)
+  .combine(observeFeatureConfiguration(feature)) { state, configuration ->
+    mapper(state.withConfiguration(configuration))
+  }
   .distinctUntilChanged()
   .stateIn(
     scope = scope,
     started = SharingStarted.WhileSubscribed(5_000),
     initialValue = mapper(currentState()),
   )
+
+private fun SchulteState.withConfiguration(configuration: FeatureConfiguration): SchulteState = copy(
+  selectedGrid = configuration.selectedGrid ?: selectedGrid,
+  selectedAgeGroup = configuration.selectedAgeGroup ?: selectedAgeGroup,
+  selectedMarkMode = configuration.selectedMarkMode ?: selectedMarkMode,
+  aiSettings = configuration.aiSettings ?: aiSettings,
+  recordGridFilter = configuration.recordGridFilter ?: recordGridFilter,
+  recordModeFilter = configuration.recordModeFilter ?: recordModeFilter,
+  recordTimeFilter = configuration.recordTimeFilter ?: recordTimeFilter,
+)
 
 private fun SchulteState.toConfigState(): ConfigState = ConfigState(
   selectedGrid = selectedGrid,
