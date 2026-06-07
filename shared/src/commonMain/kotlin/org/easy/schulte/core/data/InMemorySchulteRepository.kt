@@ -1,5 +1,6 @@
 package org.easy.schulte.core.data
 
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -9,7 +10,10 @@ import org.easy.schulte.core.model.AgeGroup
 import org.easy.schulte.core.model.AiAnalysis
 import org.easy.schulte.core.model.AiAnalysisState
 import org.easy.schulte.core.model.AiSettings
+import org.easy.schulte.core.model.AppConfiguration
 import org.easy.schulte.core.model.CellFeedback
+import org.easy.schulte.core.model.ConfigurationFeature
+import org.easy.schulte.core.model.FeatureConfiguration
 import org.easy.schulte.core.model.Gender
 import org.easy.schulte.core.model.GridSpec
 import org.easy.schulte.core.model.ImprovementStatus
@@ -32,27 +36,32 @@ import kotlin.math.max
 
 internal class InMemorySchulteRepository(
   private val recordStore: TrainingRecordStore,
+  private val configurationStore: ConfigurationStore,
 ) : SchulteRepository {
   private val mutableState = MutableStateFlow(
     SchulteState(
       accounts = recordStore.getAccounts(),
-    ).withRecords(recordStore.getAllRecords(), now = currentTimeMillis()),
+    )
+      .withConfiguration(configurationStore.getConfiguration())
+      .withRecords(recordStore.getAllRecords(), now = currentTimeMillis()),
   )
 
   override val state = mutableState.asStateFlow()
 
   override fun currentState(): SchulteState = state.value
 
+  override fun observeFeatureConfiguration(feature: ConfigurationFeature): Flow<FeatureConfiguration> = configurationStore.observeFeatureConfiguration(feature)
+
   override fun selectGrid(spec: GridSpec) {
-    mutableState.update { it.copy(selectedGrid = spec) }
+    updateConfiguration { copy(selectedGrid = spec) }
   }
 
   override fun selectAgeGroup(ageGroup: AgeGroup) {
-    mutableState.update { it.copy(selectedAgeGroup = ageGroup) }
+    updateConfiguration { copy(selectedAgeGroup = ageGroup) }
   }
 
   override fun selectMarkMode(markMode: MarkMode) {
-    mutableState.update { it.copy(selectedMarkMode = markMode) }
+    updateConfiguration { copy(selectedMarkMode = markMode) }
   }
 
   override fun clearSettingsMessage() {
@@ -128,7 +137,11 @@ internal class InMemorySchulteRepository(
   }
 
   override fun updateAiSettings(block: AiSettings.() -> AiSettings) {
-    mutableState.update { it.copy(aiSettings = it.aiSettings.block(), settingsMessage = null) }
+    val nextConfiguration = currentState().toAppConfiguration().let {
+      it.copy(aiSettings = it.aiSettings.block())
+    }
+    configurationStore.updateConfiguration(nextConfiguration)
+    mutableState.update { it.withConfiguration(nextConfiguration).copy(settingsMessage = null) }
   }
 
   override fun toggleApiKeyVisibility() {
@@ -136,14 +149,17 @@ internal class InMemorySchulteRepository(
   }
 
   override fun clearAiSettings() {
+    val nextConfiguration = currentState().toAppConfiguration().copy(
+      aiSettings = AiSettings(
+        aiEnabled = false,
+        apiKey = "",
+        baseUrl = "",
+        modelName = "gpt-4o-mini",
+      ),
+    )
+    configurationStore.updateConfiguration(nextConfiguration)
     mutableState.update {
-      it.copy(
-        aiSettings = it.aiSettings.copy(
-          aiEnabled = false,
-          apiKey = "",
-          baseUrl = "",
-          modelName = "gpt-4o-mini",
-        ),
+      it.withConfiguration(nextConfiguration).copy(
         settingsMessage = SettingsMessage.AiCleared,
         aiAnalysisState = AiAnalysisState.Idle,
         aiAnalysis = null,
@@ -152,14 +168,18 @@ internal class InMemorySchulteRepository(
   }
 
   override fun saveSettings() {
+    val current = currentState()
+    val nextConfiguration = current.toAppConfiguration().copy(
+      selectedMarkMode = if (current.aiSettings.assistedMarkingEnabled) {
+        MarkMode.AssistedMarking
+      } else {
+        MarkMode.BriefFeedbackOnly
+      },
+    )
+    configurationStore.updateConfiguration(nextConfiguration)
     mutableState.update {
-      it.copy(
+      it.withConfiguration(nextConfiguration).copy(
         settingsMessage = SettingsMessage.Saved,
-        selectedMarkMode = if (it.aiSettings.assistedMarkingEnabled) {
-          MarkMode.AssistedMarking
-        } else {
-          MarkMode.BriefFeedbackOnly
-        },
       )
     }
   }
@@ -169,15 +189,15 @@ internal class InMemorySchulteRepository(
   }
 
   override fun selectRecordGridFilter(filter: RecordGridFilter) {
-    mutableState.update { it.copy(recordGridFilter = filter) }
+    updateConfiguration { copy(recordGridFilter = filter) }
   }
 
   override fun selectRecordModeFilter(filter: RecordModeFilter) {
-    mutableState.update { it.copy(recordModeFilter = filter) }
+    updateConfiguration { copy(recordModeFilter = filter) }
   }
 
   override fun selectRecordTimeFilter(filter: RecordTimeFilter) {
-    mutableState.update { it.copy(recordTimeFilter = filter) }
+    updateConfiguration { copy(recordTimeFilter = filter) }
   }
 
   override fun requestClearTrainingRecords() {
@@ -420,6 +440,12 @@ internal class InMemorySchulteRepository(
       nextGoalText = record.nextGoalText(),
     )
   }
+
+  private fun updateConfiguration(block: AppConfiguration.() -> AppConfiguration) {
+    val nextConfiguration = currentState().toAppConfiguration().block()
+    configurationStore.updateConfiguration(nextConfiguration)
+    mutableState.update { it.withConfiguration(nextConfiguration) }
+  }
 }
 
 private fun validateRegistration(form: AccountForm): String? = when {
@@ -491,6 +517,26 @@ private fun MarkMode.shortName(): String = when (this) {
 private fun SchulteState.withRecords(records: List<TrainingRecord>, now: Long): SchulteState = copy(
   records = records,
   recordSummary = records.summary(now),
+)
+
+private fun SchulteState.withConfiguration(configuration: AppConfiguration): SchulteState = copy(
+  selectedGrid = configuration.selectedGrid,
+  selectedAgeGroup = configuration.selectedAgeGroup,
+  selectedMarkMode = configuration.selectedMarkMode,
+  aiSettings = configuration.aiSettings,
+  recordGridFilter = configuration.recordGridFilter,
+  recordModeFilter = configuration.recordModeFilter,
+  recordTimeFilter = configuration.recordTimeFilter,
+)
+
+private fun SchulteState.toAppConfiguration(): AppConfiguration = AppConfiguration(
+  selectedGrid = selectedGrid,
+  selectedAgeGroup = selectedAgeGroup,
+  selectedMarkMode = selectedMarkMode,
+  aiSettings = aiSettings,
+  recordGridFilter = recordGridFilter,
+  recordModeFilter = recordModeFilter,
+  recordTimeFilter = recordTimeFilter,
 )
 
 private fun List<TrainingRecord>.summary(now: Long): TrainingRecordSummary {

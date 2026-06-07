@@ -24,6 +24,14 @@ CREATE TABLE user_account (
   created_at INTEGER NOT NULL
 );
 
+CREATE TABLE configuration_entry (
+  feature TEXT NOT NULL,
+  config_key TEXT NOT NULL,
+  config_value TEXT NOT NULL,
+  updated_at INTEGER NOT NULL,
+  PRIMARY KEY(feature, config_key)
+);
+
 CREATE INDEX training_record_conditions_idx
 ON training_record(grid_size, age_group, mark_mode, created_at);
 
@@ -98,3 +106,17 @@ WHERE id IN (
 countAll:
 SELECT COUNT(*)
 FROM training_record;
+
+selectFeatureConfigurations:
+SELECT *
+FROM configuration_entry
+WHERE feature = ?;
+
+upsertConfiguration:
+INSERT OR REPLACE INTO configuration_entry(
+  feature,
+  config_key,
+  config_value,
+  updated_at
+)
+VALUES (?, ?, ?, ?);

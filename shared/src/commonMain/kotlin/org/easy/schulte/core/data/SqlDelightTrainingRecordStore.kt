@@ -7,14 +7,13 @@ import org.easy.schulte.core.model.MarkMode
 import org.easy.schulte.core.model.ScoreLevel
 import org.easy.schulte.core.model.TrainingRecord
 import org.easy.schulte.core.model.UserAccount
-import org.easy.schulte.db.SchulteDatabase
 import org.easy.schulte.db.Training_record
 import org.easy.schulte.db.User_account
 
 internal class SqlDelightTrainingRecordStore(
-  driverFactory: DatabaseDriverFactory,
+  databaseProvider: SchulteDatabaseProvider,
 ) : TrainingRecordStore {
-  private val database = SchulteDatabase(driverFactory.createDriver())
+  private val database = databaseProvider.database
   private val queries = database.schulteDatabaseQueries
 
   override fun getAllRecords(): List<TrainingRecord> = queries.selectAll().executeAsList().map(::mapRecord)
