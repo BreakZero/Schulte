@@ -1,10 +1,10 @@
 package org.easy.schulte.di
 
-import org.easy.schulte.core.data.DatabaseDriverFactory
 import org.easy.schulte.core.data.ConfigurationStore
+import org.easy.schulte.core.data.DatabaseDriverFactory
 import org.easy.schulte.core.data.InMemorySchulteRepository
-import org.easy.schulte.core.data.SchulteRepository
 import org.easy.schulte.core.data.SchulteDatabaseProvider
+import org.easy.schulte.core.data.SchulteRepository
 import org.easy.schulte.core.data.SqlDelightConfigurationStore
 import org.easy.schulte.core.data.SqlDelightTrainingRecordStore
 import org.easy.schulte.core.data.TrainingRecordStore

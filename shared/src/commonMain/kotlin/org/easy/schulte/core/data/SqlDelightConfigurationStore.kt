@@ -24,8 +24,7 @@ internal class SqlDelightConfigurationStore(
 
   override fun getConfiguration(): AppConfiguration = configuration.value
 
-  override fun observeFeatureConfiguration(feature: ConfigurationFeature): Flow<FeatureConfiguration> =
-    configuration.map { it.toFeatureConfiguration(feature) }
+  override fun observeFeatureConfiguration(feature: ConfigurationFeature): Flow<FeatureConfiguration> = configuration.map { it.toFeatureConfiguration(feature) }
 
   override fun updateConfiguration(configuration: AppConfiguration) {
     queries.transaction {
@@ -79,17 +78,21 @@ internal class SqlDelightConfigurationStore(
 
   private fun AppConfiguration.toFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration = when (feature) {
     ConfigurationFeature.Config,
-    ConfigurationFeature.Training -> FeatureConfiguration(
+    ConfigurationFeature.Training,
+    -> FeatureConfiguration(
       feature = feature,
       selectedGrid = selectedGrid,
       selectedAgeGroup = selectedAgeGroup,
       selectedMarkMode = selectedMarkMode,
     )
+
     ConfigurationFeature.Report,
-    ConfigurationFeature.Advice -> FeatureConfiguration(
+    ConfigurationFeature.Advice,
+    -> FeatureConfiguration(
       feature = feature,
       aiSettings = aiSettings,
     )
+
     ConfigurationFeature.Settings -> FeatureConfiguration(
       feature = feature,
       selectedGrid = selectedGrid,
@@ -97,12 +100,14 @@ internal class SqlDelightConfigurationStore(
       selectedMarkMode = selectedMarkMode,
       aiSettings = aiSettings,
     )
+
     ConfigurationFeature.Records -> FeatureConfiguration(
       feature = feature,
       recordGridFilter = recordGridFilter,
       recordModeFilter = recordModeFilter,
       recordTimeFilter = recordTimeFilter,
     )
+
     ConfigurationFeature.Account -> FeatureConfiguration(feature = feature)
   }
 }
@@ -134,10 +139,8 @@ private val KEY_VALUES = listOf(
   KEY_RECORD_TIME_FILTER,
 )
 
-private inline fun <reified T : Enum<T>> Map<String, String>.enumValue(key: String, default: T): T =
-  get(key)?.let { value ->
-    enumValues<T>().firstOrNull { it.name == value }
-  } ?: default
+private inline fun <reified T : Enum<T>> Map<String, String>.enumValue(key: String, default: T): T = get(key)?.let { value ->
+  enumValues<T>().firstOrNull { it.name == value }
+} ?: default
 
-private fun Map<String, String>.booleanValue(key: String, default: Boolean): Boolean =
-  get(key)?.toBooleanStrictOrNull() ?: default
+private fun Map<String, String>.booleanValue(key: String, default: Boolean): Boolean = get(key)?.toBooleanStrictOrNull() ?: default

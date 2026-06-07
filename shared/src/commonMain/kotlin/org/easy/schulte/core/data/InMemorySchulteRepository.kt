@@ -50,8 +50,7 @@ internal class InMemorySchulteRepository(
 
   override fun currentState(): SchulteState = state.value
 
-  override fun observeFeatureConfiguration(feature: ConfigurationFeature): Flow<FeatureConfiguration> =
-    configurationStore.observeFeatureConfiguration(feature)
+  override fun observeFeatureConfiguration(feature: ConfigurationFeature): Flow<FeatureConfiguration> = configurationStore.observeFeatureConfiguration(feature)
 
   override fun selectGrid(spec: GridSpec) {
     updateConfiguration { copy(selectedGrid = spec) }
