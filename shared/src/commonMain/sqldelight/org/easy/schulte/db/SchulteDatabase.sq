@@ -1,5 +1,6 @@
 CREATE TABLE training_record (
   id TEXT NOT NULL PRIMARY KEY,
+  owner_user_id TEXT,
   created_at INTEGER NOT NULL,
   grid_size INTEGER NOT NULL,
   age_group TEXT NOT NULL,
@@ -12,6 +13,15 @@ CREATE TABLE training_record (
   improvement_status TEXT NOT NULL,
   time_delta_millis INTEGER,
   error_delta INTEGER
+);
+
+CREATE TABLE user_account (
+  user_id TEXT NOT NULL PRIMARY KEY,
+  register_id TEXT NOT NULL UNIQUE,
+  nickname TEXT NOT NULL,
+  password TEXT NOT NULL,
+  gender TEXT NOT NULL,
+  created_at INTEGER NOT NULL
 );
 
 CREATE INDEX training_record_conditions_idx
@@ -31,6 +41,7 @@ ORDER BY created_at DESC;
 insertRecord:
 INSERT OR REPLACE INTO training_record(
   id,
+  owner_user_id,
   created_at,
   grid_size,
   age_group,
@@ -44,7 +55,33 @@ INSERT OR REPLACE INTO training_record(
   time_delta_millis,
   error_delta
 )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+updateUnownedRecordsOwner:
+UPDATE training_record
+SET owner_user_id = ?
+WHERE owner_user_id IS NULL;
+
+selectAccounts:
+SELECT *
+FROM user_account
+ORDER BY created_at DESC;
+
+insertAccount:
+INSERT OR REPLACE INTO user_account(
+  user_id,
+  register_id,
+  nickname,
+  password,
+  gender,
+  created_at
+)
+VALUES (?, ?, ?, ?, ?, ?);
+
+updateAccountProfile:
+UPDATE user_account
+SET nickname = ?, gender = ?
+WHERE user_id = ?;
 
 deleteAll:
 DELETE FROM training_record;

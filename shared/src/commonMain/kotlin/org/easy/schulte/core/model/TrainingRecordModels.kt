@@ -12,6 +12,7 @@ enum class ImprovementStatus {
 
 data class TrainingRecord(
   val id: String,
+  val ownerUserId: String? = null,
   val createdAt: Long,
   val gridSpec: GridSpec,
   val ageGroup: AgeGroup,

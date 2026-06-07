@@ -6,8 +6,10 @@ import org.easy.schulte.core.model.ImprovementStatus
 import org.easy.schulte.core.model.MarkMode
 import org.easy.schulte.core.model.ScoreLevel
 import org.easy.schulte.core.model.TrainingRecord
+import org.easy.schulte.core.model.UserAccount
 import org.easy.schulte.db.SchulteDatabase
 import org.easy.schulte.db.Training_record
+import org.easy.schulte.db.User_account
 
 internal class SqlDelightTrainingRecordStore(
   driverFactory: DatabaseDriverFactory,
@@ -30,6 +32,7 @@ internal class SqlDelightTrainingRecordStore(
     queries.transaction {
       queries.insertRecord(
         id = record.id,
+        owner_user_id = record.ownerUserId,
         created_at = record.createdAt,
         grid_size = record.gridSpec.size.toLong(),
         age_group = record.ageGroup.name,
@@ -52,8 +55,34 @@ internal class SqlDelightTrainingRecordStore(
     queries.deleteAll()
   }
 
+  override fun getAccounts(): List<UserAccount> = queries.selectAccounts().executeAsList().map(::mapAccount)
+
+  override fun insertAccount(account: UserAccount) {
+    queries.insertAccount(
+      user_id = account.userId,
+      register_id = account.registerId,
+      nickname = account.nickname,
+      password = account.password,
+      gender = account.gender.name,
+      created_at = account.createdAt,
+    )
+  }
+
+  override fun updateAccountProfile(account: UserAccount) {
+    queries.updateAccountProfile(
+      nickname = account.nickname,
+      gender = account.gender.name,
+      user_id = account.userId,
+    )
+  }
+
+  override fun updateUnownedRecordsOwner(userId: String) {
+    queries.updateUnownedRecordsOwner(userId)
+  }
+
   private fun mapRecord(row: Training_record): TrainingRecord = TrainingRecord(
     id = row.id,
+    ownerUserId = row.owner_user_id,
     createdAt = row.created_at,
     gridSpec = GridSpec.entries.first { it.size == row.grid_size.toInt() },
     ageGroup = AgeGroup.valueOf(row.age_group),
@@ -66,6 +95,15 @@ internal class SqlDelightTrainingRecordStore(
     improvementStatus = ImprovementStatus.valueOf(row.improvement_status),
     timeDeltaMillis = row.time_delta_millis,
     errorDelta = row.error_delta?.toInt(),
+  )
+
+  private fun mapAccount(row: User_account): UserAccount = UserAccount(
+    userId = row.user_id,
+    registerId = row.register_id,
+    nickname = row.nickname,
+    password = row.password,
+    gender = org.easy.schulte.core.model.Gender.valueOf(row.gender),
+    createdAt = row.created_at,
   )
 }
 

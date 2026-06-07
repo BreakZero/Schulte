@@ -33,6 +33,8 @@ import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.model.ScoreLevel
 import org.easy.schulte.core.model.TrainingRecordSummary
 import org.easy.schulte.core.model.TrainingReport
+import org.easy.schulte.core.model.currentUser
+import org.easy.schulte.core.model.isLoggedIn
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.FocusTeal
 import org.easy.schulte.core.ui.InfoCard
@@ -56,6 +58,7 @@ internal fun ReportRoot(
   onOpenRecords: () -> Unit,
   onBackToConfig: () -> Unit,
   onOpenSettings: () -> Unit,
+  onOpenProfile: () -> Unit,
   viewModel: ReportViewModel = koinViewModel(),
 ) {
   val state by viewModel.state.collectAsStateWithLifecycle()
@@ -68,6 +71,7 @@ internal fun ReportRoot(
         ReportEvent.OpenRecords -> onOpenRecords()
         ReportEvent.BackToConfig -> onBackToConfig()
         ReportEvent.OpenSettings -> onOpenSettings()
+        ReportEvent.OpenProfile -> onOpenProfile()
       }
     }
   }
@@ -90,11 +94,11 @@ internal fun ReportScreen(
       verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
       Text(
-        text = stringResource(
-          Res.string.report_completion_summary,
-          report.gridSpec.titleText(),
-          report.markMode.titleText(),
-        ),
+        text = if (state.isLoggedIn) {
+          "已保存到账号：${state.currentUser?.nickname.orEmpty()}"
+        } else {
+          "已保存为本地记录"
+        },
         color = QuietText,
       )
       ResultHeroCard(report)
@@ -110,6 +114,9 @@ internal fun ReportScreen(
           stringResource(Res.string.report_score_note_practice)
         },
       )
+      if (!state.isLoggedIn) {
+        LoginAttributionCard(onOpenProfile = { onAction(ReportAction.OpenProfile) })
+      }
       AiEntryCard(state = state, onAction = onAction)
       Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
         Button(
@@ -141,6 +148,24 @@ internal fun ReportScreen(
       ) {
         Text(stringResource(Res.string.action_back_home))
       }
+    }
+  }
+}
+
+@Composable
+private fun LoginAttributionCard(onOpenProfile: () -> Unit) {
+  SchulteCard {
+    SectionTitle("登录后保存到账号")
+    Text("当前记录保存在本地。登录后可将本地记录关联到你的账号，为后续 PK 和数据同步做准备。", color = QuietText, lineHeight = 21.sp)
+    Button(
+      onClick = onOpenProfile,
+      modifier = Modifier
+        .fillMaxWidth()
+        .height(48.dp),
+      colors = ButtonDefaults.buttonColors(containerColor = FocusBlue),
+      shape = RoundedCornerShape(8.dp),
+    ) {
+      Text("登录 / 注册")
     }
   }
 }

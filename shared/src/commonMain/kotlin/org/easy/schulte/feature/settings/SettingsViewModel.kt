@@ -20,6 +20,7 @@ internal class SettingsViewModel(
   fun onAction(action: SettingsAction) {
     when (action) {
       SettingsAction.BackFromSettings -> sendEvent(SettingsEvent.CloseSettings)
+      SettingsAction.OpenProfile -> sendEvent(SettingsEvent.OpenProfile)
       is SettingsAction.ToggleAiEnabled -> updateSettings { copy(aiEnabled = action.enabled) }
       is SettingsAction.ToggleAssistSetting -> updateSettings { copy(assistedMarkingEnabled = action.enabled) }
       is SettingsAction.UpdateApiKey -> updateSettings { copy(apiKey = action.value) }

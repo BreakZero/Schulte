@@ -34,6 +34,7 @@ import org.easy.schulte.core.model.GridSpec
 import org.easy.schulte.core.model.MarkMode
 import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.model.TrainingRecord
+import org.easy.schulte.core.model.isLoggedIn
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.InfoCard
 import org.easy.schulte.core.ui.ModeCard
@@ -113,6 +114,7 @@ internal fun ConfigScreen(
       )
       RecentTrainingCard(
         latestRecord = state.recordSummary.latestRecord,
+        isLoggedIn = state.isLoggedIn,
         onOpenRecords = { onAction(ConfigAction.OpenRecords) },
       )
       SectionTitle(stringResource(Res.string.section_grid_spec))
@@ -169,6 +171,7 @@ internal fun ConfigScreen(
 @Composable
 private fun RecentTrainingCard(
   latestRecord: TrainingRecord?,
+  isLoggedIn: Boolean,
   onOpenRecords: () -> Unit,
 ) {
   SchulteCard {
@@ -185,6 +188,7 @@ private fun RecentTrainingCard(
       Text("还没有训练记录", color = Color(0xFF172033), fontWeight = FontWeight.SemiBold)
       Text("完成首次训练后，这里会展示你的训练记录和进步情况。", color = QuietText, lineHeight = 21.sp)
     } else {
+      Text(if (isLoggedIn) "记录已归属当前账号" else "当前为本地游客记录", color = QuietText, fontSize = 13.sp)
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,

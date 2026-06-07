@@ -2,6 +2,7 @@ package org.easy.schulte.feature.settings
 
 sealed interface SettingsAction {
   data object BackFromSettings : SettingsAction
+  data object OpenProfile : SettingsAction
   data class ToggleAiEnabled(val enabled: Boolean) : SettingsAction
   data class ToggleAssistSetting(val enabled: Boolean) : SettingsAction
   data class UpdateApiKey(val value: String) : SettingsAction

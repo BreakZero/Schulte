@@ -29,6 +29,8 @@ internal class ReportViewModel(
         sendEvent(ReportEvent.OpenSettings)
       }
 
+      ReportAction.OpenProfile -> sendEvent(ReportEvent.OpenProfile)
+
       ReportAction.OpenRecords -> sendEvent(ReportEvent.OpenRecords)
 
       ReportAction.GenerateAiAnalysis -> {

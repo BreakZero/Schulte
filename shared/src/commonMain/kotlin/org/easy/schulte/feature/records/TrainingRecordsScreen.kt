@@ -31,6 +31,8 @@ import org.easy.schulte.core.model.RecordModeFilter
 import org.easy.schulte.core.model.RecordTimeFilter
 import org.easy.schulte.core.model.SchulteState
 import org.easy.schulte.core.model.TrainingRecord
+import org.easy.schulte.core.model.currentUser
+import org.easy.schulte.core.model.isLoggedIn
 import org.easy.schulte.core.platform.currentTimeMillis
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.KeyValueRow
@@ -83,6 +85,7 @@ internal fun TrainingRecordsScreen(
       if (state.records.isEmpty()) {
         EmptyRecords(onStartTraining = { onAction(TrainingRecordsAction.StartTraining) })
       } else {
+        RecordsOwnershipCard(state)
         SummaryGrid(state)
         Filters(state, onAction)
         state.filteredRecords().forEach { record ->
@@ -90,6 +93,22 @@ internal fun TrainingRecordsScreen(
         }
       }
     }
+  }
+}
+
+@Composable
+private fun RecordsOwnershipCard(state: SchulteState) {
+  SchulteCard {
+    Text(
+      if (state.isLoggedIn) "当前记录归属到账号：${state.currentUser?.nickname.orEmpty()}" else "当前为本地记录",
+      fontWeight = FontWeight.SemiBold,
+      color = Color(0xFF172033),
+    )
+    Text(
+      if (state.isLoggedIn) "新完成的训练会归属到当前账号。" else "登录后可将本地训练记录归属到账号。",
+      color = QuietText,
+      lineHeight = 21.sp,
+    )
   }
 }
 

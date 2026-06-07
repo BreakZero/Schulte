@@ -5,5 +5,6 @@ internal sealed interface ReportEvent {
   data object GenerateAiAnalysis : ReportEvent
   data object BackToConfig : ReportEvent
   data object OpenSettings : ReportEvent
+  data object OpenProfile : ReportEvent
   data object OpenRecords : ReportEvent
 }

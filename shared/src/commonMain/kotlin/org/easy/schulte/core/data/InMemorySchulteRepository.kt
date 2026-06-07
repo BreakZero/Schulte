@@ -4,10 +4,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.easy.schulte.core.model.AgeGroup
+import org.easy.schulte.core.model.AccountForm
+import org.easy.schulte.core.model.AccountMessage
 import org.easy.schulte.core.model.AiAnalysis
 import org.easy.schulte.core.model.AiAnalysisState
 import org.easy.schulte.core.model.AiSettings
 import org.easy.schulte.core.model.CellFeedback
+import org.easy.schulte.core.model.Gender
 import org.easy.schulte.core.model.GridSpec
 import org.easy.schulte.core.model.ImprovementStatus
 import org.easy.schulte.core.model.MarkMode
@@ -20,6 +23,9 @@ import org.easy.schulte.core.model.SettingsMessage
 import org.easy.schulte.core.model.TrainingRecord
 import org.easy.schulte.core.model.TrainingRecordSummary
 import org.easy.schulte.core.model.TrainingReport
+import org.easy.schulte.core.model.UserAccount
+import org.easy.schulte.core.model.currentUser
+import org.easy.schulte.core.model.unlinkedLocalRecordCount
 import org.easy.schulte.core.platform.currentTimeMillis
 import kotlin.math.abs
 import kotlin.math.max
@@ -28,7 +34,9 @@ internal class InMemorySchulteRepository(
   private val recordStore: TrainingRecordStore,
 ) : SchulteRepository {
   private val mutableState = MutableStateFlow(
-    SchulteState().withRecords(recordStore.getAllRecords(), now = currentTimeMillis()),
+    SchulteState(
+      accounts = recordStore.getAccounts(),
+    ).withRecords(recordStore.getAllRecords(), now = currentTimeMillis()),
   )
 
   override val state = mutableState.asStateFlow()
@@ -63,6 +71,7 @@ internal class InMemorySchulteRepository(
         report = null,
         aiAnalysis = null,
         aiAnalysisState = AiAnalysisState.Idle,
+        accountMessage = null,
       )
     }
   }
@@ -192,6 +201,163 @@ internal class InMemorySchulteRepository(
     }
   }
 
+  override fun updateLoginRegisterId(value: String) {
+    mutableState.update { it.copy(accountForm = it.accountForm.copy(registerId = value.trim(), errorMessage = null)) }
+  }
+
+  override fun updateAccountNickname(value: String) {
+    mutableState.update { it.copy(accountForm = it.accountForm.copy(nickname = value, errorMessage = null)) }
+  }
+
+  override fun updateAccountPassword(value: String) {
+    mutableState.update { it.copy(accountForm = it.accountForm.copy(password = value, errorMessage = null)) }
+  }
+
+  override fun updateAccountConfirmPassword(value: String) {
+    mutableState.update { it.copy(accountForm = it.accountForm.copy(confirmPassword = value, errorMessage = null)) }
+  }
+
+  override fun updateAccountGender(gender: Gender) {
+    mutableState.update { it.copy(accountForm = it.accountForm.copy(gender = gender, errorMessage = null)) }
+  }
+
+  override fun updateAgreementAccepted(accepted: Boolean) {
+    mutableState.update { it.copy(accountForm = it.accountForm.copy(agreementAccepted = accepted, errorMessage = null)) }
+  }
+
+  override fun clearAccountForm() {
+    mutableState.update {
+      it.copy(
+        accountForm = AccountForm(
+          nickname = it.currentUser?.nickname.orEmpty(),
+          gender = it.currentUser?.gender ?: Gender.Private,
+        ),
+        accountMessage = null,
+      )
+    }
+  }
+
+  override fun registerAccount() {
+    val state = currentState()
+    val form = state.accountForm
+    val error = validateRegistration(form)
+    if (error != null) {
+      mutableState.update { it.copy(accountForm = form.copy(errorMessage = error)) }
+      return
+    }
+    val createdAt = currentTimeMillis()
+    val account = UserAccount(
+      userId = "user_$createdAt",
+      registerId = generateRegisterId(createdAt, state.accounts.size),
+      nickname = form.nickname.trim(),
+      password = form.password,
+      gender = form.gender,
+      createdAt = createdAt,
+    )
+    recordStore.insertAccount(account)
+    mutableState.update {
+      it.copy(
+        accounts = it.accounts + account,
+        currentUserId = account.userId,
+        accountForm = AccountForm(),
+        accountMessage = AccountMessage.Registered,
+        showLinkLocalRecordsDialog = it.unlinkedLocalRecordCount > 0,
+      )
+    }
+  }
+
+  override fun loginAccount() {
+    val state = currentState()
+    val form = state.accountForm
+    val account = state.accounts.firstOrNull {
+      it.registerId.equals(form.registerId.trim(), ignoreCase = true) && it.password == form.password
+    }
+    if (account == null) {
+      mutableState.update { it.copy(accountForm = form.copy(errorMessage = "注册 ID 或密码不正确")) }
+      return
+    }
+    mutableState.update {
+      it.copy(
+        currentUserId = account.userId,
+        accountForm = AccountForm(),
+        accountMessage = AccountMessage.LoggedIn,
+        showLinkLocalRecordsDialog = it.records.any { record -> record.ownerUserId == null },
+      )
+    }
+  }
+
+  override fun updateCurrentProfile() {
+    val state = currentState()
+    val user = state.currentUser ?: return
+    val form = state.accountForm
+    val nickname = form.nickname.trim()
+    if (nickname.isBlank()) {
+      mutableState.update { it.copy(accountForm = form.copy(errorMessage = "昵称不能为空")) }
+      return
+    }
+    val updatedUser = user.copy(nickname = nickname, gender = form.gender)
+    recordStore.updateAccountProfile(updatedUser)
+    mutableState.update {
+      it.copy(
+        accounts = it.accounts.map { account ->
+          if (account.userId == user.userId) updatedUser else account
+        },
+        accountMessage = AccountMessage.ProfileSaved,
+      )
+    }
+  }
+
+  override fun requestLinkLocalRecords() {
+    mutableState.update { it.copy(showLinkLocalRecordsDialog = it.unlinkedLocalRecordCount > 0) }
+  }
+
+  override fun linkLocalRecords() {
+    val userId = currentState().currentUserId ?: return
+    recordStore.updateUnownedRecordsOwner(userId)
+    mutableState.update {
+      val linkedRecords = it.records.map { record ->
+        if (record.ownerUserId == null) record.copy(ownerUserId = userId) else record
+      }
+      it.copy(
+        records = linkedRecords,
+        recordSummary = linkedRecords.summary(now = currentTimeMillis()),
+        showLinkLocalRecordsDialog = false,
+        accountMessage = AccountMessage.LocalRecordsLinked,
+      )
+    }
+  }
+
+  override fun dismissLinkLocalRecords() {
+    mutableState.update { it.copy(showLinkLocalRecordsDialog = false) }
+  }
+
+  override fun requestLogout() {
+    mutableState.update { it.copy(showLogoutDialog = true) }
+  }
+
+  override fun cancelLogout() {
+    mutableState.update { it.copy(showLogoutDialog = false) }
+  }
+
+  override fun logout() {
+    mutableState.update {
+      it.copy(
+        currentUserId = null,
+        showLogoutDialog = false,
+        accountForm = AccountForm(),
+        accountMessage = AccountMessage.LoggedOut,
+      )
+    }
+  }
+
+  override fun markRegisterIdCopied() {
+    mutableState.update { it.copy(accountMessage = AccountMessage.RegisterIdCopied) }
+  }
+
+  override fun clearAccountMessage() {
+    mutableState.update { it.copy(accountMessage = null) }
+  }
+
   override fun markAiAnalysisNeedsSettings() {
     mutableState.update { it.copy(aiAnalysisState = AiAnalysisState.NeedsSettings) }
   }
@@ -229,6 +395,7 @@ internal class InMemorySchulteRepository(
     )
     val record = TrainingRecord(
       id = "${createdAt}_${report.gridSpec.size}_${report.elapsedMillis}",
+      ownerUserId = currentState().currentUserId,
       createdAt = createdAt,
       gridSpec = report.gridSpec,
       ageGroup = report.ageGroup,
@@ -253,6 +420,19 @@ internal class InMemorySchulteRepository(
       nextGoalText = record.nextGoalText(),
     )
   }
+}
+
+private fun validateRegistration(form: AccountForm): String? = when {
+  form.nickname.trim().length !in 2..12 -> "昵称需为 2 到 12 个字符"
+  form.password.length < 6 -> "密码至少 6 位"
+  form.password != form.confirmPassword -> "两次密码不一致"
+  !form.agreementAccepted -> "请先同意用户协议和隐私说明"
+  else -> null
+}
+
+private fun generateRegisterId(createdAt: Long, accountCount: Int): String {
+  val tail = ((createdAt % 900000) + 100000 + accountCount).toString().takeLast(6)
+  return "SQT-$tail"
 }
 
 private fun improvementStatus(
