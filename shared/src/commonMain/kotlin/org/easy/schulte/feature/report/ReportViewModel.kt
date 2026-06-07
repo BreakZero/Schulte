@@ -35,7 +35,7 @@ internal class ReportViewModel(
       ReportAction.OpenRecords -> sendEvent(ReportEvent.OpenRecords)
 
       ReportAction.GenerateAiAnalysis -> {
-        if (repository.currentState().aiSettings.isConfigured) {
+        if (repository.currentConfiguration().aiSettings.isConfigured) {
           sendEvent(ReportEvent.GenerateAiAnalysis)
         } else {
           repository.markAiAnalysisNeedsSettings()

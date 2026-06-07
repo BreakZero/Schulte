@@ -28,7 +28,7 @@ internal class AdviceViewModel(
 
   fun generateAiAnalysis() {
     val report = repository.currentState().report ?: return
-    val settings = repository.currentState().aiSettings
+    val settings = repository.currentConfiguration().aiSettings
     if (!settings.isConfigured) {
       repository.markAiAnalysisNeedsSettings()
       return

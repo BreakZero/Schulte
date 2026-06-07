@@ -1,9 +1,6 @@
 package org.easy.schulte.core.model
 
 data class SchulteState(
-  val selectedGrid: GridSpec = GridSpec.Five,
-  val selectedAgeGroup: AgeGroup = AgeGroup.Adult,
-  val selectedMarkMode: MarkMode = MarkMode.BriefFeedbackOnly,
   val numbers: List<Int> = emptyList(),
   val currentTarget: Int = 1,
   val completedNumbers: Set<Int> = emptySet(),
@@ -11,7 +8,6 @@ data class SchulteState(
   val errorCount: Int = 0,
   val lastFeedback: CellFeedback? = null,
   val report: TrainingReport? = null,
-  val aiSettings: AiSettings = AiSettings(),
   val apiKeyVisible: Boolean = false,
   val settingsMessage: SettingsMessage? = null,
   val aiAnalysis: AiAnalysis? = null,
@@ -19,9 +15,6 @@ data class SchulteState(
   val records: List<TrainingRecord> = emptyList(),
   val recordSummary: TrainingRecordSummary = TrainingRecordSummary(),
   val progressComparison: ProgressComparison? = null,
-  val recordGridFilter: RecordGridFilter = RecordGridFilter.All,
-  val recordModeFilter: RecordModeFilter = RecordModeFilter.All,
-  val recordTimeFilter: RecordTimeFilter = RecordTimeFilter.All,
   val showClearRecordsDialog: Boolean = false,
   val accounts: List<UserAccount> = emptyList(),
   val currentUserId: String? = null,

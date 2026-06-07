@@ -22,117 +22,115 @@ import org.easy.schulte.feature.report.ReportState
 import org.easy.schulte.feature.settings.SettingsState
 import org.easy.schulte.feature.training.TrainingState
 
-internal fun SchulteRepository.configStateIn(scope: CoroutineScope): StateFlow<ConfigState> = featureStateIn(scope, ConfigurationFeature.Config, SchulteState::toConfigState)
+internal fun SchulteRepository.configStateIn(scope: CoroutineScope): StateFlow<ConfigState> =
+  featureStateIn(scope, ConfigurationFeature.Config, ::toConfigState)
 
-internal fun SchulteRepository.trainingStateIn(scope: CoroutineScope): StateFlow<TrainingState> = featureStateIn(scope, ConfigurationFeature.Training, SchulteState::toTrainingState)
+internal fun SchulteRepository.trainingStateIn(scope: CoroutineScope): StateFlow<TrainingState> =
+  featureStateIn(scope, ConfigurationFeature.Training, ::toTrainingState)
 
-internal fun SchulteRepository.reportStateIn(scope: CoroutineScope): StateFlow<ReportState> = featureStateIn(scope, ConfigurationFeature.Report, SchulteState::toReportState)
+internal fun SchulteRepository.reportStateIn(scope: CoroutineScope): StateFlow<ReportState> =
+  featureStateIn(scope, ConfigurationFeature.Report, ::toReportState)
 
-internal fun SchulteRepository.adviceStateIn(scope: CoroutineScope): StateFlow<AdviceState> = featureStateIn(scope, ConfigurationFeature.Advice, SchulteState::toAdviceState)
+internal fun SchulteRepository.adviceStateIn(scope: CoroutineScope): StateFlow<AdviceState> =
+  featureStateIn(scope, ConfigurationFeature.Advice, ::toAdviceState)
 
-internal fun SchulteRepository.settingsStateIn(scope: CoroutineScope): StateFlow<SettingsState> = featureStateIn(scope, ConfigurationFeature.Settings, SchulteState::toSettingsState)
+internal fun SchulteRepository.settingsStateIn(scope: CoroutineScope): StateFlow<SettingsState> =
+  featureStateIn(scope, ConfigurationFeature.Settings, ::toSettingsState)
 
-internal fun SchulteRepository.trainingRecordsStateIn(scope: CoroutineScope): StateFlow<TrainingRecordsState> = featureStateIn(scope, ConfigurationFeature.Records, SchulteState::toTrainingRecordsState)
+internal fun SchulteRepository.trainingRecordsStateIn(scope: CoroutineScope): StateFlow<TrainingRecordsState> =
+  featureStateIn(scope, ConfigurationFeature.Records, ::toTrainingRecordsState)
 
-internal fun SchulteRepository.accountStateIn(scope: CoroutineScope): StateFlow<AccountState> = featureStateIn(scope, ConfigurationFeature.Account, SchulteState::toAccountState)
+internal fun SchulteRepository.accountStateIn(scope: CoroutineScope): StateFlow<AccountState> =
+  featureStateIn(scope, ConfigurationFeature.Account, ::toAccountState)
 
 private fun <T> SchulteRepository.featureStateIn(
   scope: CoroutineScope,
   feature: ConfigurationFeature,
-  mapper: (SchulteState) -> T,
+  mapper: (SchulteState, FeatureConfiguration) -> T,
 ): StateFlow<T> = state
   .combine(observeFeatureConfiguration(feature)) { state, configuration ->
-    mapper(state.withConfiguration(configuration))
+    mapper(state, configuration)
   }
   .distinctUntilChanged()
   .stateIn(
     scope = scope,
     started = SharingStarted.WhileSubscribed(5_000),
-    initialValue = mapper(currentState()),
+    initialValue = mapper(currentState(), currentFeatureConfiguration(feature)),
   )
 
-private fun SchulteState.withConfiguration(configuration: FeatureConfiguration): SchulteState = copy(
-  selectedGrid = configuration.selectedGrid ?: selectedGrid,
-  selectedAgeGroup = configuration.selectedAgeGroup ?: selectedAgeGroup,
-  selectedMarkMode = configuration.selectedMarkMode ?: selectedMarkMode,
-  aiSettings = configuration.aiSettings ?: aiSettings,
-  recordGridFilter = configuration.recordGridFilter ?: recordGridFilter,
-  recordModeFilter = configuration.recordModeFilter ?: recordModeFilter,
-  recordTimeFilter = configuration.recordTimeFilter ?: recordTimeFilter,
+private fun toConfigState(state: SchulteState, configuration: FeatureConfiguration): ConfigState = ConfigState(
+  selectedGrid = configuration.selectedGrid ?: ConfigState().selectedGrid,
+  selectedAgeGroup = configuration.selectedAgeGroup ?: ConfigState().selectedAgeGroup,
+  selectedMarkMode = configuration.selectedMarkMode ?: ConfigState().selectedMarkMode,
+  latestRecord = state.recordSummary.latestRecord,
+  isLoggedIn = state.isLoggedIn,
+  hasRecords = state.records.isNotEmpty(),
 )
 
-private fun SchulteState.toConfigState(): ConfigState = ConfigState(
-  selectedGrid = selectedGrid,
-  selectedAgeGroup = selectedAgeGroup,
-  selectedMarkMode = selectedMarkMode,
-  latestRecord = recordSummary.latestRecord,
-  isLoggedIn = isLoggedIn,
-  hasRecords = records.isNotEmpty(),
+private fun toTrainingState(state: SchulteState, configuration: FeatureConfiguration): TrainingState = TrainingState(
+  selectedGrid = configuration.selectedGrid ?: TrainingState().selectedGrid,
+  selectedMarkMode = configuration.selectedMarkMode ?: TrainingState().selectedMarkMode,
+  numbers = state.numbers,
+  currentTarget = state.currentTarget,
+  completedNumbers = state.completedNumbers,
+  elapsedMillis = state.elapsedMillis,
+  errorCount = state.errorCount,
+  lastFeedback = state.lastFeedback,
 )
 
-private fun SchulteState.toTrainingState(): TrainingState = TrainingState(
-  selectedGrid = selectedGrid,
-  selectedMarkMode = selectedMarkMode,
-  numbers = numbers,
-  currentTarget = currentTarget,
-  completedNumbers = completedNumbers,
-  elapsedMillis = elapsedMillis,
-  errorCount = errorCount,
-  lastFeedback = lastFeedback,
+private fun toReportState(state: SchulteState, configuration: FeatureConfiguration): ReportState = ReportState(
+  report = state.report,
+  isLoggedIn = state.isLoggedIn,
+  currentUserNickname = state.currentUser?.nickname.orEmpty(),
+  progressComparison = state.progressComparison,
+  recordSummary = state.recordSummary,
+  aiConfigured = configuration.aiSettings?.isConfigured ?: false,
+  aiAnalysisState = state.aiAnalysisState,
 )
 
-private fun SchulteState.toReportState(): ReportState = ReportState(
-  report = report,
-  isLoggedIn = isLoggedIn,
-  currentUserNickname = currentUser?.nickname.orEmpty(),
-  progressComparison = progressComparison,
-  recordSummary = recordSummary,
-  aiConfigured = aiSettings.isConfigured,
-  aiAnalysisState = aiAnalysisState,
+private fun toAdviceState(state: SchulteState, configuration: FeatureConfiguration): AdviceState = AdviceState(
+  aiAnalysis = state.aiAnalysis,
 )
 
-private fun SchulteState.toAdviceState(): AdviceState = AdviceState(
-  aiAnalysis = aiAnalysis,
-)
-
-private fun SchulteState.toSettingsState(): SettingsState {
-  val user = currentUser
+private fun toSettingsState(state: SchulteState, configuration: FeatureConfiguration): SettingsState {
+  val user = state.currentUser
+  val defaultState = SettingsState()
   return SettingsState(
-    selectedGrid = selectedGrid,
-    selectedAgeGroup = selectedAgeGroup,
-    selectedMarkMode = selectedMarkMode,
-    aiSettings = aiSettings,
-    apiKeyVisible = apiKeyVisible,
-    settingsMessage = settingsMessage,
-    showClearRecordsDialog = showClearRecordsDialog,
-    totalRecordCount = recordSummary.totalCount,
-    currentAccountRecordCount = user?.let { account -> records.count { it.ownerUserId == account.userId } } ?: 0,
-    unlinkedLocalRecordCount = unlinkedLocalRecordCount,
-    isLoggedIn = isLoggedIn,
+    selectedGrid = configuration.selectedGrid ?: defaultState.selectedGrid,
+    selectedAgeGroup = configuration.selectedAgeGroup ?: defaultState.selectedAgeGroup,
+    selectedMarkMode = configuration.selectedMarkMode ?: defaultState.selectedMarkMode,
+    aiSettings = configuration.aiSettings ?: defaultState.aiSettings,
+    apiKeyVisible = state.apiKeyVisible,
+    settingsMessage = state.settingsMessage,
+    showClearRecordsDialog = state.showClearRecordsDialog,
+    totalRecordCount = state.recordSummary.totalCount,
+    currentAccountRecordCount = user?.let { account -> state.records.count { it.ownerUserId == account.userId } } ?: 0,
+    unlinkedLocalRecordCount = state.unlinkedLocalRecordCount,
+    isLoggedIn = state.isLoggedIn,
     currentUserNickname = user?.nickname.orEmpty(),
     currentUserRegisterId = user?.registerId.orEmpty(),
   )
 }
 
-private fun SchulteState.toTrainingRecordsState(): TrainingRecordsState = TrainingRecordsState(
-  records = records,
-  recordSummary = recordSummary,
-  recordGridFilter = recordGridFilter,
-  recordModeFilter = recordModeFilter,
-  recordTimeFilter = recordTimeFilter,
-  isLoggedIn = isLoggedIn,
-  currentUserNickname = currentUser?.nickname.orEmpty(),
+private fun toTrainingRecordsState(state: SchulteState, configuration: FeatureConfiguration): TrainingRecordsState = TrainingRecordsState(
+  records = state.records,
+  recordSummary = state.recordSummary,
+  recordGridFilter = configuration.recordGridFilter ?: TrainingRecordsState().recordGridFilter,
+  recordModeFilter = configuration.recordModeFilter ?: TrainingRecordsState().recordModeFilter,
+  recordTimeFilter = configuration.recordTimeFilter ?: TrainingRecordsState().recordTimeFilter,
+  isLoggedIn = state.isLoggedIn,
+  currentUserNickname = state.currentUser?.nickname.orEmpty(),
 )
 
-private fun SchulteState.toAccountState(): AccountState = AccountState(
-  currentUser = currentUser,
-  isLoggedIn = isLoggedIn,
-  accountForm = accountForm,
-  accountMessage = accountMessage,
-  showLinkLocalRecordsDialog = showLinkLocalRecordsDialog,
-  showLogoutDialog = showLogoutDialog,
-  unlinkedLocalRecordCount = unlinkedLocalRecordCount,
-  recordSummary = recordSummary,
-  assistedTrainingCount = records.count { it.markMode == MarkMode.AssistedMarking },
-  competitiveProfile = competitiveProfile,
+private fun toAccountState(state: SchulteState, configuration: FeatureConfiguration): AccountState = AccountState(
+  currentUser = state.currentUser,
+  isLoggedIn = state.isLoggedIn,
+  accountForm = state.accountForm,
+  accountMessage = state.accountMessage,
+  showLinkLocalRecordsDialog = state.showLinkLocalRecordsDialog,
+  showLogoutDialog = state.showLogoutDialog,
+  unlinkedLocalRecordCount = state.unlinkedLocalRecordCount,
+  recordSummary = state.recordSummary,
+  assistedTrainingCount = state.records.count { it.markMode == MarkMode.AssistedMarking },
+  competitiveProfile = state.competitiveProfile,
 )
