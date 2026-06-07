@@ -66,25 +66,35 @@ internal class AccountViewModel(
       is AccountAction.AcceptAgreement -> repository.updateAgreementAccepted(action.accepted)
 
       AccountAction.SubmitLogin -> {
-        repository.loginAccount()
-        if (repository.currentState().isLoggedIn) sendEvent(AccountEvent.OpenProfile)
+        viewModelScope.launch {
+          repository.loginAccount()
+          if (repository.currentState().isLoggedIn) sendEvent(AccountEvent.OpenProfile)
+        }
       }
 
       AccountAction.SubmitRegister -> {
-        repository.registerAccount()
-        if (repository.currentState().isLoggedIn) sendEvent(AccountEvent.OpenProfile)
+        viewModelScope.launch {
+          repository.registerAccount()
+          if (repository.currentState().isLoggedIn) sendEvent(AccountEvent.OpenProfile)
+        }
       }
 
       AccountAction.SaveProfile -> {
-        repository.updateCurrentProfile()
-        if (repository.currentState().accountForm.errorMessage == null) sendEvent(AccountEvent.Back)
+        viewModelScope.launch {
+          repository.updateCurrentProfile()
+          if (repository.currentState().accountForm.errorMessage == null) sendEvent(AccountEvent.Back)
+        }
       }
 
       AccountAction.CopyRegisterId -> repository.markRegisterIdCopied()
 
       AccountAction.RequestLinkLocalRecords -> repository.requestLinkLocalRecords()
 
-      AccountAction.LinkLocalRecords -> repository.linkLocalRecords()
+      AccountAction.LinkLocalRecords -> {
+        viewModelScope.launch {
+          repository.linkLocalRecords()
+        }
+      }
 
       AccountAction.DismissLinkLocalRecords -> repository.dismissLinkLocalRecords()
 
@@ -92,7 +102,11 @@ internal class AccountViewModel(
 
       AccountAction.CancelLogout -> repository.cancelLogout()
 
-      AccountAction.ConfirmLogout -> repository.logout()
+      AccountAction.ConfirmLogout -> {
+        viewModelScope.launch {
+          repository.logout()
+        }
+      }
 
       AccountAction.ClearMessage -> repository.clearAccountMessage()
     }

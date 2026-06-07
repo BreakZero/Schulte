@@ -20,6 +20,7 @@ data class SchulteState(
   val currentUserId: String? = null,
   val accountForm: AccountForm = AccountForm(),
   val accountMessage: AccountMessage? = null,
+  val accountIsSubmitting: Boolean = false,
   val showLinkLocalRecordsDialog: Boolean = false,
   val showLogoutDialog: Boolean = false,
   val competitiveProfile: CompetitiveProfile = CompetitiveProfile(),

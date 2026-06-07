@@ -10,6 +10,9 @@ import org.easy.schulte.core.data.SqlDelightTrainingRecordStore
 import org.easy.schulte.core.data.TrainingRecordStore
 import org.easy.schulte.core.domain.AiAnalysisGenerator
 import org.easy.schulte.core.domain.TrainingReportCalculator
+import org.easy.schulte.core.network.AccountApi
+import org.easy.schulte.core.network.AccountApiConfig
+import org.easy.schulte.core.network.createSchulteHttpClient
 import org.easy.schulte.feature.account.AccountViewModel
 import org.easy.schulte.feature.advice.AdviceViewModel
 import org.easy.schulte.feature.config.ConfigViewModel
@@ -23,9 +26,12 @@ import org.koin.dsl.module
 
 internal fun appModule(databaseDriverFactory: DatabaseDriverFactory) = module {
   single { SchulteDatabaseProvider(databaseDriverFactory) }
+  single { createSchulteHttpClient() }
+  single { AccountApiConfig() }
+  single { AccountApi(get(), get()) }
   single<TrainingRecordStore> { SqlDelightTrainingRecordStore(get()) }
   single<ConfigurationStore> { SqlDelightConfigurationStore(get()) }
-  single<SchulteRepository> { InMemorySchulteRepository(get(), get()) }
+  single<SchulteRepository> { InMemorySchulteRepository(get(), get(), get()) }
   singleOf(::TrainingReportCalculator)
   singleOf(::AiAnalysisGenerator)
   viewModelOf(::ConfigViewModel)

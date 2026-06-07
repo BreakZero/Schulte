@@ -11,6 +11,7 @@ internal data class AccountState(
   val isLoggedIn: Boolean = false,
   val accountForm: AccountForm = AccountForm(),
   val accountMessage: AccountMessage? = null,
+  val isSubmitting: Boolean = false,
   val showLinkLocalRecordsDialog: Boolean = false,
   val showLogoutDialog: Boolean = false,
   val unlinkedLocalRecordCount: Int = 0,
