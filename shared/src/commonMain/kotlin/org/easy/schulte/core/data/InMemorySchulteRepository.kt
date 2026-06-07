@@ -30,6 +30,8 @@ import org.easy.schulte.core.model.TrainingReport
 import org.easy.schulte.core.model.UserAccount
 import org.easy.schulte.core.model.currentUser
 import org.easy.schulte.core.model.unlinkedLocalRecordCount
+import org.easy.schulte.core.network.AccountApi
+import org.easy.schulte.core.network.toAccountErrorMessage
 import org.easy.schulte.core.platform.currentTimeMillis
 import kotlin.math.abs
 import kotlin.math.max
@@ -37,7 +39,11 @@ import kotlin.math.max
 internal class InMemorySchulteRepository(
   private val recordStore: TrainingRecordStore,
   private val configurationStore: ConfigurationStore,
+  private val accountApi: AccountApi,
 ) : SchulteRepository {
+  private var accessToken: String = ""
+  private var refreshToken: String = ""
+
   private val mutableState = MutableStateFlow(
     SchulteState(
       accounts = recordStore.getAccounts(),
@@ -260,7 +266,7 @@ internal class InMemorySchulteRepository(
     }
   }
 
-  override fun registerAccount() {
+  override suspend fun registerAccount() {
     val state = currentState()
     val form = state.accountForm
     val error = validateRegistration(form)
@@ -268,48 +274,37 @@ internal class InMemorySchulteRepository(
       mutableState.update { it.copy(accountForm = form.copy(errorMessage = error)) }
       return
     }
-    val createdAt = currentTimeMillis()
-    val account = UserAccount(
-      userId = "user_$createdAt",
-      registerId = generateRegisterId(createdAt, state.accounts.size),
-      nickname = form.nickname.trim(),
-      password = form.password,
-      gender = form.gender,
-      createdAt = createdAt,
-    )
-    recordStore.insertAccount(account)
-    mutableState.update {
-      it.copy(
-        accounts = it.accounts + account,
-        currentUserId = account.userId,
-        accountForm = AccountForm(),
-        accountMessage = AccountMessage.Registered,
-        showLinkLocalRecordsDialog = it.unlinkedLocalRecordCount > 0,
+    submitAccountRequest {
+      val session = accountApi.register(
+        nickname = form.nickname.trim(),
+        password = form.password,
+        gender = form.gender,
+        acceptedTerms = form.agreementAccepted,
       )
+      accessToken = session.accessToken
+      refreshToken = session.refreshToken
+      upsertCurrentAccount(session.user, AccountMessage.Registered)
     }
   }
 
-  override fun loginAccount() {
-    val state = currentState()
-    val form = state.accountForm
-    val account = state.accounts.firstOrNull {
-      it.registerId.equals(form.registerId.trim(), ignoreCase = true) && it.password == form.password
-    }
-    if (account == null) {
-      mutableState.update { it.copy(accountForm = form.copy(errorMessage = "注册 ID 或密码不正确")) }
+  override suspend fun loginAccount() {
+    val form = currentState().accountForm
+    if (form.registerId.isBlank() || form.password.isBlank()) {
+      mutableState.update { it.copy(accountForm = form.copy(errorMessage = "请输入注册 ID 和密码")) }
       return
     }
-    mutableState.update {
-      it.copy(
-        currentUserId = account.userId,
-        accountForm = AccountForm(),
-        accountMessage = AccountMessage.LoggedIn,
-        showLinkLocalRecordsDialog = it.records.any { record -> record.ownerUserId == null },
+    submitAccountRequest {
+      val session = accountApi.login(
+        registrationId = form.registerId.trim(),
+        password = form.password,
       )
+      accessToken = session.accessToken
+      refreshToken = session.refreshToken
+      upsertCurrentAccount(session.user, AccountMessage.LoggedIn)
     }
   }
 
-  override fun updateCurrentProfile() {
+  override suspend fun updateCurrentProfile() {
     val state = currentState()
     val user = state.currentUser ?: return
     val form = state.accountForm
@@ -318,15 +313,30 @@ internal class InMemorySchulteRepository(
       mutableState.update { it.copy(accountForm = form.copy(errorMessage = "昵称不能为空")) }
       return
     }
-    val updatedUser = user.copy(nickname = nickname, gender = form.gender)
-    recordStore.updateAccountProfile(updatedUser)
-    mutableState.update {
-      it.copy(
-        accounts = it.accounts.map { account ->
-          if (account.userId == user.userId) updatedUser else account
-        },
-        accountMessage = AccountMessage.ProfileSaved,
-      )
+    submitAccountRequest {
+      val updatedUser = if (accessToken.isNotBlank()) {
+        accountApi.updateMe(
+          accessToken = accessToken,
+          nickname = nickname,
+          gender = form.gender,
+        ).copy(
+          userId = user.userId,
+          registerId = user.registerId,
+          password = user.password,
+        )
+      } else {
+        user.copy(nickname = nickname, gender = form.gender)
+      }
+      recordStore.updateAccountProfile(updatedUser)
+      mutableState.update {
+        it.copy(
+          accounts = it.accounts.map { account ->
+            if (account.userId == user.userId) updatedUser else account
+          },
+          accountMessage = AccountMessage.ProfileSaved,
+          accountForm = AccountForm(nickname = updatedUser.nickname, gender = updatedUser.gender),
+        )
+      }
     }
   }
 
@@ -334,7 +344,7 @@ internal class InMemorySchulteRepository(
     mutableState.update { it.copy(showLinkLocalRecordsDialog = it.unlinkedLocalRecordCount > 0) }
   }
 
-  override fun linkLocalRecords() {
+  override suspend fun linkLocalRecords() {
     val userId = currentState().currentUserId ?: return
     recordStore.updateUnownedRecordsOwner(userId)
     mutableState.update {
@@ -362,7 +372,16 @@ internal class InMemorySchulteRepository(
     mutableState.update { it.copy(showLogoutDialog = false) }
   }
 
-  override fun logout() {
+  override suspend fun logout() {
+    val token = accessToken
+    val refresh = refreshToken
+    if (token.isNotBlank() && refresh.isNotBlank()) {
+      runCatching {
+        accountApi.logout(token, refresh)
+      }
+    }
+    accessToken = ""
+    refreshToken = ""
     mutableState.update {
       it.copy(
         currentUserId = null,
@@ -448,6 +467,39 @@ internal class InMemorySchulteRepository(
     val nextConfiguration = currentConfiguration().block()
     configurationStore.updateConfiguration(nextConfiguration)
   }
+
+  private suspend fun submitAccountRequest(block: suspend () -> Unit) {
+    mutableState.update {
+      it.copy(
+        accountIsSubmitting = true,
+        accountForm = it.accountForm.copy(errorMessage = null),
+        accountMessage = null,
+      )
+    }
+    runCatching {
+      block()
+    }.onFailure { error ->
+      val message = error.toAccountErrorMessage()
+      mutableState.update {
+        it.copy(accountForm = it.accountForm.copy(errorMessage = message))
+      }
+    }
+    mutableState.update { it.copy(accountIsSubmitting = false) }
+  }
+
+  private fun upsertCurrentAccount(account: UserAccount, message: AccountMessage) {
+    recordStore.insertAccount(account)
+    mutableState.update {
+      val accounts = it.accounts.filterNot { existing -> existing.userId == account.userId } + account
+      it.copy(
+        accounts = accounts,
+        currentUserId = account.userId,
+        accountForm = AccountForm(nickname = account.nickname, gender = account.gender),
+        accountMessage = message,
+        showLinkLocalRecordsDialog = it.unlinkedLocalRecordCount > 0,
+      )
+    }
+  }
 }
 
 private fun validateRegistration(form: AccountForm): String? = when {
@@ -456,11 +508,6 @@ private fun validateRegistration(form: AccountForm): String? = when {
   form.password != form.confirmPassword -> "两次密码不一致"
   !form.agreementAccepted -> "请先同意用户协议和隐私说明"
   else -> null
-}
-
-private fun generateRegisterId(createdAt: Long, accountCount: Int): String {
-  val tail = ((createdAt % 900000) + 100000 + accountCount).toString().takeLast(6)
-  return "SQT-$tail"
 }
 
 private fun improvementStatus(

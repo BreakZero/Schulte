@@ -40,6 +40,7 @@ kotlin {
   sourceSets {
     androidMain.dependencies {
       implementation(libs.compose.uiToolingPreview)
+      implementation(libs.ktor.client.cio)
       implementation(libs.sqldelight.android.driver)
     }
     commonMain.dependencies {
@@ -53,11 +54,16 @@ kotlin {
       implementation(libs.androidx.lifecycle.runtimeCompose)
       implementation(libs.jetbrains.navigation3.ui)
       implementation(libs.kotlinx.serialization.core)
+      implementation(libs.kotlinx.serialization.json)
+      implementation(libs.ktor.client.core)
+      implementation(libs.ktor.client.content.negotiation)
+      implementation(libs.ktor.serialization.kotlinx.json)
       implementation(libs.koin.compose)
       implementation(libs.koin.compose.viewmodel)
       implementation(libs.sqldelight.runtime)
     }
     iosMain.dependencies {
+      implementation(libs.ktor.client.darwin)
       implementation(libs.sqldelight.native.driver)
     }
     commonTest.dependencies {

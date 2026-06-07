@@ -325,11 +325,11 @@ private fun LoginScreen(
       FormError(state.accountForm.errorMessage)
       Button(
         onClick = { onAction(AccountAction.SubmitLogin) },
-        enabled = state.accountForm.registerId.isNotBlank() && state.accountForm.password.isNotBlank(),
+        enabled = !state.isSubmitting && state.accountForm.registerId.isNotBlank() && state.accountForm.password.isNotBlank(),
         modifier = Modifier.fillMaxWidth().height(50.dp),
         colors = ButtonDefaults.buttonColors(containerColor = FocusBlue),
         shape = RoundedCornerShape(8.dp),
-      ) { Text("登录") }
+      ) { Text(if (state.isSubmitting) "登录中..." else "登录") }
       TextButton(onClick = { onAction(AccountAction.OpenRegister) }, modifier = Modifier.fillMaxWidth()) {
         Text("没有账号？去注册")
       }
@@ -372,10 +372,11 @@ private fun RegisterScreen(
       FormError(state.accountForm.errorMessage)
       Button(
         onClick = { onAction(AccountAction.SubmitRegister) },
+        enabled = !state.isSubmitting,
         modifier = Modifier.fillMaxWidth().height(50.dp),
         colors = ButtonDefaults.buttonColors(containerColor = FocusBlue),
         shape = RoundedCornerShape(8.dp),
-      ) { Text("完成注册") }
+      ) { Text(if (state.isSubmitting) "注册中..." else "完成注册") }
       TextButton(onClick = { onAction(AccountAction.OpenLogin) }, modifier = Modifier.fillMaxWidth()) {
         Text("已有账号？去登录")
       }
@@ -414,10 +415,11 @@ private fun EditProfileScreen(
       FormError(state.accountForm.errorMessage)
       Button(
         onClick = { onAction(AccountAction.SaveProfile) },
+        enabled = !state.isSubmitting,
         modifier = Modifier.fillMaxWidth().height(52.dp),
         colors = ButtonDefaults.buttonColors(containerColor = FocusBlue),
         shape = RoundedCornerShape(8.dp),
-      ) { Text("保存资料") }
+      ) { Text(if (state.isSubmitting) "保存中..." else "保存资料") }
     }
   }
 }
@@ -450,6 +452,7 @@ private fun AccountSettingsScreen(
       InfoCard("安全与隐私", "退出登录不会删除本地训练记录。用户协议、隐私说明和注销账号将在后续版本补齐。")
       OutlinedButton(
         onClick = { onAction(AccountAction.RequestLogout) },
+        enabled = !state.isSubmitting,
         modifier = Modifier.fillMaxWidth().height(50.dp),
         shape = RoundedCornerShape(8.dp),
       ) { Text("退出登录", color = WarningAmber) }

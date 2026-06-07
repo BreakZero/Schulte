@@ -120,6 +120,7 @@ private fun toAccountState(state: SchulteState, configuration: FeatureConfigurat
   isLoggedIn = state.isLoggedIn,
   accountForm = state.accountForm,
   accountMessage = state.accountMessage,
+  isSubmitting = state.accountIsSubmitting,
   showLinkLocalRecordsDialog = state.showLinkLocalRecordsDialog,
   showLogoutDialog = state.showLogoutDialog,
   unlinkedLocalRecordCount = state.unlinkedLocalRecordCount,

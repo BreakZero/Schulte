@@ -2,72 +2,6 @@
 
 本文档说明如何在本地启动舒尔特训练 RESTful API 服务，并调用用户管理与训练记录接口。
 
-## 环境要求
-
-- Node.js 20 或更高版本
-- npm
-
-当前实现不依赖第三方 npm 包。服务默认使用本地 JSON 文件持久化数据，文件路径为 `data/store.json`。
-
-## 启动服务
-
-在仓库根目录执行：
-
-```bash
-npm run dev
-```
-
-默认监听地址：
-
-```text
-http://127.0.0.1:8080/api/v1
-```
-
-如需修改端口：
-
-```bash
-PORT=3000 npm run dev
-```
-
-如需修改数据文件路径：
-
-```bash
-DATA_FILE=/tmp/schulte-store.json npm run dev
-```
-
-## 构建单文件服务
-
-```bash
-npm run build
-node --check dist/server.js
-```
-
-构建产物为：
-
-```text
-dist/server.js
-```
-
-运行构建产物：
-
-```bash
-npm run start:dist
-```
-
-生成服务器发布包：
-
-```bash
-npm run package:release
-```
-
-发布包路径为 `dist/schulte-api-release.tar.gz`，只包含 `package.json`、`.env.example` 和 `dist/server.js`，不包含 `src/`、`test/`、`docs/` 或本地数据。
-
-## 运行测试
-
-```bash
-npm test
-```
-
 测试覆盖注册 ID 登录、受保护接口、游客记录、训练记录关联、幂等提交、进步状态计算和清空记录。
 
 ## 通用约定
@@ -315,28 +249,3 @@ curl -s http://127.0.0.1:8080/api/v1/me/pk-status \
 ```
 
 当前返回 `available: false`，用于前端展示「线上 PK 即将上线」。服务端不会返回虚假段位、胜率、在线人数或对手数据。
-
-## 本地文件持久化
-
-默认数据文件：
-
-```text
-data/store.json
-```
-
-该文件保存用户、会话、Token 映射和训练记录。写入时使用临时文件加重命名的方式更新，降低半写入文件的风险。`data/` 已加入 `.gitignore`，不要提交真实用户数据。
-
-本地文件适合早期低数据量场景。建议达到以下任一条件时迁移到 SQLite 或 PostgreSQL：
-
-- 训练记录超过 10,000 条。
-- 用户数超过 100。
-- 需要多进程或多机器部署。
-- 需要复杂查询、备份恢复、审计或并发写入保障。
-
-## 当前限制
-
-- 暂未接入数据库、ORM、迁移、日志和限流。
-- 暂未实现管理端接口。
-- 暂不包含排行榜、线上 PK、好友和公开分享功能。
-
-后续接入数据库时，应保持现有 API 响应结构和测试用例稳定。
