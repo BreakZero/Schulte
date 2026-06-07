@@ -34,9 +34,9 @@ internal class TrainingViewModel(
   }
 
   fun startTraining() {
-    val current = repository.currentState()
+    val configuration = repository.currentConfiguration()
     timerJob?.cancel()
-    repository.startTraining((1..current.selectedGrid.count).shuffled(Random.Default))
+    repository.startTraining((1..configuration.selectedGrid.count).shuffled(Random.Default))
     timerJob = viewModelScope.launch {
       val startedAt = kotlin.time.TimeSource.Monotonic.markNow()
       while (true) {
@@ -59,11 +59,12 @@ internal class TrainingViewModel(
 
   private fun onCellClick(value: Int) {
     val current = repository.currentState()
+    val configuration = repository.currentConfiguration()
     if (current.numbers.isEmpty()) return
 
     if (value == current.currentTarget) {
       val nextTarget = current.currentTarget + 1
-      val nextCompleted = if (current.selectedMarkMode == MarkMode.AssistedMarking) {
+      val nextCompleted = if (configuration.selectedMarkMode == MarkMode.AssistedMarking) {
         current.completedNumbers + value
       } else {
         current.completedNumbers
@@ -75,7 +76,7 @@ internal class TrainingViewModel(
       )
       clearFeedbackLater(value)
 
-      if (value == current.selectedGrid.count) {
+      if (value == configuration.selectedGrid.count) {
         completeTraining()
       }
     } else {
@@ -94,11 +95,12 @@ internal class TrainingViewModel(
   private fun completeTraining() {
     timerJob?.cancel()
     val current = repository.currentState()
+    val configuration = repository.currentConfiguration()
     val report = reportCalculator.createReport(
       TrainingReportInput(
-        gridSpec = current.selectedGrid,
-        ageGroup = current.selectedAgeGroup,
-        markMode = current.selectedMarkMode,
+        gridSpec = configuration.selectedGrid,
+        ageGroup = configuration.selectedAgeGroup,
+        markMode = configuration.selectedMarkMode,
         elapsedMillis = current.elapsedMillis,
         errorCount = current.errorCount,
       ),

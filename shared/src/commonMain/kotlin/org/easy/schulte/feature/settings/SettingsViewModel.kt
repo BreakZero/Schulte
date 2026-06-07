@@ -42,7 +42,7 @@ internal class SettingsViewModel(
   }
 
   private fun testAiConnection() {
-    val settings = repository.currentState().aiSettings
+    val settings = repository.currentConfiguration().aiSettings
     val message = if (!settings.aiEnabled) {
       SettingsMessage.EnableAiFirst
     } else if (settings.apiKey.isBlank() || settings.baseUrl.isBlank()) {

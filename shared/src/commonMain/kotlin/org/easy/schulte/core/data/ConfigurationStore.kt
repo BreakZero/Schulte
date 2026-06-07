@@ -7,6 +7,7 @@ import org.easy.schulte.core.model.FeatureConfiguration
 
 internal interface ConfigurationStore {
   fun getConfiguration(): AppConfiguration
+  fun getFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration
   fun observeFeatureConfiguration(feature: ConfigurationFeature): Flow<FeatureConfiguration>
   fun updateConfiguration(configuration: AppConfiguration)
 }

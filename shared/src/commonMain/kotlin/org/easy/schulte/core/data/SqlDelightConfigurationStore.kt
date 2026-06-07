@@ -14,6 +14,7 @@ import org.easy.schulte.core.model.MarkMode
 import org.easy.schulte.core.model.RecordGridFilter
 import org.easy.schulte.core.model.RecordModeFilter
 import org.easy.schulte.core.model.RecordTimeFilter
+import org.easy.schulte.core.model.toFeatureConfiguration
 import org.easy.schulte.core.platform.currentTimeMillis
 
 internal class SqlDelightConfigurationStore(
@@ -23,6 +24,8 @@ internal class SqlDelightConfigurationStore(
   private val configuration = MutableStateFlow(readConfiguration())
 
   override fun getConfiguration(): AppConfiguration = configuration.value
+
+  override fun getFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration = configuration.value.toFeatureConfiguration(feature)
 
   override fun observeFeatureConfiguration(feature: ConfigurationFeature): Flow<FeatureConfiguration> = configuration.map { it.toFeatureConfiguration(feature) }
 
@@ -74,41 +77,6 @@ internal class SqlDelightConfigurationStore(
     KEY_RECORD_MODE_FILTER -> recordModeFilter.name
     KEY_RECORD_TIME_FILTER -> recordTimeFilter.name
     else -> error("Unsupported configuration key: $key")
-  }
-
-  private fun AppConfiguration.toFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration = when (feature) {
-    ConfigurationFeature.Config,
-    ConfigurationFeature.Training,
-    -> FeatureConfiguration(
-      feature = feature,
-      selectedGrid = selectedGrid,
-      selectedAgeGroup = selectedAgeGroup,
-      selectedMarkMode = selectedMarkMode,
-    )
-
-    ConfigurationFeature.Report,
-    ConfigurationFeature.Advice,
-    -> FeatureConfiguration(
-      feature = feature,
-      aiSettings = aiSettings,
-    )
-
-    ConfigurationFeature.Settings -> FeatureConfiguration(
-      feature = feature,
-      selectedGrid = selectedGrid,
-      selectedAgeGroup = selectedAgeGroup,
-      selectedMarkMode = selectedMarkMode,
-      aiSettings = aiSettings,
-    )
-
-    ConfigurationFeature.Records -> FeatureConfiguration(
-      feature = feature,
-      recordGridFilter = recordGridFilter,
-      recordModeFilter = recordModeFilter,
-      recordTimeFilter = recordTimeFilter,
-    )
-
-    ConfigurationFeature.Account -> FeatureConfiguration(feature = feature)
   }
 }
 
