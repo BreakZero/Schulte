@@ -9,17 +9,17 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import org.easy.schulte.core.data.FeatureStateRepository
-import org.easy.schulte.core.model.AccountRuntimeState
-import org.easy.schulte.core.model.ConfigurationFeature
-import org.easy.schulte.core.model.FeatureConfiguration
-import org.easy.schulte.core.model.MarkMode
-import org.easy.schulte.core.model.ReportRuntimeState
-import org.easy.schulte.core.model.SettingsRuntimeState
-import org.easy.schulte.core.model.TrainingRecordsRuntimeState
-import org.easy.schulte.core.model.TrainingRuntimeState
-import org.easy.schulte.core.model.currentUser
-import org.easy.schulte.core.model.isLoggedIn
-import org.easy.schulte.core.model.unlinkedLocalRecordCount
+import org.easy.schulte.core.model.configuration.FeatureConfiguration
+import org.easy.schulte.core.model.configuration.enums.ConfigurationFeature
+import org.easy.schulte.core.model.runtime.AccountRuntimeState
+import org.easy.schulte.core.model.runtime.ReportRuntimeState
+import org.easy.schulte.core.model.runtime.SettingsRuntimeState
+import org.easy.schulte.core.model.runtime.TrainingRecordsRuntimeState
+import org.easy.schulte.core.model.runtime.TrainingRuntimeState
+import org.easy.schulte.core.model.runtime.currentUser
+import org.easy.schulte.core.model.runtime.isLoggedIn
+import org.easy.schulte.core.model.runtime.unlinkedLocalRecordCount
+import org.easy.schulte.core.model.training.enums.MarkMode
 import org.easy.schulte.feature.account.AccountState
 import org.easy.schulte.feature.advice.AdviceState
 import org.easy.schulte.feature.config.ConfigState
@@ -28,108 +28,100 @@ import org.easy.schulte.feature.report.ReportState
 import org.easy.schulte.feature.settings.SettingsState
 import org.easy.schulte.feature.training.TrainingState
 
-internal fun FeatureStateRepository.configStateIn(scope: CoroutineScope): StateFlow<ConfigState> =
-  combine(
-    observeFeatureConfiguration(ConfigurationFeature.Config),
-    recordsState,
-    accountState,
-    ::toConfigState,
-  ).stateIn(
+internal fun FeatureStateRepository.configStateIn(scope: CoroutineScope): StateFlow<ConfigState> = combine(
+  observeFeatureConfiguration(ConfigurationFeature.Config),
+  recordsState,
+  accountState,
+  ::toConfigState,
+).stateIn(
+  scope = scope,
+  initialValue = toConfigState(
+    currentFeatureConfiguration(ConfigurationFeature.Config),
+    currentRecordsState(),
+    currentAccountState(),
+  ),
+)
+
+internal fun FeatureStateRepository.trainingStateIn(scope: CoroutineScope): StateFlow<TrainingState> = combine(
+  observeFeatureConfiguration(ConfigurationFeature.Training),
+  trainingState,
+  ::toTrainingState,
+).stateIn(
+  scope = scope,
+  initialValue = toTrainingState(
+    currentFeatureConfiguration(ConfigurationFeature.Training),
+    currentTrainingState(),
+  ),
+)
+
+internal fun FeatureStateRepository.reportStateIn(scope: CoroutineScope): StateFlow<ReportState> = combine(
+  observeFeatureConfiguration(ConfigurationFeature.Report),
+  reportState,
+  recordsState,
+  accountState,
+  ::toReportState,
+).stateIn(
+  scope = scope,
+  initialValue = toReportState(
+    currentFeatureConfiguration(ConfigurationFeature.Report),
+    currentReportState(),
+    currentRecordsState(),
+    currentAccountState(),
+  ),
+)
+
+internal fun FeatureStateRepository.adviceStateIn(scope: CoroutineScope): StateFlow<AdviceState> = reportState
+  .map(::toAdviceState)
+  .stateIn(
     scope = scope,
-    initialValue = toConfigState(
-      currentFeatureConfiguration(ConfigurationFeature.Config),
-      currentRecordsState(),
-      currentAccountState(),
-    ),
+    initialValue = toAdviceState(currentReportState()),
   )
 
-internal fun FeatureStateRepository.trainingStateIn(scope: CoroutineScope): StateFlow<TrainingState> =
-  combine(
-    observeFeatureConfiguration(ConfigurationFeature.Training),
-    trainingState,
-    ::toTrainingState,
-  ).stateIn(
+internal fun FeatureStateRepository.settingsStateIn(scope: CoroutineScope): StateFlow<SettingsState> = combine(
+  observeFeatureConfiguration(ConfigurationFeature.Settings),
+  settingsState,
+  recordsState,
+  accountState,
+  ::toSettingsState,
+).stateIn(
+  scope = scope,
+  initialValue = toSettingsState(
+    currentFeatureConfiguration(ConfigurationFeature.Settings),
+    currentSettingsState(),
+    currentRecordsState(),
+    currentAccountState(),
+  ),
+)
+
+internal fun FeatureStateRepository.trainingRecordsStateIn(scope: CoroutineScope): StateFlow<TrainingRecordsState> = combine(
+  observeFeatureConfiguration(ConfigurationFeature.Records),
+  recordsState,
+  accountState,
+  ::toTrainingRecordsState,
+).stateIn(
+  scope = scope,
+  initialValue = toTrainingRecordsState(
+    currentFeatureConfiguration(ConfigurationFeature.Records),
+    currentRecordsState(),
+    currentAccountState(),
+  ),
+)
+
+internal fun FeatureStateRepository.accountStateIn(scope: CoroutineScope): StateFlow<AccountState> = combine(
+  accountState,
+  recordsState,
+  ::toAccountState,
+).stateIn(
+  scope = scope,
+  initialValue = toAccountState(currentAccountState(), currentRecordsState()),
+)
+
+private fun <T> Flow<T>.stateIn(scope: CoroutineScope, initialValue: T): StateFlow<T> = distinctUntilChanged()
+  .stateIn(
     scope = scope,
-    initialValue = toTrainingState(
-      currentFeatureConfiguration(ConfigurationFeature.Training),
-      currentTrainingState(),
-    ),
+    started = SharingStarted.WhileSubscribed(5_000),
+    initialValue = initialValue,
   )
-
-internal fun FeatureStateRepository.reportStateIn(scope: CoroutineScope): StateFlow<ReportState> =
-  combine(
-    observeFeatureConfiguration(ConfigurationFeature.Report),
-    reportState,
-    recordsState,
-    accountState,
-    ::toReportState,
-  ).stateIn(
-    scope = scope,
-    initialValue = toReportState(
-      currentFeatureConfiguration(ConfigurationFeature.Report),
-      currentReportState(),
-      currentRecordsState(),
-      currentAccountState(),
-    ),
-  )
-
-internal fun FeatureStateRepository.adviceStateIn(scope: CoroutineScope): StateFlow<AdviceState> =
-  reportState
-    .map(::toAdviceState)
-    .stateIn(
-      scope = scope,
-      initialValue = toAdviceState(currentReportState()),
-    )
-
-internal fun FeatureStateRepository.settingsStateIn(scope: CoroutineScope): StateFlow<SettingsState> =
-  combine(
-    observeFeatureConfiguration(ConfigurationFeature.Settings),
-    settingsState,
-    recordsState,
-    accountState,
-    ::toSettingsState,
-  ).stateIn(
-    scope = scope,
-    initialValue = toSettingsState(
-      currentFeatureConfiguration(ConfigurationFeature.Settings),
-      currentSettingsState(),
-      currentRecordsState(),
-      currentAccountState(),
-    ),
-  )
-
-internal fun FeatureStateRepository.trainingRecordsStateIn(scope: CoroutineScope): StateFlow<TrainingRecordsState> =
-  combine(
-    observeFeatureConfiguration(ConfigurationFeature.Records),
-    recordsState,
-    accountState,
-    ::toTrainingRecordsState,
-  ).stateIn(
-    scope = scope,
-    initialValue = toTrainingRecordsState(
-      currentFeatureConfiguration(ConfigurationFeature.Records),
-      currentRecordsState(),
-      currentAccountState(),
-    ),
-  )
-
-internal fun FeatureStateRepository.accountStateIn(scope: CoroutineScope): StateFlow<AccountState> =
-  combine(
-    accountState,
-    recordsState,
-    ::toAccountState,
-  ).stateIn(
-    scope = scope,
-    initialValue = toAccountState(currentAccountState(), currentRecordsState()),
-  )
-
-private fun <T> Flow<T>.stateIn(scope: CoroutineScope, initialValue: T): StateFlow<T> =
-  distinctUntilChanged()
-    .stateIn(
-      scope = scope,
-      started = SharingStarted.WhileSubscribed(5_000),
-      initialValue = initialValue,
-    )
 
 private fun toConfigState(
   configuration: FeatureConfiguration,

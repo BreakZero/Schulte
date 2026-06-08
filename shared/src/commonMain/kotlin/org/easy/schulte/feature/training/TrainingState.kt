@@ -1,8 +1,8 @@
 package org.easy.schulte.feature.training
 
-import org.easy.schulte.core.model.CellFeedback
-import org.easy.schulte.core.model.GridSpec
-import org.easy.schulte.core.model.MarkMode
+import org.easy.schulte.core.model.training.CellFeedback
+import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.MarkMode
 
 internal data class TrainingState(
   val selectedGrid: GridSpec = GridSpec.Five,

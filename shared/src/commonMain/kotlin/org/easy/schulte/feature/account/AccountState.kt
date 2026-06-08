@@ -1,10 +1,10 @@
 package org.easy.schulte.feature.account
 
-import org.easy.schulte.core.model.AccountForm
-import org.easy.schulte.core.model.AccountMessage
-import org.easy.schulte.core.model.CompetitiveProfile
-import org.easy.schulte.core.model.TrainingRecordSummary
-import org.easy.schulte.core.model.UserAccount
+import org.easy.schulte.core.model.account.AccountForm
+import org.easy.schulte.core.model.account.CompetitiveProfile
+import org.easy.schulte.core.model.account.UserAccount
+import org.easy.schulte.core.model.account.enums.AccountMessage
+import org.easy.schulte.core.model.records.TrainingRecordSummary
 
 internal data class AccountState(
   val currentUser: UserAccount? = null,

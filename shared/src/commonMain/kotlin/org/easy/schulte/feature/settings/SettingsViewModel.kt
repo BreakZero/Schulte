@@ -6,8 +6,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.easy.schulte.core.data.SettingsRepository
-import org.easy.schulte.core.model.AiSettings
-import org.easy.schulte.core.model.SettingsMessage
+import org.easy.schulte.core.model.ai.AiSettings
+import org.easy.schulte.core.model.settings.enums.SettingsMessage
 import org.easy.schulte.state.settingsStateIn
 
 internal class SettingsViewModel(

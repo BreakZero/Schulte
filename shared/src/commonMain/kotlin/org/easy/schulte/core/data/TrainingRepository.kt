@@ -1,6 +1,6 @@
 package org.easy.schulte.core.data
 
-import org.easy.schulte.core.model.TrainingReport
+import org.easy.schulte.core.model.report.TrainingReport
 
 internal interface TrainingRepository : FeatureStateRepository {
   fun startTraining(numbers: List<Int>)

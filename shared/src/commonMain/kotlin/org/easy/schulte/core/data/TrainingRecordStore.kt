@@ -1,8 +1,8 @@
 package org.easy.schulte.core.data
 
 import kotlinx.coroutines.flow.Flow
-import org.easy.schulte.core.model.TrainingRecord
-import org.easy.schulte.core.model.UserAccount
+import org.easy.schulte.core.model.account.UserAccount
+import org.easy.schulte.core.model.records.TrainingRecord
 
 internal interface TrainingRecordStore {
   fun observeAllRecords(): Flow<List<TrainingRecord>>

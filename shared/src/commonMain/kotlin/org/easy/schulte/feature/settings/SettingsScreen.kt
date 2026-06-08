@@ -30,7 +30,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.easy.schulte.core.model.SettingsMessage
+import org.easy.schulte.core.model.settings.enums.SettingsMessage
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.InfoCard
 import org.easy.schulte.core.ui.KeyValueRow

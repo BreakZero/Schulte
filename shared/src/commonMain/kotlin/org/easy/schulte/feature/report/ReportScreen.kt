@@ -27,11 +27,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.easy.schulte.core.model.AiAnalysisState
-import org.easy.schulte.core.model.ProgressComparison
-import org.easy.schulte.core.model.ScoreLevel
-import org.easy.schulte.core.model.TrainingRecordSummary
-import org.easy.schulte.core.model.TrainingReport
+import org.easy.schulte.core.model.ai.enums.AiAnalysisState
+import org.easy.schulte.core.model.records.ProgressComparison
+import org.easy.schulte.core.model.records.TrainingRecordSummary
+import org.easy.schulte.core.model.report.TrainingReport
+import org.easy.schulte.core.model.report.enums.ScoreLevel
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.FocusTeal
 import org.easy.schulte.core.ui.InfoCard
@@ -86,7 +86,7 @@ internal fun ReportScreen(
     title = stringResource(Res.string.report_title),
     onNavigationClick = {
       onAction(ReportAction.BackToConfig)
-    }
+    },
   ) {
     Column(
       modifier = Modifier
@@ -152,7 +152,7 @@ private fun LoginAttributionCard(onOpenProfile: () -> Unit) {
     Text(
       "当前记录保存在本地。登录后可将本地记录关联到你的账号，为后续 PK 和数据同步做准备。",
       color = QuietText,
-      lineHeight = 21.sp
+      lineHeight = 21.sp,
     )
     Button(
       onClick = onOpenProfile,
@@ -197,7 +197,7 @@ private fun AiEntryCard(
       Text(
         stringResource(Res.string.ai_needs_settings),
         color = WarningAmber,
-        modifier = Modifier.padding(top = 8.dp)
+        modifier = Modifier.padding(top = 8.dp),
       )
     }
     Spacer(Modifier.height(12.dp))
@@ -267,11 +267,11 @@ private fun ReportOverview(report: TrainingReport) {
     KeyValueRow(stringResource(Res.string.report_training_mode), report.markMode.titleText())
     KeyValueRow(
       stringResource(Res.string.report_error_count),
-      stringResource(Res.string.count_times, report.errorCount)
+      stringResource(Res.string.count_times, report.errorCount),
     )
     KeyValueRow(
       stringResource(Res.string.report_elapsed_time),
-      formatSecondsText(report.elapsedMillis)
+      formatSecondsText(report.elapsedMillis),
     )
     KeyValueRow(
       stringResource(Res.string.report_is_official_score),
@@ -308,14 +308,16 @@ private fun RecentPerformanceCard(summary: TrainingRecordSummary) {
     SectionTitle("最近表现")
     KeyValueRow(
       "最近 5 次平均",
-      summary.recentAverageTimeMillis?.let { formatSecondsText(it) } ?: "暂无")
+      summary.recentAverageTimeMillis?.let { formatSecondsText(it) } ?: "暂无",
+    )
     KeyValueRow(
       "平均错误",
       summary.recentAverageErrorCount?.let { "${roundOneDecimal(it)} 次" } ?: "暂无",
     )
     KeyValueRow(
       "当前最佳",
-      summary.bestRecord?.let { formatSecondsText(it.elapsedTimeMillis) } ?: "暂无")
+      summary.bestRecord?.let { formatSecondsText(it.elapsedTimeMillis) } ?: "暂无",
+    )
   }
 }
 

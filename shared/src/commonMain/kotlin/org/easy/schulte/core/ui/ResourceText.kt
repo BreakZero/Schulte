@@ -1,11 +1,11 @@
 package org.easy.schulte.core.ui
 
 import androidx.compose.runtime.Composable
-import org.easy.schulte.core.model.AgeGroup
-import org.easy.schulte.core.model.GridSpec
-import org.easy.schulte.core.model.MarkMode
-import org.easy.schulte.core.model.ScoreLevel
-import org.easy.schulte.core.model.SettingsMessage
+import org.easy.schulte.core.model.report.enums.ScoreLevel
+import org.easy.schulte.core.model.settings.enums.SettingsMessage
+import org.easy.schulte.core.model.training.enums.AgeGroup
+import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.MarkMode
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import schulte.shared.generated.resources.*

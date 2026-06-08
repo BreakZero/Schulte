@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import org.easy.schulte.core.data.TrainingRepository
 import org.easy.schulte.core.domain.TrainingReportCalculator
 import org.easy.schulte.core.domain.TrainingReportInput
-import org.easy.schulte.core.model.MarkMode
+import org.easy.schulte.core.model.training.enums.MarkMode
 import org.easy.schulte.state.trainingStateIn
 import kotlin.random.Random
 

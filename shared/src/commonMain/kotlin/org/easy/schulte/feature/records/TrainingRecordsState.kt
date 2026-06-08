@@ -1,10 +1,10 @@
 package org.easy.schulte.feature.records
 
-import org.easy.schulte.core.model.RecordGridFilter
-import org.easy.schulte.core.model.RecordModeFilter
-import org.easy.schulte.core.model.RecordTimeFilter
-import org.easy.schulte.core.model.TrainingRecord
-import org.easy.schulte.core.model.TrainingRecordSummary
+import org.easy.schulte.core.model.records.TrainingRecord
+import org.easy.schulte.core.model.records.TrainingRecordSummary
+import org.easy.schulte.core.model.records.enums.RecordGridFilter
+import org.easy.schulte.core.model.records.enums.RecordModeFilter
+import org.easy.schulte.core.model.records.enums.RecordTimeFilter
 
 internal data class TrainingRecordsState(
   val records: List<TrainingRecord> = emptyList(),

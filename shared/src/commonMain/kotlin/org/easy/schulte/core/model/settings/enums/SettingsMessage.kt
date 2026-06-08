@@ -1,4 +1,4 @@
-package org.easy.schulte.core.model
+package org.easy.schulte.core.model.settings.enums
 
 enum class SettingsMessage {
   AiCleared,

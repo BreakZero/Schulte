@@ -6,36 +6,36 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
-import org.easy.schulte.core.model.AccountForm
-import org.easy.schulte.core.model.AccountMessage
-import org.easy.schulte.core.model.AccountRuntimeState
-import org.easy.schulte.core.model.AgeGroup
-import org.easy.schulte.core.model.AiAnalysis
-import org.easy.schulte.core.model.AiAnalysisState
-import org.easy.schulte.core.model.AiSettings
-import org.easy.schulte.core.model.AppConfiguration
-import org.easy.schulte.core.model.CellFeedback
-import org.easy.schulte.core.model.ConfigurationFeature
-import org.easy.schulte.core.model.FeatureConfiguration
-import org.easy.schulte.core.model.Gender
-import org.easy.schulte.core.model.GridSpec
-import org.easy.schulte.core.model.ImprovementStatus
-import org.easy.schulte.core.model.MarkMode
-import org.easy.schulte.core.model.ProgressComparison
-import org.easy.schulte.core.model.RecordGridFilter
-import org.easy.schulte.core.model.RecordModeFilter
-import org.easy.schulte.core.model.RecordTimeFilter
-import org.easy.schulte.core.model.ReportRuntimeState
-import org.easy.schulte.core.model.SettingsMessage
-import org.easy.schulte.core.model.SettingsRuntimeState
-import org.easy.schulte.core.model.TrainingRecord
-import org.easy.schulte.core.model.TrainingRecordsRuntimeState
-import org.easy.schulte.core.model.TrainingRecordSummary
-import org.easy.schulte.core.model.TrainingReport
-import org.easy.schulte.core.model.TrainingRuntimeState
-import org.easy.schulte.core.model.UserAccount
-import org.easy.schulte.core.model.currentUser
-import org.easy.schulte.core.model.unlinkedLocalRecordCount
+import org.easy.schulte.core.model.account.AccountForm
+import org.easy.schulte.core.model.account.UserAccount
+import org.easy.schulte.core.model.account.enums.AccountMessage
+import org.easy.schulte.core.model.account.enums.Gender
+import org.easy.schulte.core.model.ai.AiAnalysis
+import org.easy.schulte.core.model.ai.AiSettings
+import org.easy.schulte.core.model.ai.enums.AiAnalysisState
+import org.easy.schulte.core.model.configuration.AppConfiguration
+import org.easy.schulte.core.model.configuration.FeatureConfiguration
+import org.easy.schulte.core.model.configuration.enums.ConfigurationFeature
+import org.easy.schulte.core.model.records.ProgressComparison
+import org.easy.schulte.core.model.records.TrainingRecord
+import org.easy.schulte.core.model.records.TrainingRecordSummary
+import org.easy.schulte.core.model.records.enums.ImprovementStatus
+import org.easy.schulte.core.model.records.enums.RecordGridFilter
+import org.easy.schulte.core.model.records.enums.RecordModeFilter
+import org.easy.schulte.core.model.records.enums.RecordTimeFilter
+import org.easy.schulte.core.model.report.TrainingReport
+import org.easy.schulte.core.model.runtime.AccountRuntimeState
+import org.easy.schulte.core.model.runtime.ReportRuntimeState
+import org.easy.schulte.core.model.runtime.SettingsRuntimeState
+import org.easy.schulte.core.model.runtime.TrainingRecordsRuntimeState
+import org.easy.schulte.core.model.runtime.TrainingRuntimeState
+import org.easy.schulte.core.model.runtime.currentUser
+import org.easy.schulte.core.model.runtime.unlinkedLocalRecordCount
+import org.easy.schulte.core.model.settings.enums.SettingsMessage
+import org.easy.schulte.core.model.training.CellFeedback
+import org.easy.schulte.core.model.training.enums.AgeGroup
+import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.MarkMode
 import org.easy.schulte.core.network.AccountApi
 import org.easy.schulte.core.network.toAccountErrorMessage
 import org.easy.schulte.core.platform.currentTimeMillis
@@ -76,8 +76,7 @@ internal class InMemorySchulteRepository(
 
   override fun currentSettingsState(): SettingsRuntimeState = settingsState.value
 
-  override fun currentRecordsState(): TrainingRecordsRuntimeState =
-    TrainingRecordsRuntimeState().withRecords(recordStore.getAllRecords(), now = currentTimeMillis())
+  override fun currentRecordsState(): TrainingRecordsRuntimeState = TrainingRecordsRuntimeState().withRecords(recordStore.getAllRecords(), now = currentTimeMillis())
 
   override fun currentAccountState(): AccountRuntimeState = mutableAccountState.value.copy(
     accounts = recordStore.getAccounts(),

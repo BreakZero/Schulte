@@ -62,8 +62,8 @@ Before modifying code, determine which layer is affected:
 3. iOS platform API -> iosMain or iOS app module
 4. Shared interface with platform implementation -> expect/actual or interface + DI
 5. Build configuration -> Gradle / Xcode / CocoaPods-related files
-6. UI logic -> platform app module unless Compose Multiplatform UI is explicitly used
-7. All text should be used from resources
+6. UI logic -> platform app module unless Compose Multiplatform UI is explicitly used 
+7. Resource content(like images, strings, drawables) should be under resources folder
 
 ## Forbidden
 

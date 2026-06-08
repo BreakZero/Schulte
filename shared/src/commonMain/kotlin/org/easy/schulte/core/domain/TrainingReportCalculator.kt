@@ -1,10 +1,10 @@
 package org.easy.schulte.core.domain
 
-import org.easy.schulte.core.model.AgeGroup
-import org.easy.schulte.core.model.GridSpec
-import org.easy.schulte.core.model.MarkMode
-import org.easy.schulte.core.model.ScoreLevel
-import org.easy.schulte.core.model.TrainingReport
+import org.easy.schulte.core.model.report.TrainingReport
+import org.easy.schulte.core.model.report.enums.ScoreLevel
+import org.easy.schulte.core.model.training.enums.AgeGroup
+import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.MarkMode
 import kotlin.math.max
 
 internal class TrainingReportCalculator {

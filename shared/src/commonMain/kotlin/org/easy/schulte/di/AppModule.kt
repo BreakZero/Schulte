@@ -2,17 +2,17 @@ package org.easy.schulte.di
 
 import org.easy.schulte.core.data.AccountRepository
 import org.easy.schulte.core.data.AiAnalysisRepository
-import org.easy.schulte.core.data.ConfigurationStore
 import org.easy.schulte.core.data.ConfigurationRepository
+import org.easy.schulte.core.data.ConfigurationStore
 import org.easy.schulte.core.data.DatabaseDriverFactory
 import org.easy.schulte.core.data.InMemorySchulteRepository
-import org.easy.schulte.core.data.SettingsRepository
 import org.easy.schulte.core.data.SchulteDatabaseProvider
+import org.easy.schulte.core.data.SettingsRepository
 import org.easy.schulte.core.data.SqlDelightConfigurationStore
 import org.easy.schulte.core.data.SqlDelightTrainingRecordStore
+import org.easy.schulte.core.data.TrainingRecordStore
 import org.easy.schulte.core.data.TrainingRecordsRepository
 import org.easy.schulte.core.data.TrainingRepository
-import org.easy.schulte.core.data.TrainingRecordStore
 import org.easy.schulte.core.domain.AiAnalysisGenerator
 import org.easy.schulte.core.domain.TrainingReportCalculator
 import org.easy.schulte.core.network.AccountApi

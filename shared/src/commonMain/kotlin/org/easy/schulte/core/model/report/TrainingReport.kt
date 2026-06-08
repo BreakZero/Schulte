@@ -1,12 +1,9 @@
-package org.easy.schulte.core.model
+package org.easy.schulte.core.model.report
 
-enum class ScoreLevel {
-  Excellent,
-  Good,
-  Pass,
-  Below,
-  Practice,
-}
+import org.easy.schulte.core.model.report.enums.ScoreLevel
+import org.easy.schulte.core.model.training.enums.AgeGroup
+import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.MarkMode
 
 data class TrainingReport(
   val gridSpec: GridSpec,

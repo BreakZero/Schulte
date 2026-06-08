@@ -1,9 +1,9 @@
 package org.easy.schulte.core.data
 
 import kotlinx.coroutines.flow.Flow
-import org.easy.schulte.core.model.AppConfiguration
-import org.easy.schulte.core.model.ConfigurationFeature
-import org.easy.schulte.core.model.FeatureConfiguration
+import org.easy.schulte.core.model.configuration.AppConfiguration
+import org.easy.schulte.core.model.configuration.FeatureConfiguration
+import org.easy.schulte.core.model.configuration.enums.ConfigurationFeature
 
 internal interface ConfigurationStore {
   fun getConfiguration(): AppConfiguration

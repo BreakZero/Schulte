@@ -1,10 +1,10 @@
 package org.easy.schulte.feature.settings
 
-import org.easy.schulte.core.model.AgeGroup
-import org.easy.schulte.core.model.AiSettings
-import org.easy.schulte.core.model.GridSpec
-import org.easy.schulte.core.model.MarkMode
-import org.easy.schulte.core.model.SettingsMessage
+import org.easy.schulte.core.model.ai.AiSettings
+import org.easy.schulte.core.model.settings.enums.SettingsMessage
+import org.easy.schulte.core.model.training.enums.AgeGroup
+import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.MarkMode
 
 internal data class SettingsState(
   val selectedGrid: GridSpec = GridSpec.Five,

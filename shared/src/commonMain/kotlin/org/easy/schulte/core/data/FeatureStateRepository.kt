@@ -2,14 +2,14 @@ package org.easy.schulte.core.data
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
-import org.easy.schulte.core.model.AccountRuntimeState
-import org.easy.schulte.core.model.AppConfiguration
-import org.easy.schulte.core.model.ConfigurationFeature
-import org.easy.schulte.core.model.FeatureConfiguration
-import org.easy.schulte.core.model.ReportRuntimeState
-import org.easy.schulte.core.model.SettingsRuntimeState
-import org.easy.schulte.core.model.TrainingRecordsRuntimeState
-import org.easy.schulte.core.model.TrainingRuntimeState
+import org.easy.schulte.core.model.configuration.AppConfiguration
+import org.easy.schulte.core.model.configuration.FeatureConfiguration
+import org.easy.schulte.core.model.configuration.enums.ConfigurationFeature
+import org.easy.schulte.core.model.runtime.AccountRuntimeState
+import org.easy.schulte.core.model.runtime.ReportRuntimeState
+import org.easy.schulte.core.model.runtime.SettingsRuntimeState
+import org.easy.schulte.core.model.runtime.TrainingRecordsRuntimeState
+import org.easy.schulte.core.model.runtime.TrainingRuntimeState
 
 internal interface FeatureStateRepository {
   val trainingState: StateFlow<TrainingRuntimeState>

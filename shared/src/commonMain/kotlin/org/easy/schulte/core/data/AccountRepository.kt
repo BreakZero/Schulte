@@ -1,6 +1,6 @@
 package org.easy.schulte.core.data
 
-import org.easy.schulte.core.model.Gender
+import org.easy.schulte.core.model.account.enums.Gender
 
 internal interface AccountRepository : FeatureStateRepository {
   fun updateLoginRegisterId(value: String)

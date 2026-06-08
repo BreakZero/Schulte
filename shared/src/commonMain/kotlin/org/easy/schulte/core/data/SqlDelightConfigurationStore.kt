@@ -6,17 +6,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.easy.schulte.core.model.AgeGroup
-import org.easy.schulte.core.model.AiSettings
-import org.easy.schulte.core.model.AppConfiguration
-import org.easy.schulte.core.model.ConfigurationFeature
-import org.easy.schulte.core.model.FeatureConfiguration
-import org.easy.schulte.core.model.GridSpec
-import org.easy.schulte.core.model.MarkMode
-import org.easy.schulte.core.model.RecordGridFilter
-import org.easy.schulte.core.model.RecordModeFilter
-import org.easy.schulte.core.model.RecordTimeFilter
-import org.easy.schulte.core.model.toFeatureConfiguration
+import org.easy.schulte.core.model.ai.AiSettings
+import org.easy.schulte.core.model.configuration.AppConfiguration
+import org.easy.schulte.core.model.configuration.FeatureConfiguration
+import org.easy.schulte.core.model.configuration.enums.ConfigurationFeature
+import org.easy.schulte.core.model.configuration.toFeatureConfiguration
+import org.easy.schulte.core.model.records.enums.RecordGridFilter
+import org.easy.schulte.core.model.records.enums.RecordModeFilter
+import org.easy.schulte.core.model.records.enums.RecordTimeFilter
+import org.easy.schulte.core.model.training.enums.AgeGroup
+import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.MarkMode
 import org.easy.schulte.core.platform.currentTimeMillis
 
 internal class SqlDelightConfigurationStore(

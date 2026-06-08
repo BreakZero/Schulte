@@ -6,7 +6,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.easy.schulte.core.data.AccountRepository
-import org.easy.schulte.core.model.isLoggedIn
+import org.easy.schulte.core.model.runtime.isLoggedIn
 import org.easy.schulte.state.accountStateIn
 
 internal class AccountViewModel(
