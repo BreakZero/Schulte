@@ -124,7 +124,7 @@ internal class AccountApi(
     deviceName = config.deviceName,
     platform = when (config.platform) {
       ApiPlatform.Android -> "ANDROID"
-      ApiPlatform.Ios -> "IOS"
+      ApiPlatform.Ios -> "iOS"
     },
   )
 }

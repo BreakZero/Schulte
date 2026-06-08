@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import org.easy.schulte.core.data.SchulteRepository
+import org.easy.schulte.core.data.ConfigurationRepository
+import org.easy.schulte.core.data.SettingsRepository
 import org.easy.schulte.state.configStateIn
 
 internal class ConfigViewModel(
-  private val repository: SchulteRepository,
+  private val repository: ConfigurationRepository,
+  private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
   val state = repository.configStateIn(viewModelScope)
 
@@ -29,7 +31,7 @@ internal class ConfigViewModel(
       ConfigAction.OpenRecords -> sendEvent(ConfigEvent.OpenRecords)
 
       ConfigAction.OpenSettings -> {
-        repository.clearSettingsMessage()
+        settingsRepository.clearSettingsMessage()
         sendEvent(ConfigEvent.OpenSettings)
       }
     }

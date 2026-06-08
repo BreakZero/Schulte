@@ -7,7 +7,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import org.easy.schulte.core.data.SchulteRepository
+import org.easy.schulte.core.data.TrainingRepository
 import org.easy.schulte.core.domain.TrainingReportCalculator
 import org.easy.schulte.core.domain.TrainingReportInput
 import org.easy.schulte.core.model.MarkMode
@@ -15,7 +15,7 @@ import org.easy.schulte.state.trainingStateIn
 import kotlin.random.Random
 
 internal class TrainingViewModel(
-  private val repository: SchulteRepository,
+  private val repository: TrainingRepository,
   private val reportCalculator: TrainingReportCalculator,
 ) : ViewModel() {
   val state = repository.trainingStateIn(viewModelScope)
@@ -58,7 +58,7 @@ internal class TrainingViewModel(
   }
 
   private fun onCellClick(value: Int) {
-    val current = repository.currentState()
+    val current = repository.currentTrainingState()
     val configuration = repository.currentConfiguration()
     if (current.numbers.isEmpty()) return
 
@@ -94,7 +94,7 @@ internal class TrainingViewModel(
 
   private fun completeTraining() {
     timerJob?.cancel()
-    val current = repository.currentState()
+    val current = repository.currentTrainingState()
     val configuration = repository.currentConfiguration()
     val report = reportCalculator.createReport(
       TrainingReportInput(

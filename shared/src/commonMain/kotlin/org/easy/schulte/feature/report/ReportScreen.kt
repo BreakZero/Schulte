@@ -82,7 +82,12 @@ internal fun ReportScreen(
   onAction: (ReportAction) -> Unit,
 ) {
   val report = state.report ?: return
-  SchulteScaffold(title = stringResource(Res.string.report_title)) {
+  SchulteScaffold(
+    title = stringResource(Res.string.report_title),
+    onNavigationClick = {
+      onAction(ReportAction.BackToConfig)
+    }
+  ) {
     Column(
       modifier = Modifier
         .fillMaxSize()
@@ -136,15 +141,6 @@ internal fun ReportScreen(
           Text("查看记录")
         }
       }
-      OutlinedButton(
-        onClick = { onAction(ReportAction.BackToConfig) },
-        modifier = Modifier
-          .fillMaxWidth()
-          .height(48.dp),
-        shape = RoundedCornerShape(8.dp),
-      ) {
-        Text(stringResource(Res.string.action_back_home))
-      }
     }
   }
 }
@@ -153,7 +149,11 @@ internal fun ReportScreen(
 private fun LoginAttributionCard(onOpenProfile: () -> Unit) {
   SchulteCard {
     SectionTitle("登录后保存到账号")
-    Text("当前记录保存在本地。登录后可将本地记录关联到你的账号，为后续 PK 和数据同步做准备。", color = QuietText, lineHeight = 21.sp)
+    Text(
+      "当前记录保存在本地。登录后可将本地记录关联到你的账号，为后续 PK 和数据同步做准备。",
+      color = QuietText,
+      lineHeight = 21.sp
+    )
     Button(
       onClick = onOpenProfile,
       modifier = Modifier
@@ -194,7 +194,11 @@ private fun AiEntryCard(
       color = QuietText,
     )
     AnimatedVisibility(state.aiAnalysisState == AiAnalysisState.NeedsSettings) {
-      Text(stringResource(Res.string.ai_needs_settings), color = WarningAmber, modifier = Modifier.padding(top = 8.dp))
+      Text(
+        stringResource(Res.string.ai_needs_settings),
+        color = WarningAmber,
+        modifier = Modifier.padding(top = 8.dp)
+      )
     }
     Spacer(Modifier.height(12.dp))
     Button(
@@ -261,8 +265,14 @@ private fun ReportOverview(report: TrainingReport) {
     KeyValueRow(stringResource(Res.string.report_grid_spec), report.gridSpec.titleText())
     KeyValueRow(stringResource(Res.string.report_age_group), report.ageGroup.titleText())
     KeyValueRow(stringResource(Res.string.report_training_mode), report.markMode.titleText())
-    KeyValueRow(stringResource(Res.string.report_error_count), stringResource(Res.string.count_times, report.errorCount))
-    KeyValueRow(stringResource(Res.string.report_elapsed_time), formatSecondsText(report.elapsedMillis))
+    KeyValueRow(
+      stringResource(Res.string.report_error_count),
+      stringResource(Res.string.count_times, report.errorCount)
+    )
+    KeyValueRow(
+      stringResource(Res.string.report_elapsed_time),
+      formatSecondsText(report.elapsedMillis)
+    )
     KeyValueRow(
       stringResource(Res.string.report_is_official_score),
       if (report.isOfficialScore) stringResource(Res.string.yes) else stringResource(Res.string.no),
@@ -296,12 +306,16 @@ private fun ProgressCard(comparison: ProgressComparison?) {
 private fun RecentPerformanceCard(summary: TrainingRecordSummary) {
   SchulteCard {
     SectionTitle("最近表现")
-    KeyValueRow("最近 5 次平均", summary.recentAverageTimeMillis?.let { formatSecondsText(it) } ?: "暂无")
+    KeyValueRow(
+      "最近 5 次平均",
+      summary.recentAverageTimeMillis?.let { formatSecondsText(it) } ?: "暂无")
     KeyValueRow(
       "平均错误",
       summary.recentAverageErrorCount?.let { "${roundOneDecimal(it)} 次" } ?: "暂无",
     )
-    KeyValueRow("当前最佳", summary.bestRecord?.let { formatSecondsText(it.elapsedTimeMillis) } ?: "暂无")
+    KeyValueRow(
+      "当前最佳",
+      summary.bestRecord?.let { formatSecondsText(it.elapsedTimeMillis) } ?: "暂无")
   }
 }
 
@@ -315,7 +329,8 @@ private fun NextGoalCard(
     KeyValueRow("目标时间", report.nextTargetSeconds?.let { "$it 秒以内" } ?: "保持当前节奏")
     KeyValueRow("错误次数", "${report.errorCount.coerceAtMost(1)} 次以内")
     Text(
-      comparison?.nextGoalText ?: "建议继续使用 ${report.gridSpec.titleText()} ${report.markMode.titleText()}。",
+      comparison?.nextGoalText
+        ?: "建议继续使用 ${report.gridSpec.titleText()} ${report.markMode.titleText()}。",
       color = QuietText,
       lineHeight = 21.sp,
     )

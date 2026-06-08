@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.easy.schulte.core.model.AccountForm
 import org.easy.schulte.core.model.AccountMessage
+import org.easy.schulte.core.model.AccountRuntimeState
 import org.easy.schulte.core.model.AgeGroup
 import org.easy.schulte.core.model.AiAnalysis
 import org.easy.schulte.core.model.AiAnalysisState
@@ -22,11 +23,14 @@ import org.easy.schulte.core.model.ProgressComparison
 import org.easy.schulte.core.model.RecordGridFilter
 import org.easy.schulte.core.model.RecordModeFilter
 import org.easy.schulte.core.model.RecordTimeFilter
-import org.easy.schulte.core.model.SchulteState
+import org.easy.schulte.core.model.ReportRuntimeState
 import org.easy.schulte.core.model.SettingsMessage
+import org.easy.schulte.core.model.SettingsRuntimeState
 import org.easy.schulte.core.model.TrainingRecord
+import org.easy.schulte.core.model.TrainingRecordsRuntimeState
 import org.easy.schulte.core.model.TrainingRecordSummary
 import org.easy.schulte.core.model.TrainingReport
+import org.easy.schulte.core.model.TrainingRuntimeState
 import org.easy.schulte.core.model.UserAccount
 import org.easy.schulte.core.model.currentUser
 import org.easy.schulte.core.model.unlinkedLocalRecordCount
@@ -40,20 +44,43 @@ internal class InMemorySchulteRepository(
   private val recordStore: TrainingRecordStore,
   private val configurationStore: ConfigurationStore,
   private val accountApi: AccountApi,
-) : SchulteRepository {
+) : ConfigurationRepository,
+  TrainingRepository,
+  SettingsRepository,
+  TrainingRecordsRepository,
+  AccountRepository,
+  AiAnalysisRepository {
   private var accessToken: String = ""
   private var refreshToken: String = ""
 
-  private val mutableState = MutableStateFlow(
-    SchulteState(
-      accounts = recordStore.getAccounts(),
-    )
+  private val mutableTrainingState = MutableStateFlow(TrainingRuntimeState())
+  private val mutableReportState = MutableStateFlow(ReportRuntimeState())
+  private val mutableSettingsState = MutableStateFlow(SettingsRuntimeState())
+  private val mutableRecordsState = MutableStateFlow(
+    TrainingRecordsRuntimeState()
       .withRecords(recordStore.getAllRecords(), now = currentTimeMillis()),
   )
+  private val mutableAccountState = MutableStateFlow(
+    AccountRuntimeState(
+      accounts = recordStore.getAccounts(),
+    ),
+  )
 
-  override val state = mutableState.asStateFlow()
+  override val trainingState = mutableTrainingState.asStateFlow()
+  override val reportState = mutableReportState.asStateFlow()
+  override val settingsState = mutableSettingsState.asStateFlow()
+  override val recordsState = mutableRecordsState.asStateFlow()
+  override val accountState = mutableAccountState.asStateFlow()
 
-  override fun currentState(): SchulteState = state.value
+  override fun currentTrainingState(): TrainingRuntimeState = trainingState.value
+
+  override fun currentReportState(): ReportRuntimeState = reportState.value
+
+  override fun currentSettingsState(): SettingsRuntimeState = settingsState.value
+
+  override fun currentRecordsState(): TrainingRecordsRuntimeState = recordsState.value
+
+  override fun currentAccountState(): AccountRuntimeState = accountState.value
 
   override fun currentConfiguration(): AppConfiguration = configurationStore.getConfiguration()
 
@@ -74,11 +101,11 @@ internal class InMemorySchulteRepository(
   }
 
   override fun clearSettingsMessage() {
-    mutableState.update { it.copy(settingsMessage = null) }
+    mutableSettingsState.update { it.copy(settingsMessage = null) }
   }
 
   override fun startTraining(numbers: List<Int>) {
-    mutableState.update {
+    mutableTrainingState.update {
       it.copy(
         numbers = numbers,
         currentTarget = 1,
@@ -86,20 +113,25 @@ internal class InMemorySchulteRepository(
         elapsedMillis = 0L,
         errorCount = 0,
         lastFeedback = null,
+      )
+    }
+    mutableReportState.update {
+      it.copy(
         report = null,
         aiAnalysis = null,
         aiAnalysisState = AiAnalysisState.Idle,
-        accountMessage = null,
+        progressComparison = null,
       )
     }
+    mutableAccountState.update { it.copy(accountMessage = null) }
   }
 
   override fun updateElapsedMillis(elapsedMillis: Long) {
-    mutableState.update { it.copy(elapsedMillis = elapsedMillis) }
+    mutableTrainingState.update { it.copy(elapsedMillis = elapsedMillis) }
   }
 
   override fun recordCorrectCell(value: Int, completedNumbers: Set<Int>, nextTarget: Int) {
-    mutableState.update {
+    mutableTrainingState.update {
       it.copy(
         currentTarget = nextTarget,
         completedNumbers = completedNumbers,
@@ -109,7 +141,7 @@ internal class InMemorySchulteRepository(
   }
 
   override fun recordIncorrectCell(value: Int) {
-    mutableState.update {
+    mutableTrainingState.update {
       it.copy(
         errorCount = it.errorCount + 1,
         lastFeedback = CellFeedback(value, isCorrect = false),
@@ -118,7 +150,7 @@ internal class InMemorySchulteRepository(
   }
 
   override fun clearFeedbackIfMatches(value: Int) {
-    mutableState.update {
+    mutableTrainingState.update {
       if (it.lastFeedback?.value == value) it.copy(lastFeedback = null) else it
     }
   }
@@ -127,13 +159,21 @@ internal class InMemorySchulteRepository(
     val comparison = createTrainingRecord(report)
     val records = listOf(comparison.currentRecord) + recordStore.getAllRecords()
     recordStore.insertRecord(comparison.currentRecord)
-    mutableState.update {
+    mutableTrainingState.update {
       it.copy(
-        report = report,
         elapsedMillis = report.elapsedMillis,
         lastFeedback = null,
+      )
+    }
+    mutableRecordsState.update {
+      it.copy(
         records = records,
         recordSummary = records.summary(now = currentTimeMillis()),
+      )
+    }
+    mutableReportState.update {
+      it.copy(
+        report = report,
         progressComparison = comparison,
         aiAnalysis = null,
         aiAnalysisState = AiAnalysisState.Idle,
@@ -142,7 +182,7 @@ internal class InMemorySchulteRepository(
   }
 
   override fun exitTraining() {
-    mutableState.update { it.copy(lastFeedback = null) }
+    mutableTrainingState.update { it.copy(lastFeedback = null) }
   }
 
   override fun updateAiSettings(block: AiSettings.() -> AiSettings) {
@@ -150,11 +190,11 @@ internal class InMemorySchulteRepository(
       it.copy(aiSettings = it.aiSettings.block())
     }
     configurationStore.updateConfiguration(nextConfiguration)
-    mutableState.update { it.copy(settingsMessage = null) }
+    mutableSettingsState.update { it.copy(settingsMessage = null) }
   }
 
   override fun toggleApiKeyVisibility() {
-    mutableState.update { it.copy(apiKeyVisible = !it.apiKeyVisible) }
+    mutableSettingsState.update { it.copy(apiKeyVisible = !it.apiKeyVisible) }
   }
 
   override fun clearAiSettings() {
@@ -167,13 +207,12 @@ internal class InMemorySchulteRepository(
       ),
     )
     configurationStore.updateConfiguration(nextConfiguration)
-    mutableState.update {
+    mutableSettingsState.update {
       it.copy(
         settingsMessage = SettingsMessage.AiCleared,
-        aiAnalysisState = AiAnalysisState.Idle,
-        aiAnalysis = null,
       )
     }
+    mutableReportState.update { it.copy(aiAnalysisState = AiAnalysisState.Idle, aiAnalysis = null) }
   }
 
   override fun saveSettings() {
@@ -186,7 +225,7 @@ internal class InMemorySchulteRepository(
       },
     )
     configurationStore.updateConfiguration(nextConfiguration)
-    mutableState.update {
+    mutableSettingsState.update {
       it.copy(
         settingsMessage = SettingsMessage.Saved,
       )
@@ -194,7 +233,7 @@ internal class InMemorySchulteRepository(
   }
 
   override fun setSettingsMessage(message: SettingsMessage) {
-    mutableState.update { it.copy(settingsMessage = message) }
+    mutableSettingsState.update { it.copy(settingsMessage = message) }
   }
 
   override fun selectRecordGridFilter(filter: RecordGridFilter) {
@@ -210,20 +249,24 @@ internal class InMemorySchulteRepository(
   }
 
   override fun requestClearTrainingRecords() {
-    mutableState.update { it.copy(showClearRecordsDialog = true) }
+    mutableSettingsState.update { it.copy(showClearRecordsDialog = true) }
   }
 
   override fun cancelClearTrainingRecords() {
-    mutableState.update { it.copy(showClearRecordsDialog = false) }
+    mutableSettingsState.update { it.copy(showClearRecordsDialog = false) }
   }
 
   override fun clearTrainingRecords() {
     recordStore.clearRecords()
-    mutableState.update {
+    mutableRecordsState.update {
       it.copy(
         records = emptyList(),
         recordSummary = TrainingRecordSummary(),
-        progressComparison = null,
+      )
+    }
+    mutableReportState.update { it.copy(progressComparison = null) }
+    mutableSettingsState.update {
+      it.copy(
         settingsMessage = SettingsMessage.RecordsCleared,
         showClearRecordsDialog = false,
       )
@@ -231,31 +274,31 @@ internal class InMemorySchulteRepository(
   }
 
   override fun updateLoginRegisterId(value: String) {
-    mutableState.update { it.copy(accountForm = it.accountForm.copy(registerId = value.trim(), errorMessage = null)) }
+    mutableAccountState.update { it.copy(accountForm = it.accountForm.copy(registerId = value.trim(), errorMessage = null)) }
   }
 
   override fun updateAccountNickname(value: String) {
-    mutableState.update { it.copy(accountForm = it.accountForm.copy(nickname = value, errorMessage = null)) }
+    mutableAccountState.update { it.copy(accountForm = it.accountForm.copy(nickname = value, errorMessage = null)) }
   }
 
   override fun updateAccountPassword(value: String) {
-    mutableState.update { it.copy(accountForm = it.accountForm.copy(password = value, errorMessage = null)) }
+    mutableAccountState.update { it.copy(accountForm = it.accountForm.copy(password = value, errorMessage = null)) }
   }
 
   override fun updateAccountConfirmPassword(value: String) {
-    mutableState.update { it.copy(accountForm = it.accountForm.copy(confirmPassword = value, errorMessage = null)) }
+    mutableAccountState.update { it.copy(accountForm = it.accountForm.copy(confirmPassword = value, errorMessage = null)) }
   }
 
   override fun updateAccountGender(gender: Gender) {
-    mutableState.update { it.copy(accountForm = it.accountForm.copy(gender = gender, errorMessage = null)) }
+    mutableAccountState.update { it.copy(accountForm = it.accountForm.copy(gender = gender, errorMessage = null)) }
   }
 
   override fun updateAgreementAccepted(accepted: Boolean) {
-    mutableState.update { it.copy(accountForm = it.accountForm.copy(agreementAccepted = accepted, errorMessage = null)) }
+    mutableAccountState.update { it.copy(accountForm = it.accountForm.copy(agreementAccepted = accepted, errorMessage = null)) }
   }
 
   override fun clearAccountForm() {
-    mutableState.update {
+    mutableAccountState.update {
       it.copy(
         accountForm = AccountForm(
           nickname = it.currentUser?.nickname.orEmpty(),
@@ -267,11 +310,11 @@ internal class InMemorySchulteRepository(
   }
 
   override suspend fun registerAccount() {
-    val state = currentState()
+    val state = currentAccountState()
     val form = state.accountForm
     val error = validateRegistration(form)
     if (error != null) {
-      mutableState.update { it.copy(accountForm = form.copy(errorMessage = error)) }
+      mutableAccountState.update { it.copy(accountForm = form.copy(errorMessage = error)) }
       return
     }
     submitAccountRequest {
@@ -288,9 +331,9 @@ internal class InMemorySchulteRepository(
   }
 
   override suspend fun loginAccount() {
-    val form = currentState().accountForm
+    val form = currentAccountState().accountForm
     if (form.registerId.isBlank() || form.password.isBlank()) {
-      mutableState.update { it.copy(accountForm = form.copy(errorMessage = "请输入注册 ID 和密码")) }
+      mutableAccountState.update { it.copy(accountForm = form.copy(errorMessage = "请输入注册 ID 和密码")) }
       return
     }
     submitAccountRequest {
@@ -305,12 +348,12 @@ internal class InMemorySchulteRepository(
   }
 
   override suspend fun updateCurrentProfile() {
-    val state = currentState()
+    val state = currentAccountState()
     val user = state.currentUser ?: return
     val form = state.accountForm
     val nickname = form.nickname.trim()
     if (nickname.isBlank()) {
-      mutableState.update { it.copy(accountForm = form.copy(errorMessage = "昵称不能为空")) }
+      mutableAccountState.update { it.copy(accountForm = form.copy(errorMessage = "昵称不能为空")) }
       return
     }
     submitAccountRequest {
@@ -328,7 +371,7 @@ internal class InMemorySchulteRepository(
         user.copy(nickname = nickname, gender = form.gender)
       }
       recordStore.updateAccountProfile(updatedUser)
-      mutableState.update {
+      mutableAccountState.update {
         it.copy(
           accounts = it.accounts.map { account ->
             if (account.userId == user.userId) updatedUser else account
@@ -341,19 +384,23 @@ internal class InMemorySchulteRepository(
   }
 
   override fun requestLinkLocalRecords() {
-    mutableState.update { it.copy(showLinkLocalRecordsDialog = it.unlinkedLocalRecordCount > 0) }
+    mutableAccountState.update { it.copy(showLinkLocalRecordsDialog = currentRecordsState().unlinkedLocalRecordCount > 0) }
   }
 
   override suspend fun linkLocalRecords() {
-    val userId = currentState().currentUserId ?: return
+    val userId = currentAccountState().currentUserId ?: return
     recordStore.updateUnownedRecordsOwner(userId)
-    mutableState.update {
+    mutableRecordsState.update {
       val linkedRecords = it.records.map { record ->
         if (record.ownerUserId == null) record.copy(ownerUserId = userId) else record
       }
       it.copy(
         records = linkedRecords,
         recordSummary = linkedRecords.summary(now = currentTimeMillis()),
+      )
+    }
+    mutableAccountState.update {
+      it.copy(
         showLinkLocalRecordsDialog = false,
         accountMessage = AccountMessage.LocalRecordsLinked,
       )
@@ -361,15 +408,15 @@ internal class InMemorySchulteRepository(
   }
 
   override fun dismissLinkLocalRecords() {
-    mutableState.update { it.copy(showLinkLocalRecordsDialog = false) }
+    mutableAccountState.update { it.copy(showLinkLocalRecordsDialog = false) }
   }
 
   override fun requestLogout() {
-    mutableState.update { it.copy(showLogoutDialog = true) }
+    mutableAccountState.update { it.copy(showLogoutDialog = true) }
   }
 
   override fun cancelLogout() {
-    mutableState.update { it.copy(showLogoutDialog = false) }
+    mutableAccountState.update { it.copy(showLogoutDialog = false) }
   }
 
   override suspend fun logout() {
@@ -382,7 +429,7 @@ internal class InMemorySchulteRepository(
     }
     accessToken = ""
     refreshToken = ""
-    mutableState.update {
+    mutableAccountState.update {
       it.copy(
         currentUserId = null,
         showLogoutDialog = false,
@@ -393,23 +440,23 @@ internal class InMemorySchulteRepository(
   }
 
   override fun markRegisterIdCopied() {
-    mutableState.update { it.copy(accountMessage = AccountMessage.RegisterIdCopied) }
+    mutableAccountState.update { it.copy(accountMessage = AccountMessage.RegisterIdCopied) }
   }
 
   override fun clearAccountMessage() {
-    mutableState.update { it.copy(accountMessage = null) }
+    mutableAccountState.update { it.copy(accountMessage = null) }
   }
 
   override fun markAiAnalysisNeedsSettings() {
-    mutableState.update { it.copy(aiAnalysisState = AiAnalysisState.NeedsSettings) }
+    mutableReportState.update { it.copy(aiAnalysisState = AiAnalysisState.NeedsSettings) }
   }
 
   override fun markAiAnalysisLoading() {
-    mutableState.update { it.copy(aiAnalysisState = AiAnalysisState.Loading) }
+    mutableReportState.update { it.copy(aiAnalysisState = AiAnalysisState.Loading) }
   }
 
   override fun setAiAnalysis(analysis: AiAnalysis) {
-    mutableState.update {
+    mutableReportState.update {
       it.copy(
         aiAnalysisState = AiAnalysisState.Success,
         aiAnalysis = analysis,
@@ -437,7 +484,7 @@ internal class InMemorySchulteRepository(
     )
     val record = TrainingRecord(
       id = "${createdAt}_${report.gridSpec.size}_${report.elapsedMillis}",
-      ownerUserId = currentState().currentUserId,
+      ownerUserId = currentAccountState().currentUserId,
       createdAt = createdAt,
       gridSpec = report.gridSpec,
       ageGroup = report.ageGroup,
@@ -469,7 +516,7 @@ internal class InMemorySchulteRepository(
   }
 
   private suspend fun submitAccountRequest(block: suspend () -> Unit) {
-    mutableState.update {
+    mutableAccountState.update {
       it.copy(
         accountIsSubmitting = true,
         accountForm = it.accountForm.copy(errorMessage = null),
@@ -480,23 +527,23 @@ internal class InMemorySchulteRepository(
       block()
     }.onFailure { error ->
       val message = error.toAccountErrorMessage()
-      mutableState.update {
+      mutableAccountState.update {
         it.copy(accountForm = it.accountForm.copy(errorMessage = message))
       }
     }
-    mutableState.update { it.copy(accountIsSubmitting = false) }
+    mutableAccountState.update { it.copy(accountIsSubmitting = false) }
   }
 
   private fun upsertCurrentAccount(account: UserAccount, message: AccountMessage) {
     recordStore.insertAccount(account)
-    mutableState.update {
+    mutableAccountState.update {
       val accounts = it.accounts.filterNot { existing -> existing.userId == account.userId } + account
       it.copy(
         accounts = accounts,
         currentUserId = account.userId,
         accountForm = AccountForm(nickname = account.nickname, gender = account.gender),
         accountMessage = message,
-        showLinkLocalRecordsDialog = it.unlinkedLocalRecordCount > 0,
+        showLinkLocalRecordsDialog = currentRecordsState().unlinkedLocalRecordCount > 0,
       )
     }
   }
@@ -563,7 +610,7 @@ private fun MarkMode.shortName(): String = when (this) {
   MarkMode.AssistedMarking -> "辅助"
 }
 
-private fun SchulteState.withRecords(records: List<TrainingRecord>, now: Long): SchulteState = copy(
+private fun TrainingRecordsRuntimeState.withRecords(records: List<TrainingRecord>, now: Long): TrainingRecordsRuntimeState = copy(
   records = records,
   recordSummary = records.summary(now),
 )

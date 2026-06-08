@@ -63,6 +63,7 @@ Before modifying code, determine which layer is affected:
 4. Shared interface with platform implementation -> expect/actual or interface + DI
 5. Build configuration -> Gradle / Xcode / CocoaPods-related files
 6. UI logic -> platform app module unless Compose Multiplatform UI is explicitly used
+7. All text should be used from resources
 
 ## Forbidden
 

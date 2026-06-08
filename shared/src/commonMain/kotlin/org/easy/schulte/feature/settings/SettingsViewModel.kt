@@ -5,13 +5,13 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import org.easy.schulte.core.data.SchulteRepository
+import org.easy.schulte.core.data.SettingsRepository
 import org.easy.schulte.core.model.AiSettings
 import org.easy.schulte.core.model.SettingsMessage
 import org.easy.schulte.state.settingsStateIn
 
 internal class SettingsViewModel(
-  private val repository: SchulteRepository,
+  private val repository: SettingsRepository,
 ) : ViewModel() {
   val state = repository.settingsStateIn(viewModelScope)
 

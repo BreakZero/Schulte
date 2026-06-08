@@ -5,13 +5,17 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import org.easy.schulte.core.data.SchulteRepository
+import org.easy.schulte.core.data.AiAnalysisRepository
+import org.easy.schulte.core.data.SettingsRepository
+import org.easy.schulte.core.data.TrainingRepository
 import org.easy.schulte.state.reportStateIn
 
 internal class ReportViewModel(
-  private val repository: SchulteRepository,
+  private val trainingRepository: TrainingRepository,
+  private val settingsRepository: SettingsRepository,
+  private val aiAnalysisRepository: AiAnalysisRepository,
 ) : ViewModel() {
-  val state = repository.reportStateIn(viewModelScope)
+  val state = trainingRepository.reportStateIn(viewModelScope)
 
   private val _events = Channel<ReportEvent>()
   val events = _events.receiveAsFlow()
@@ -21,12 +25,12 @@ internal class ReportViewModel(
       ReportAction.RestartTraining -> sendEvent(ReportEvent.RestartTraining)
 
       ReportAction.BackToConfig -> {
-        repository.exitTraining()
+        trainingRepository.exitTraining()
         sendEvent(ReportEvent.BackToConfig)
       }
 
       ReportAction.OpenSettings -> {
-        repository.clearSettingsMessage()
+        settingsRepository.clearSettingsMessage()
         sendEvent(ReportEvent.OpenSettings)
       }
 
@@ -35,10 +39,10 @@ internal class ReportViewModel(
       ReportAction.OpenRecords -> sendEvent(ReportEvent.OpenRecords)
 
       ReportAction.GenerateAiAnalysis -> {
-        if (repository.currentConfiguration().aiSettings.isConfigured) {
+        if (aiAnalysisRepository.currentConfiguration().aiSettings.isConfigured) {
           sendEvent(ReportEvent.GenerateAiAnalysis)
         } else {
-          repository.markAiAnalysisNeedsSettings()
+          aiAnalysisRepository.markAiAnalysisNeedsSettings()
         }
       }
     }

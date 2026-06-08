@@ -5,12 +5,12 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import org.easy.schulte.core.data.SchulteRepository
+import org.easy.schulte.core.data.AccountRepository
 import org.easy.schulte.core.model.isLoggedIn
 import org.easy.schulte.state.accountStateIn
 
 internal class AccountViewModel(
-  private val repository: SchulteRepository,
+  private val repository: AccountRepository,
 ) : ViewModel() {
   val state = repository.accountStateIn(viewModelScope)
 
@@ -43,7 +43,7 @@ internal class AccountViewModel(
       AccountAction.OpenAiSettings -> sendEvent(AccountEvent.OpenAiSettings)
 
       AccountAction.OpenPkSoon -> {
-        if (repository.currentState().isLoggedIn) {
+        if (repository.currentAccountState().isLoggedIn) {
           sendEvent(AccountEvent.OpenPkSoon)
         } else {
           repository.clearAccountForm()
@@ -68,21 +68,21 @@ internal class AccountViewModel(
       AccountAction.SubmitLogin -> {
         viewModelScope.launch {
           repository.loginAccount()
-          if (repository.currentState().isLoggedIn) sendEvent(AccountEvent.OpenProfile)
+          if (repository.currentAccountState().isLoggedIn) sendEvent(AccountEvent.OpenProfile)
         }
       }
 
       AccountAction.SubmitRegister -> {
         viewModelScope.launch {
           repository.registerAccount()
-          if (repository.currentState().isLoggedIn) sendEvent(AccountEvent.OpenProfile)
+          if (repository.currentAccountState().isLoggedIn) sendEvent(AccountEvent.OpenProfile)
         }
       }
 
       AccountAction.SaveProfile -> {
         viewModelScope.launch {
           repository.updateCurrentProfile()
-          if (repository.currentState().accountForm.errorMessage == null) sendEvent(AccountEvent.Back)
+          if (repository.currentAccountState().accountForm.errorMessage == null) sendEvent(AccountEvent.Back)
         }
       }
 
