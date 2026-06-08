@@ -15,8 +15,8 @@ internal interface FeatureStateRepository {
   val trainingState: StateFlow<TrainingRuntimeState>
   val reportState: StateFlow<ReportRuntimeState>
   val settingsState: StateFlow<SettingsRuntimeState>
-  val recordsState: StateFlow<TrainingRecordsRuntimeState>
-  val accountState: StateFlow<AccountRuntimeState>
+  val recordsState: Flow<TrainingRecordsRuntimeState>
+  val accountState: Flow<AccountRuntimeState>
 
   fun currentTrainingState(): TrainingRuntimeState
   fun currentReportState(): ReportRuntimeState

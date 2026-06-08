@@ -1,5 +1,11 @@
 package org.easy.schulte.core.data
 
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.easy.schulte.core.model.AgeGroup
 import org.easy.schulte.core.model.GridSpec
 import org.easy.schulte.core.model.ImprovementStatus
@@ -15,6 +21,12 @@ internal class SqlDelightTrainingRecordStore(
 ) : TrainingRecordStore {
   private val database = databaseProvider.database
   private val queries = database.schulteDatabaseQueries
+
+  override fun observeAllRecords(): Flow<List<TrainingRecord>> = queries
+    .selectAll()
+    .asFlow()
+    .mapToList(Dispatchers.IO)
+    .map { rows -> rows.map(::mapRecord) }
 
   override fun getAllRecords(): List<TrainingRecord> = queries.selectAll().executeAsList().map(::mapRecord)
 
@@ -53,6 +65,12 @@ internal class SqlDelightTrainingRecordStore(
   override fun clearRecords() {
     queries.deleteAll()
   }
+
+  override fun observeAccounts(): Flow<List<UserAccount>> = queries
+    .selectAccounts()
+    .asFlow()
+    .mapToList(Dispatchers.IO)
+    .map { rows -> rows.map(::mapAccount) }
 
   override fun getAccounts(): List<UserAccount> = queries.selectAccounts().executeAsList().map(::mapAccount)
 

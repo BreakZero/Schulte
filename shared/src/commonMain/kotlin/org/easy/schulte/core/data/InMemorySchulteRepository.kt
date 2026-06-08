@@ -3,6 +3,8 @@ package org.easy.schulte.core.data
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import org.easy.schulte.core.model.AccountForm
 import org.easy.schulte.core.model.AccountMessage
@@ -56,21 +58,17 @@ internal class InMemorySchulteRepository(
   private val mutableTrainingState = MutableStateFlow(TrainingRuntimeState())
   private val mutableReportState = MutableStateFlow(ReportRuntimeState())
   private val mutableSettingsState = MutableStateFlow(SettingsRuntimeState())
-  private val mutableRecordsState = MutableStateFlow(
-    TrainingRecordsRuntimeState()
-      .withRecords(recordStore.getAllRecords(), now = currentTimeMillis()),
-  )
-  private val mutableAccountState = MutableStateFlow(
-    AccountRuntimeState(
-      accounts = recordStore.getAccounts(),
-    ),
-  )
+  private val mutableAccountState = MutableStateFlow(AccountRuntimeState())
 
   override val trainingState = mutableTrainingState.asStateFlow()
   override val reportState = mutableReportState.asStateFlow()
   override val settingsState = mutableSettingsState.asStateFlow()
-  override val recordsState = mutableRecordsState.asStateFlow()
-  override val accountState = mutableAccountState.asStateFlow()
+  override val recordsState = recordStore.observeAllRecords()
+    .map { records -> TrainingRecordsRuntimeState().withRecords(records, now = currentTimeMillis()) }
+  override val accountState = recordStore.observeAccounts()
+    .combine(mutableAccountState) { accounts, accountState ->
+      accountState.copy(accounts = accounts)
+    }
 
   override fun currentTrainingState(): TrainingRuntimeState = trainingState.value
 
@@ -78,9 +76,12 @@ internal class InMemorySchulteRepository(
 
   override fun currentSettingsState(): SettingsRuntimeState = settingsState.value
 
-  override fun currentRecordsState(): TrainingRecordsRuntimeState = recordsState.value
+  override fun currentRecordsState(): TrainingRecordsRuntimeState =
+    TrainingRecordsRuntimeState().withRecords(recordStore.getAllRecords(), now = currentTimeMillis())
 
-  override fun currentAccountState(): AccountRuntimeState = accountState.value
+  override fun currentAccountState(): AccountRuntimeState = mutableAccountState.value.copy(
+    accounts = recordStore.getAccounts(),
+  )
 
   override fun currentConfiguration(): AppConfiguration = configurationStore.getConfiguration()
 
@@ -157,18 +158,11 @@ internal class InMemorySchulteRepository(
 
   override fun finishTraining(report: TrainingReport) {
     val comparison = createTrainingRecord(report)
-    val records = listOf(comparison.currentRecord) + recordStore.getAllRecords()
     recordStore.insertRecord(comparison.currentRecord)
     mutableTrainingState.update {
       it.copy(
         elapsedMillis = report.elapsedMillis,
         lastFeedback = null,
-      )
-    }
-    mutableRecordsState.update {
-      it.copy(
-        records = records,
-        recordSummary = records.summary(now = currentTimeMillis()),
       )
     }
     mutableReportState.update {
@@ -258,12 +252,6 @@ internal class InMemorySchulteRepository(
 
   override fun clearTrainingRecords() {
     recordStore.clearRecords()
-    mutableRecordsState.update {
-      it.copy(
-        records = emptyList(),
-        recordSummary = TrainingRecordSummary(),
-      )
-    }
     mutableReportState.update { it.copy(progressComparison = null) }
     mutableSettingsState.update {
       it.copy(
@@ -390,15 +378,6 @@ internal class InMemorySchulteRepository(
   override suspend fun linkLocalRecords() {
     val userId = currentAccountState().currentUserId ?: return
     recordStore.updateUnownedRecordsOwner(userId)
-    mutableRecordsState.update {
-      val linkedRecords = it.records.map { record ->
-        if (record.ownerUserId == null) record.copy(ownerUserId = userId) else record
-      }
-      it.copy(
-        records = linkedRecords,
-        recordSummary = linkedRecords.summary(now = currentTimeMillis()),
-      )
-    }
     mutableAccountState.update {
       it.copy(
         showLinkLocalRecordsDialog = false,

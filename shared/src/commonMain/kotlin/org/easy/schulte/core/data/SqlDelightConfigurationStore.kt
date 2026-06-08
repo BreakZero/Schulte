@@ -1,9 +1,11 @@
 package org.easy.schulte.core.data
 
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 import org.easy.schulte.core.model.AgeGroup
 import org.easy.schulte.core.model.AiSettings
 import org.easy.schulte.core.model.AppConfiguration
@@ -21,13 +23,20 @@ internal class SqlDelightConfigurationStore(
   databaseProvider: SchulteDatabaseProvider,
 ) : ConfigurationStore {
   private val queries = databaseProvider.database.schulteDatabaseQueries
-  private val configuration = MutableStateFlow(readConfiguration())
 
-  override fun getConfiguration(): AppConfiguration = configuration.value
+  override fun getConfiguration(): AppConfiguration = readConfiguration()
 
-  override fun getFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration = configuration.value.toFeatureConfiguration(feature)
+  override fun getFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration = getConfiguration().toFeatureConfiguration(feature)
 
-  override fun observeFeatureConfiguration(feature: ConfigurationFeature): Flow<FeatureConfiguration> = configuration.map { it.toFeatureConfiguration(feature) }
+  override fun observeFeatureConfiguration(feature: ConfigurationFeature): Flow<FeatureConfiguration> = queries
+    .selectFeatureConfigurations(GLOBAL_FEATURE)
+    .asFlow()
+    .mapToList(Dispatchers.IO)
+    .map { rows ->
+      rows.associate { it.config_key to it.config_value }
+        .toConfiguration()
+        .toFeatureConfiguration(feature)
+    }
 
   override fun updateConfiguration(configuration: AppConfiguration) {
     queries.transaction {
@@ -40,28 +49,13 @@ internal class SqlDelightConfigurationStore(
         )
       }
     }
-    this.configuration.update { configuration }
   }
 
   private fun readConfiguration(): AppConfiguration {
     val values = queries.selectFeatureConfigurations(GLOBAL_FEATURE)
       .executeAsList()
       .associate { it.config_key to it.config_value }
-    return AppConfiguration(
-      selectedGrid = values.enumValue(KEY_SELECTED_GRID, GridSpec.Five),
-      selectedAgeGroup = values.enumValue(KEY_SELECTED_AGE_GROUP, AgeGroup.Adult),
-      selectedMarkMode = values.enumValue(KEY_SELECTED_MARK_MODE, MarkMode.BriefFeedbackOnly),
-      aiSettings = AiSettings(
-        assistedMarkingEnabled = values.booleanValue(KEY_ASSISTED_MARKING_ENABLED, false),
-        aiEnabled = values.booleanValue(KEY_AI_ENABLED, false),
-        apiKey = values[KEY_AI_API_KEY].orEmpty(),
-        baseUrl = values[KEY_AI_BASE_URL].orEmpty(),
-        modelName = values[KEY_AI_MODEL_NAME] ?: "gpt-4o-mini",
-      ),
-      recordGridFilter = values.enumValue(KEY_RECORD_GRID_FILTER, RecordGridFilter.All),
-      recordModeFilter = values.enumValue(KEY_RECORD_MODE_FILTER, RecordModeFilter.All),
-      recordTimeFilter = values.enumValue(KEY_RECORD_TIME_FILTER, RecordTimeFilter.All),
-    )
+    return values.toConfiguration()
   }
 
   private fun AppConfiguration.valueFor(key: String): String = when (key) {
@@ -79,6 +73,22 @@ internal class SqlDelightConfigurationStore(
     else -> error("Unsupported configuration key: $key")
   }
 }
+
+private fun Map<String, String>.toConfiguration(): AppConfiguration = AppConfiguration(
+  selectedGrid = enumValue(KEY_SELECTED_GRID, GridSpec.Five),
+  selectedAgeGroup = enumValue(KEY_SELECTED_AGE_GROUP, AgeGroup.Adult),
+  selectedMarkMode = enumValue(KEY_SELECTED_MARK_MODE, MarkMode.BriefFeedbackOnly),
+  aiSettings = AiSettings(
+    assistedMarkingEnabled = booleanValue(KEY_ASSISTED_MARKING_ENABLED, false),
+    aiEnabled = booleanValue(KEY_AI_ENABLED, false),
+    apiKey = get(KEY_AI_API_KEY).orEmpty(),
+    baseUrl = get(KEY_AI_BASE_URL).orEmpty(),
+    modelName = get(KEY_AI_MODEL_NAME) ?: "gpt-4o-mini",
+  ),
+  recordGridFilter = enumValue(KEY_RECORD_GRID_FILTER, RecordGridFilter.All),
+  recordModeFilter = enumValue(KEY_RECORD_MODE_FILTER, RecordModeFilter.All),
+  recordTimeFilter = enumValue(KEY_RECORD_TIME_FILTER, RecordTimeFilter.All),
+)
 
 private const val GLOBAL_FEATURE = "global"
 private const val KEY_SELECTED_GRID = "selected_grid"
