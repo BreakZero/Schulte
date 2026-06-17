@@ -1,9 +1,9 @@
 package org.easy.schulte.feature.report
 
-import org.easy.schulte.core.model.AiAnalysisState
-import org.easy.schulte.core.model.ProgressComparison
-import org.easy.schulte.core.model.TrainingRecordSummary
-import org.easy.schulte.core.model.TrainingReport
+import org.easy.schulte.core.model.ai.enums.AiAnalysisState
+import org.easy.schulte.core.model.records.ProgressComparison
+import org.easy.schulte.core.model.records.TrainingRecordSummary
+import org.easy.schulte.core.model.report.TrainingReport
 
 internal data class ReportState(
   val report: TrainingReport? = null,

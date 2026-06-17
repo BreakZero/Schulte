@@ -40,8 +40,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.easy.schulte.core.model.AccountMessage
-import org.easy.schulte.core.model.Gender
+import org.easy.schulte.core.model.account.enums.AccountMessage
+import org.easy.schulte.core.model.account.enums.Gender
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.FocusTeal
 import org.easy.schulte.core.ui.InfoCard

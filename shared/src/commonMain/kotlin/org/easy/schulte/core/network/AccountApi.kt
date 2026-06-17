@@ -22,8 +22,8 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import org.easy.schulte.core.model.Gender
-import org.easy.schulte.core.model.UserAccount
+import org.easy.schulte.core.model.account.UserAccount
+import org.easy.schulte.core.model.account.enums.Gender
 import org.easy.schulte.core.platform.currentTimeMillis
 
 internal class AccountApi(
@@ -124,7 +124,7 @@ internal class AccountApi(
     deviceName = config.deviceName,
     platform = when (config.platform) {
       ApiPlatform.Android -> "ANDROID"
-      ApiPlatform.Ios -> "IOS"
+      ApiPlatform.Ios -> "iOS"
     },
   )
 }

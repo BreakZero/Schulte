@@ -1,12 +1,18 @@
 package org.easy.schulte.core.data
 
-import org.easy.schulte.core.model.AgeGroup
-import org.easy.schulte.core.model.GridSpec
-import org.easy.schulte.core.model.ImprovementStatus
-import org.easy.schulte.core.model.MarkMode
-import org.easy.schulte.core.model.ScoreLevel
-import org.easy.schulte.core.model.TrainingRecord
-import org.easy.schulte.core.model.UserAccount
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import org.easy.schulte.core.model.account.UserAccount
+import org.easy.schulte.core.model.records.TrainingRecord
+import org.easy.schulte.core.model.records.enums.ImprovementStatus
+import org.easy.schulte.core.model.report.enums.ScoreLevel
+import org.easy.schulte.core.model.training.enums.AgeGroup
+import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.MarkMode
 import org.easy.schulte.db.Training_record
 import org.easy.schulte.db.User_account
 
@@ -15,6 +21,12 @@ internal class SqlDelightTrainingRecordStore(
 ) : TrainingRecordStore {
   private val database = databaseProvider.database
   private val queries = database.schulteDatabaseQueries
+
+  override fun observeAllRecords(): Flow<List<TrainingRecord>> = queries
+    .selectAll()
+    .asFlow()
+    .mapToList(Dispatchers.IO)
+    .map { rows -> rows.map(::mapRecord) }
 
   override fun getAllRecords(): List<TrainingRecord> = queries.selectAll().executeAsList().map(::mapRecord)
 
@@ -53,6 +65,12 @@ internal class SqlDelightTrainingRecordStore(
   override fun clearRecords() {
     queries.deleteAll()
   }
+
+  override fun observeAccounts(): Flow<List<UserAccount>> = queries
+    .selectAccounts()
+    .asFlow()
+    .mapToList(Dispatchers.IO)
+    .map { rows -> rows.map(::mapAccount) }
 
   override fun getAccounts(): List<UserAccount> = queries.selectAccounts().executeAsList().map(::mapAccount)
 
@@ -101,7 +119,7 @@ internal class SqlDelightTrainingRecordStore(
     registerId = row.register_id,
     nickname = row.nickname,
     password = row.password,
-    gender = org.easy.schulte.core.model.Gender.valueOf(row.gender),
+    gender = org.easy.schulte.core.model.account.enums.Gender.valueOf(row.gender),
     createdAt = row.created_at,
   )
 }

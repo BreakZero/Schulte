@@ -6,12 +6,12 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import org.easy.schulte.core.data.SchulteRepository
+import org.easy.schulte.core.data.AiAnalysisRepository
 import org.easy.schulte.core.domain.AiAnalysisGenerator
 import org.easy.schulte.state.adviceStateIn
 
 internal class AdviceViewModel(
-  private val repository: SchulteRepository,
+  private val repository: AiAnalysisRepository,
   private val aiAnalysisGenerator: AiAnalysisGenerator,
 ) : ViewModel() {
   val state = repository.adviceStateIn(viewModelScope)
@@ -27,7 +27,7 @@ internal class AdviceViewModel(
   }
 
   fun generateAiAnalysis() {
-    val report = repository.currentState().report ?: return
+    val report = repository.currentReportState().report ?: return
     val settings = repository.currentConfiguration().aiSettings
     if (!settings.isConfigured) {
       repository.markAiAnalysisNeedsSettings()

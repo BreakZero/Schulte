@@ -1,6 +1,6 @@
 package org.easy.schulte.feature.account
 
-import org.easy.schulte.core.model.Gender
+import org.easy.schulte.core.model.account.enums.Gender
 
 internal sealed interface AccountAction {
   data object Back : AccountAction

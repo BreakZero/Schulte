@@ -1,10 +1,10 @@
 package org.easy.schulte.core.domain
 
-import org.easy.schulte.core.model.AiAnalysis
-import org.easy.schulte.core.model.GridSpec
-import org.easy.schulte.core.model.MarkMode
-import org.easy.schulte.core.model.ScoreLevel
-import org.easy.schulte.core.model.TrainingReport
+import org.easy.schulte.core.model.ai.AiAnalysis
+import org.easy.schulte.core.model.report.TrainingReport
+import org.easy.schulte.core.model.report.enums.ScoreLevel
+import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.MarkMode
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import schulte.shared.generated.resources.*

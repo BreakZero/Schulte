@@ -1,8 +1,8 @@
 package org.easy.schulte.feature.records
 
-import org.easy.schulte.core.model.RecordGridFilter
-import org.easy.schulte.core.model.RecordModeFilter
-import org.easy.schulte.core.model.RecordTimeFilter
+import org.easy.schulte.core.model.records.enums.RecordGridFilter
+import org.easy.schulte.core.model.records.enums.RecordModeFilter
+import org.easy.schulte.core.model.records.enums.RecordTimeFilter
 
 internal sealed interface TrainingRecordsAction {
   data object Back : TrainingRecordsAction

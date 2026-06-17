@@ -29,10 +29,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.easy.schulte.core.model.AgeGroup
-import org.easy.schulte.core.model.GridSpec
-import org.easy.schulte.core.model.MarkMode
-import org.easy.schulte.core.model.TrainingRecord
+import org.easy.schulte.core.model.records.TrainingRecord
+import org.easy.schulte.core.model.training.enums.AgeGroup
+import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.MarkMode
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.InfoCard
 import org.easy.schulte.core.ui.ModeCard

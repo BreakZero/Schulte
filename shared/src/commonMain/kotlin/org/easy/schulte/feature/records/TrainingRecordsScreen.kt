@@ -25,11 +25,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.easy.schulte.core.model.ImprovementStatus
-import org.easy.schulte.core.model.RecordGridFilter
-import org.easy.schulte.core.model.RecordModeFilter
-import org.easy.schulte.core.model.RecordTimeFilter
-import org.easy.schulte.core.model.TrainingRecord
+import org.easy.schulte.core.model.records.TrainingRecord
+import org.easy.schulte.core.model.records.enums.ImprovementStatus
+import org.easy.schulte.core.model.records.enums.RecordGridFilter
+import org.easy.schulte.core.model.records.enums.RecordModeFilter
+import org.easy.schulte.core.model.records.enums.RecordTimeFilter
 import org.easy.schulte.core.platform.currentTimeMillis
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.KeyValueRow
