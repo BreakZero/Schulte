@@ -2,6 +2,7 @@ package org.easy.schulte.core.model.configuration
 
 import org.easy.schulte.core.model.ai.AiSettings
 import org.easy.schulte.core.model.records.enums.RecordGridFilter
+import org.easy.schulte.core.model.records.enums.RecordLayoutFilter
 import org.easy.schulte.core.model.records.enums.RecordModeFilter
 import org.easy.schulte.core.model.records.enums.RecordTimeFilter
 import org.easy.schulte.core.model.training.enums.AgeGroup
@@ -17,5 +18,6 @@ data class AppConfiguration(
   val aiSettings: AiSettings = AiSettings(),
   val recordGridFilter: RecordGridFilter = RecordGridFilter.All,
   val recordModeFilter: RecordModeFilter = RecordModeFilter.All,
+  val recordLayoutFilter: RecordLayoutFilter = RecordLayoutFilter.All,
   val recordTimeFilter: RecordTimeFilter = RecordTimeFilter.All,
 )

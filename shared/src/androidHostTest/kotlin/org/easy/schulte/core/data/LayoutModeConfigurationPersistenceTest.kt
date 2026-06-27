@@ -2,10 +2,11 @@ package org.easy.schulte.core.data
 
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import org.easy.schulte.core.model.records.enums.RecordLayoutFilter
 import org.easy.schulte.core.model.training.enums.LayoutMode
 import org.easy.schulte.db.SchulteDatabase
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class LayoutModeConfigurationPersistenceTest {
   @Test
@@ -22,15 +23,23 @@ class LayoutModeConfigurationPersistenceTest {
       val initialStore = SqlDelightConfigurationStore(provider)
       val initialConfiguration = initialStore.getConfiguration()
       assertEquals(LayoutMode.Static, initialConfiguration.selectedLayoutMode)
+      assertEquals(RecordLayoutFilter.All, initialConfiguration.recordLayoutFilter)
 
       initialStore.updateConfiguration(
-        initialConfiguration.copy(selectedLayoutMode = LayoutMode.ShuffleAfterCorrectTap),
+        initialConfiguration.copy(
+          selectedLayoutMode = LayoutMode.ShuffleAfterCorrectTap,
+          recordLayoutFilter = RecordLayoutFilter.Dynamic,
+        ),
       )
 
       val restoredStore = SqlDelightConfigurationStore(provider)
       assertEquals(
         LayoutMode.ShuffleAfterCorrectTap,
         restoredStore.getConfiguration().selectedLayoutMode,
+      )
+      assertEquals(
+        RecordLayoutFilter.Dynamic,
+        restoredStore.getConfiguration().recordLayoutFilter,
       )
 
       restoredStore.updateConfiguration(

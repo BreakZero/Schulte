@@ -206,6 +206,7 @@ private fun toTrainingRecordsState(
   recordSummary = records.recordSummary,
   recordGridFilter = configuration.recordGridFilter ?: TrainingRecordsState().recordGridFilter,
   recordModeFilter = configuration.recordModeFilter ?: TrainingRecordsState().recordModeFilter,
+  recordLayoutFilter = configuration.recordLayoutFilter ?: TrainingRecordsState().recordLayoutFilter,
   recordTimeFilter = configuration.recordTimeFilter ?: TrainingRecordsState().recordTimeFilter,
   isLoggedIn = account.isLoggedIn,
   currentUserNickname = account.currentUser?.nickname.orEmpty(),

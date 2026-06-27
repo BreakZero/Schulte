@@ -22,6 +22,7 @@ import org.easy.schulte.core.model.records.TrainingRecord
 import org.easy.schulte.core.model.records.TrainingRecordSummary
 import org.easy.schulte.core.model.records.enums.ImprovementStatus
 import org.easy.schulte.core.model.records.enums.RecordGridFilter
+import org.easy.schulte.core.model.records.enums.RecordLayoutFilter
 import org.easy.schulte.core.model.records.enums.RecordModeFilter
 import org.easy.schulte.core.model.records.enums.RecordTimeFilter
 import org.easy.schulte.core.model.report.TrainingReport
@@ -233,6 +234,10 @@ internal class InMemorySchulteRepository(
 
   override fun selectRecordModeFilter(filter: RecordModeFilter) {
     updateConfiguration { copy(recordModeFilter = filter) }
+  }
+
+  override fun selectRecordLayoutFilter(filter: RecordLayoutFilter) {
+    updateConfiguration { copy(recordLayoutFilter = filter) }
   }
 
   override fun selectRecordTimeFilter(filter: RecordTimeFilter) {
@@ -593,20 +598,22 @@ private fun TrainingRecordsRuntimeState.withRecords(records: List<TrainingRecord
   recordSummary = records.summary(now),
 )
 
-private fun List<TrainingRecord>.summary(now: Long): TrainingRecordSummary {
+internal fun List<TrainingRecord>.summary(now: Long): TrainingRecordSummary {
   val latest = firstOrNull()
   val recent7DaysStart = now - 7L * 24 * 60 * 60 * 1000
-  val recentSameCondition = latest?.let { latestRecord ->
+  val sameConditionRecords = latest?.let { latestRecord ->
     filter {
       it.gridSpec == latestRecord.gridSpec &&
         it.ageGroup == latestRecord.ageGroup &&
-        it.markMode == latestRecord.markMode
-    }.take(5)
+        it.markMode == latestRecord.markMode &&
+        it.layoutMode == latestRecord.layoutMode
+    }
   }.orEmpty()
+  val recentSameCondition = sameConditionRecords.take(5)
   return TrainingRecordSummary(
     totalCount = size,
     recent7DaysCount = count { it.createdAt >= recent7DaysStart },
-    bestRecord = minByOrNull { it.elapsedTimeMillis },
+    bestRecord = sameConditionRecords.minByOrNull { it.elapsedTimeMillis },
     latestRecord = latest,
     recentAverageTimeMillis = recentSameCondition.takeIf { it.isNotEmpty() }
       ?.map { it.elapsedTimeMillis }

@@ -206,7 +206,10 @@ private fun RecentTrainingCard(
         horizontalArrangement = Arrangement.SpaceBetween,
       ) {
         Column(modifier = Modifier.weight(1f)) {
-          Text("${latestRecord.gridSpec.titleText()} ${latestRecord.markMode.titleText()}", fontWeight = FontWeight.SemiBold)
+          Text(
+            "${latestRecord.gridSpec.titleText()} ${latestRecord.markMode.titleText()} · ${latestRecord.layoutMode.titleText()}",
+            fontWeight = FontWeight.SemiBold,
+          )
           Text(
             "${formatSecondsText(latestRecord.elapsedTimeMillis)} · 错误 ${latestRecord.errorCount} 次",
             color = QuietText,

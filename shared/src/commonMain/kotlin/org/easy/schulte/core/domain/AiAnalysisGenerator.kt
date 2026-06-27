@@ -4,6 +4,7 @@ import org.easy.schulte.core.model.ai.AiAnalysis
 import org.easy.schulte.core.model.report.TrainingReport
 import org.easy.schulte.core.model.report.enums.ScoreLevel
 import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.LayoutMode
 import org.easy.schulte.core.model.training.enums.MarkMode
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
@@ -17,14 +18,18 @@ internal class AiAnalysisGenerator {
         Res.string.local_ai_summary,
         getString(report.gridSpec.titleResource),
         getString(report.markMode.titleResource),
+        getString(report.layoutMode.titleResource),
         formatSecondsResource(report.elapsedMillis),
         report.errorCount,
         getString(report.scoreLevel.titleResource),
       ),
-      speed = if (report.scoreLevel == ScoreLevel.Excellent) {
-        getString(Res.string.local_ai_speed_excellent)
-      } else {
-        getString(Res.string.local_ai_speed_improvable)
+      speed = when {
+        report.layoutMode == LayoutMode.ShuffleAfterCorrectTap ->
+          getString(Res.string.local_ai_speed_dynamic)
+
+        report.scoreLevel == ScoreLevel.Excellent -> getString(Res.string.local_ai_speed_excellent)
+
+        else -> getString(Res.string.local_ai_speed_improvable)
       },
       errors = if (report.errorCount == 0) {
         getString(Res.string.local_ai_errors_none)
@@ -41,6 +46,7 @@ internal class AiAnalysisGenerator {
         Res.string.local_ai_recommended_spec,
         getString(report.gridSpec.titleResource),
         getString(MarkMode.BriefFeedbackOnly.titleResource),
+        getString(report.layoutMode.titleResource),
       ),
       suggestions = listOf(
         getString(Res.string.local_ai_suggestion_daily),
@@ -71,6 +77,12 @@ private val MarkMode.titleResource: StringResource
   get() = when (this) {
     MarkMode.BriefFeedbackOnly -> Res.string.mark_mode_standard_title
     MarkMode.AssistedMarking -> Res.string.mark_mode_assisted_title
+  }
+
+private val LayoutMode.titleResource: StringResource
+  get() = when (this) {
+    LayoutMode.Static -> Res.string.layout_mode_static_title
+    LayoutMode.ShuffleAfterCorrectTap -> Res.string.layout_mode_dynamic_title
   }
 
 private val ScoreLevel.titleResource: StringResource

@@ -22,6 +22,7 @@ internal class TrainingRecordsViewModel(
       TrainingRecordsAction.StartTraining -> sendEvent(TrainingRecordsEvent.StartTraining)
       is TrainingRecordsAction.SelectGridFilter -> repository.selectRecordGridFilter(action.filter)
       is TrainingRecordsAction.SelectModeFilter -> repository.selectRecordModeFilter(action.filter)
+      is TrainingRecordsAction.SelectLayoutFilter -> repository.selectRecordLayoutFilter(action.filter)
       is TrainingRecordsAction.SelectTimeFilter -> repository.selectRecordTimeFilter(action.filter)
     }
   }

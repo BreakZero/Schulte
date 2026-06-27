@@ -32,6 +32,7 @@ import org.easy.schulte.core.model.records.ProgressComparison
 import org.easy.schulte.core.model.records.TrainingRecordSummary
 import org.easy.schulte.core.model.report.TrainingReport
 import org.easy.schulte.core.model.report.enums.ScoreLevel
+import org.easy.schulte.core.model.training.enums.LayoutMode
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.FocusTeal
 import org.easy.schulte.core.ui.InfoCard
@@ -106,14 +107,23 @@ internal fun ReportScreen(
       ResultHeroCard(report)
       ProgressCard(state.progressComparison)
       ReportOverview(report)
-      RecentPerformanceCard(state.recordSummary)
+      if (report.layoutMode == LayoutMode.ShuffleAfterCorrectTap) {
+        InfoCard(
+          title = stringResource(Res.string.report_dynamic_notice_title),
+          body = stringResource(Res.string.report_dynamic_notice_body),
+        )
+      }
+      RecentPerformanceCard(state.recordSummary, report)
       NextGoalCard(state.progressComparison, report)
       InfoCard(
         title = stringResource(Res.string.report_score_note_title),
-        body = if (report.isOfficialScore) {
-          stringResource(Res.string.report_score_note_official)
-        } else {
-          stringResource(Res.string.report_score_note_practice)
+        body = when {
+          report.layoutMode == LayoutMode.ShuffleAfterCorrectTap ->
+            stringResource(Res.string.report_score_note_dynamic)
+
+          report.isOfficialScore -> stringResource(Res.string.report_score_note_official)
+
+          else -> stringResource(Res.string.report_score_note_practice)
         },
       )
       if (!state.isLoggedIn) {
@@ -248,10 +258,18 @@ private fun ResultHeroCard(report: TrainingReport) {
     Text(
       text = when (report.scoreLevel) {
         ScoreLevel.Excellent -> stringResource(Res.string.score_excellent_message)
+
         ScoreLevel.Good -> stringResource(Res.string.score_good_message)
+
         ScoreLevel.Pass -> stringResource(Res.string.score_pass_message)
+
         ScoreLevel.Below -> stringResource(Res.string.score_below_message)
-        ScoreLevel.Practice -> stringResource(Res.string.score_practice_message)
+
+        ScoreLevel.Practice -> if (report.layoutMode == LayoutMode.ShuffleAfterCorrectTap) {
+          stringResource(Res.string.score_dynamic_practice_message)
+        } else {
+          stringResource(Res.string.score_practice_message)
+        }
       },
       color = QuietText,
     )
@@ -265,6 +283,7 @@ private fun ReportOverview(report: TrainingReport) {
     KeyValueRow(stringResource(Res.string.report_grid_spec), report.gridSpec.titleText())
     KeyValueRow(stringResource(Res.string.report_age_group), report.ageGroup.titleText())
     KeyValueRow(stringResource(Res.string.report_training_mode), report.markMode.titleText())
+    KeyValueRow(stringResource(Res.string.report_layout_mode), report.layoutMode.titleText())
     KeyValueRow(
       stringResource(Res.string.report_error_count),
       stringResource(Res.string.count_times, report.errorCount),
@@ -303,9 +322,13 @@ private fun ProgressCard(comparison: ProgressComparison?) {
 }
 
 @Composable
-private fun RecentPerformanceCard(summary: TrainingRecordSummary) {
+private fun RecentPerformanceCard(
+  summary: TrainingRecordSummary,
+  report: TrainingReport,
+) {
   SchulteCard {
     SectionTitle("最近表现")
+    KeyValueRow(stringResource(Res.string.report_layout_mode), report.layoutMode.titleText())
     KeyValueRow(
       "最近 5 次平均",
       summary.recentAverageTimeMillis?.let { formatSecondsText(it) } ?: "暂无",

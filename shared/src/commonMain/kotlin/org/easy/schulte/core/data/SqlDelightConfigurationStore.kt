@@ -12,6 +12,7 @@ import org.easy.schulte.core.model.configuration.FeatureConfiguration
 import org.easy.schulte.core.model.configuration.enums.ConfigurationFeature
 import org.easy.schulte.core.model.configuration.toFeatureConfiguration
 import org.easy.schulte.core.model.records.enums.RecordGridFilter
+import org.easy.schulte.core.model.records.enums.RecordLayoutFilter
 import org.easy.schulte.core.model.records.enums.RecordModeFilter
 import org.easy.schulte.core.model.records.enums.RecordTimeFilter
 import org.easy.schulte.core.model.training.enums.AgeGroup
@@ -71,6 +72,7 @@ internal class SqlDelightConfigurationStore(
     KEY_AI_MODEL_NAME -> aiSettings.modelName
     KEY_RECORD_GRID_FILTER -> recordGridFilter.name
     KEY_RECORD_MODE_FILTER -> recordModeFilter.name
+    KEY_RECORD_LAYOUT_FILTER -> recordLayoutFilter.name
     KEY_RECORD_TIME_FILTER -> recordTimeFilter.name
     else -> error("Unsupported configuration key: $key")
   }
@@ -90,6 +92,7 @@ private fun Map<String, String>.toConfiguration(): AppConfiguration = AppConfigu
   ),
   recordGridFilter = enumValue(KEY_RECORD_GRID_FILTER, RecordGridFilter.All),
   recordModeFilter = enumValue(KEY_RECORD_MODE_FILTER, RecordModeFilter.All),
+  recordLayoutFilter = enumValue(KEY_RECORD_LAYOUT_FILTER, RecordLayoutFilter.All),
   recordTimeFilter = enumValue(KEY_RECORD_TIME_FILTER, RecordTimeFilter.All),
 )
 
@@ -105,6 +108,7 @@ private const val KEY_AI_BASE_URL = "ai_base_url"
 private const val KEY_AI_MODEL_NAME = "ai_model_name"
 private const val KEY_RECORD_GRID_FILTER = "record_grid_filter"
 private const val KEY_RECORD_MODE_FILTER = "record_mode_filter"
+private const val KEY_RECORD_LAYOUT_FILTER = "record_layout_filter"
 private const val KEY_RECORD_TIME_FILTER = "record_time_filter"
 
 private val KEY_VALUES = listOf(
@@ -119,6 +123,7 @@ private val KEY_VALUES = listOf(
   KEY_AI_MODEL_NAME,
   KEY_RECORD_GRID_FILTER,
   KEY_RECORD_MODE_FILTER,
+  KEY_RECORD_LAYOUT_FILTER,
   KEY_RECORD_TIME_FILTER,
 )
 

@@ -53,7 +53,10 @@ import org.easy.schulte.core.ui.SectionTitle
 import org.easy.schulte.core.ui.StatCard
 import org.easy.schulte.core.ui.WarningAmber
 import org.easy.schulte.core.ui.formatSecondsText
+import org.easy.schulte.core.ui.titleText
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import schulte.shared.generated.resources.*
 
 @Composable
 internal fun ProfileRoot(
@@ -280,10 +283,25 @@ private fun TrainingStatsCard(state: AccountState) {
       StatCard("最近 7 天", "${summary.recent7DaysCount} 次", Modifier.weight(1f))
     }
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-      StatCard("当前最佳", summary.bestRecord?.let { formatSecondsText(it.elapsedTimeMillis) } ?: "暂无", Modifier.weight(1f))
-      StatCard("最近一次", summary.latestRecord?.createdAt?.dateText() ?: "暂无", Modifier.weight(1f))
+      StatCard(
+        "当前最佳",
+        summary.bestRecord?.let { "${formatSecondsText(it.elapsedTimeMillis)} · ${it.layoutMode.titleText()}" } ?: "暂无",
+        Modifier.weight(1f),
+      )
+      StatCard(
+        "最近一次",
+        summary.latestRecord?.let { "${it.createdAt.dateText()} · ${it.layoutMode.titleText()}" } ?: "暂无",
+        Modifier.weight(1f),
+      )
     }
-    KeyValueRow("标准模式最佳", summary.bestRecord?.let { formatSecondsText(it.elapsedTimeMillis) } ?: "暂无")
+    KeyValueRow(
+      stringResource(Res.string.profile_latest_layout_mode),
+      summary.latestRecord?.layoutMode?.titleText() ?: "暂无",
+    )
+    KeyValueRow(
+      stringResource(Res.string.profile_current_condition_best),
+      summary.bestRecord?.let { formatSecondsText(it.elapsedTimeMillis) } ?: "暂无",
+    )
     KeyValueRow("辅助模式训练", "${state.assistedTrainingCount} 次")
   }
 }

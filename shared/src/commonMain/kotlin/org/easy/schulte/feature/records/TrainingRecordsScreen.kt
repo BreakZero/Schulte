@@ -28,8 +28,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.easy.schulte.core.model.records.TrainingRecord
 import org.easy.schulte.core.model.records.enums.ImprovementStatus
 import org.easy.schulte.core.model.records.enums.RecordGridFilter
+import org.easy.schulte.core.model.records.enums.RecordLayoutFilter
 import org.easy.schulte.core.model.records.enums.RecordModeFilter
 import org.easy.schulte.core.model.records.enums.RecordTimeFilter
+import org.easy.schulte.core.model.training.enums.LayoutMode
 import org.easy.schulte.core.platform.currentTimeMillis
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.KeyValueRow
@@ -41,7 +43,9 @@ import org.easy.schulte.core.ui.SectionTitle
 import org.easy.schulte.core.ui.StatCard
 import org.easy.schulte.core.ui.formatSecondsText
 import org.easy.schulte.core.ui.titleText
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import schulte.shared.generated.resources.*
 
 @Composable
 internal fun TrainingRecordsRoot(
@@ -118,8 +122,20 @@ private fun SummaryGrid(state: TrainingRecordsState) {
       StatCard("最近 7 天", "${summary.recent7DaysCount} 次", Modifier.weight(1f))
     }
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-      StatCard("当前最佳", summary.bestRecord?.let { formatSecondsText(it.elapsedTimeMillis) } ?: "暂无", Modifier.weight(1f))
-      StatCard("最近训练", summary.latestRecord?.relativeTimeText().orEmpty(), Modifier.weight(1f))
+      StatCard(
+        "当前最佳",
+        summary.bestRecord?.let {
+          stringResource(Res.string.record_summary_with_layout, formatSecondsText(it.elapsedTimeMillis), it.layoutMode.shortTitle())
+        } ?: "暂无",
+        Modifier.weight(1f),
+      )
+      StatCard(
+        "最近训练",
+        summary.latestRecord?.let {
+          stringResource(Res.string.record_summary_with_layout, it.relativeTimeText(), it.layoutMode.shortTitle())
+        }.orEmpty(),
+        Modifier.weight(1f),
+      )
     }
   }
 }
@@ -142,6 +158,12 @@ private fun Filters(
       selected = state.recordModeFilter,
       label = { it.label() },
       onClick = { onAction(TrainingRecordsAction.SelectModeFilter(it)) },
+    )
+    FilterGroup(
+      items = RecordLayoutFilter.entries,
+      selected = state.recordLayoutFilter,
+      label = { it.label() },
+      onClick = { onAction(TrainingRecordsAction.SelectLayoutFilter(it)) },
     )
     FilterGroup(
       items = RecordTimeFilter.entries,
@@ -179,7 +201,12 @@ private fun RecordRow(record: TrainingRecord) {
     ) {
       Column(modifier = Modifier.weight(1f)) {
         Text(
-          "${record.gridSpec.titleText()} ${record.markMode.titleText()}",
+          stringResource(
+            Res.string.record_card_title,
+            record.gridSpec.titleText(),
+            record.markMode.titleText(),
+            record.layoutMode.shortTitle(),
+          ),
           style = MaterialTheme.typography.titleMedium,
           fontWeight = FontWeight.SemiBold,
           color = Color(0xFF172033),
@@ -220,6 +247,7 @@ private fun TrainingRecordsState.filteredRecords(): List<TrainingRecord> {
   return records.filter { record ->
     (recordGridFilter.gridSpec == null || record.gridSpec == recordGridFilter.gridSpec) &&
       (recordModeFilter.markMode == null || record.markMode == recordModeFilter.markMode) &&
+      (recordLayoutFilter.layoutMode == null || record.layoutMode == recordLayoutFilter.layoutMode) &&
       (minCreatedAt == null || record.createdAt >= minCreatedAt)
   }
 }
@@ -229,6 +257,19 @@ private fun RecordGridFilter.label(): String = gridSpec?.titleText() ?: "全部"
 
 @Composable
 private fun RecordModeFilter.label(): String = markMode?.titleText() ?: "全部"
+
+@Composable
+private fun RecordLayoutFilter.label(): String = when (this) {
+  RecordLayoutFilter.All -> stringResource(Res.string.record_filter_all)
+  RecordLayoutFilter.Static -> stringResource(Res.string.record_filter_layout_static)
+  RecordLayoutFilter.Dynamic -> stringResource(Res.string.record_filter_layout_dynamic)
+}
+
+@Composable
+private fun LayoutMode.shortTitle(): String = when (this) {
+  LayoutMode.Static -> stringResource(Res.string.layout_mode_static_short)
+  LayoutMode.ShuffleAfterCorrectTap -> stringResource(Res.string.layout_mode_dynamic_short)
+}
 
 private fun RecordTimeFilter.label(): String = when (this) {
   RecordTimeFilter.All -> "全部"

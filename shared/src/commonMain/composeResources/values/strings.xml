@@ -30,8 +30,10 @@
     <string name="mark_mode_assisted_training_title">辅助训练</string>
     <string name="mark_mode_assisted_description">显示已完成标记，成绩仅供练习参考</string>
     <string name="layout_mode_static_title">静态模式</string>
+    <string name="layout_mode_static_short">静态</string>
     <string name="layout_mode_static_description">数字位置保持不变，用于静态成绩评级</string>
     <string name="layout_mode_dynamic_title">动态模式</string>
+    <string name="layout_mode_dynamic_short">动态</string>
     <string name="layout_mode_dynamic_description">每次正确点击后重新排列，持续训练视觉搜索；不参与静态成绩评级</string>
 
     <string name="training_current_target">当前目标</string>
@@ -41,6 +43,7 @@
     <string name="count_times">%1$d 次</string>
     <string name="training_assist_title">辅助模式</string>
     <string name="training_assist_body">已点击数字会弱化显示，成绩仅供练习参考</string>
+    <string name="training_dynamic_mode_hint">正确点击后数字会重新排列</string>
     <string name="action_restart">重新开始</string>
     <string name="action_exit_training">退出训练</string>
 
@@ -70,6 +73,7 @@
     <string name="report_grid_spec">方格规格</string>
     <string name="report_age_group">年龄段</string>
     <string name="report_training_mode">训练模式</string>
+    <string name="report_layout_mode">棋盘模式</string>
     <string name="report_error_count">错误次数</string>
     <string name="report_is_official_score">是否正式成绩</string>
     <string name="yes">是</string>
@@ -80,6 +84,10 @@
     <string name="score_level_pass">及格</string>
     <string name="score_level_below">未达标</string>
     <string name="score_level_practice">练习参考</string>
+    <string name="report_dynamic_notice_title">动态练习说明</string>
+    <string name="report_dynamic_notice_body">本次属于动态练习。不与静态模式评级直接比较。</string>
+    <string name="report_score_note_dynamic">本次为动态练习，完成时间和错误次数仅用于观察同模式下的变化。</string>
+    <string name="score_dynamic_practice_message">本次为动态练习，请关注同模式下的稳定性和进步</string>
 
     <string name="advice_title">AI 训练建议</string>
     <string name="advice_summary">本次表现总结</string>
@@ -126,16 +134,25 @@
     <string name="settings_message_missing_model">请填写模型名称</string>
     <string name="settings_message_connection_available">连接配置可用</string>
 
-    <string name="local_ai_summary">你在 %1$s %2$s 下完成时间为 %3$s，错误 %4$d 次，整体表现为%5$s。</string>
+    <string name="local_ai_summary">你在 %1$s %2$s（%3$s）下完成时间为 %4$s，错误 %5$d 次，整体表现为%6$s。</string>
     <string name="local_ai_speed_excellent">完成时间已达到当前年龄段优秀水平，可以尝试保持速度的同时降低错误次数。</string>
     <string name="local_ai_speed_improvable">当前速度仍有提升空间，建议先稳定扫描节奏，再逐步压缩完成时间。</string>
+    <string name="local_ai_speed_dynamic">本次属于动态练习，不与静态模式评级直接比较；建议只观察同规格动态练习中的节奏和稳定性变化。</string>
     <string name="local_ai_errors_none">本次没有错误点击，说明目标切换较稳定。下一步可以在保持准确率的前提下提速。</string>
     <string name="local_ai_errors_with_count">本次出现 %1$d 次错误，可能来自目标切换时的注意力偏移。建议先锁定下一个目标，再点击。</string>
     <string name="local_ai_next_time_goal">%1$d 秒以内</string>
     <string name="local_ai_next_error_goal_none">保持 0 次</string>
     <string name="local_ai_next_error_goal_with_count">%1$d 次以内</string>
-    <string name="local_ai_recommended_spec">%1$s %2$s</string>
+    <string name="local_ai_recommended_spec">%1$s %2$s · %3$s</string>
     <string name="local_ai_suggestion_daily">每天练习 3 组，每组间隔 30 秒</string>
     <string name="local_ai_suggestion_accuracy_first">优先保证准确率，再提升速度</string>
     <string name="local_ai_suggestion_upgrade">连续 3 次稳定后，再尝试更高规格</string>
+
+    <string name="record_filter_all">全部</string>
+    <string name="record_filter_layout_static">静态</string>
+    <string name="record_filter_layout_dynamic">动态</string>
+    <string name="record_card_title">%1$s %2$s · %3$s</string>
+    <string name="record_summary_with_layout">%1$s · %2$s</string>
+    <string name="profile_latest_layout_mode">最近棋盘模式</string>
+    <string name="profile_current_condition_best">当前条件最佳</string>
 </resources>

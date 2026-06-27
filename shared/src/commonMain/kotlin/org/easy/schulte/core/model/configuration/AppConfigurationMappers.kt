@@ -33,6 +33,7 @@ fun AppConfiguration.toFeatureConfiguration(feature: ConfigurationFeature): Feat
     feature = feature,
     recordGridFilter = recordGridFilter,
     recordModeFilter = recordModeFilter,
+    recordLayoutFilter = recordLayoutFilter,
     recordTimeFilter = recordTimeFilter,
   )
 

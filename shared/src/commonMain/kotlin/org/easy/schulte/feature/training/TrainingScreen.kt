@@ -1,6 +1,13 @@
 package org.easy.schulte.feature.training
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.easy.schulte.core.model.training.enums.MarkMode
+import org.easy.schulte.core.model.training.enums.LayoutMode
 import org.easy.schulte.core.ui.CardBackground
 import org.easy.schulte.core.ui.ErrorRed
 import org.easy.schulte.core.ui.InfoCard
@@ -111,6 +119,15 @@ internal fun TrainingScreen(
           body = stringResource(Res.string.training_assist_body),
         )
       }
+      if (state.selectedLayoutMode == LayoutMode.ShuffleAfterCorrectTap) {
+        Text(
+          text = stringResource(Res.string.training_dynamic_mode_hint),
+          modifier = Modifier.fillMaxWidth(),
+          color = QuietText,
+          fontSize = 13.sp,
+          textAlign = TextAlign.Center,
+        )
+      }
       SchulteGrid(state = state, onCellClick = { onAction(TrainingAction.CellClick(it)) })
       Spacer(Modifier.weight(1f))
       Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
@@ -143,22 +160,58 @@ private fun SchulteGrid(
   onCellClick: (Int) -> Unit,
 ) {
   val size = state.selectedGrid.size
+  AnimatedContent(
+    targetState = BoardLayout(
+      revision = state.boardRevision,
+      numbers = state.numbers,
+    ),
+    transitionSpec = {
+      if (state.isBoardTransitioning) {
+        fadeIn(tween(BoardTransitionDurationMillis)) togetherWith
+          fadeOut(tween(BoardTransitionDurationMillis))
+      } else {
+        EnterTransition.None togetherWith ExitTransition.None
+      }
+    },
+    label = "training-board-reorder",
+  ) { board ->
+    SchulteGridLayout(
+      size = size,
+      numbers = board.numbers,
+      state = state,
+      displayedBoardRevision = board.revision,
+      onCellClick = onCellClick,
+    )
+  }
+}
+
+@Composable
+private fun SchulteGridLayout(
+  size: Int,
+  numbers: List<Int>,
+  state: TrainingState,
+  displayedBoardRevision: Long,
+  onCellClick: (Int) -> Unit,
+) {
   Column(
     modifier = Modifier
       .fillMaxWidth()
       .aspectRatio(1f),
     verticalArrangement = Arrangement.spacedBy(if (size >= 7) 6.dp else 8.dp),
   ) {
-    state.numbers.chunked(size).forEach { row ->
+    numbers.chunked(size).forEach { row ->
       Row(
         modifier = Modifier.weight(1f),
         horizontalArrangement = Arrangement.spacedBy(if (size >= 7) 6.dp else 8.dp),
       ) {
         row.forEach { value ->
-          val feedback = state.lastFeedback?.takeIf { it.value == value }
+          val feedback = state.lastFeedback?.takeIf {
+            state.feedbackBoardRevision == displayedBoardRevision && it.value == value
+          }
           val isCompleted = state.completedNumbers.contains(value)
           val scale by animateFloatAsState(
             targetValue = if (feedback?.isCorrect == true) 0.96f else 1f,
+            label = "training-cell-feedback",
           )
           val background = when {
             feedback?.isCorrect == true -> Color(0xFFE6F4FF)
@@ -175,7 +228,10 @@ private fun SchulteGrid(
               .scale(scale)
               .background(background, RoundedCornerShape(8.dp))
               .border(1.dp, if (feedback?.isCorrect == false) ErrorRed else LineColor, RoundedCornerShape(8.dp))
-              .clickable { onCellClick(value) },
+              .clickable(
+                enabled = !state.isBoardTransitioning,
+                onClick = { onCellClick(value) },
+              ),
             contentAlignment = Alignment.Center,
           ) {
             Text(
@@ -191,3 +247,8 @@ private fun SchulteGrid(
     }
   }
 }
+
+private data class BoardLayout(
+  val revision: Long,
+  val numbers: List<Int>,
+)

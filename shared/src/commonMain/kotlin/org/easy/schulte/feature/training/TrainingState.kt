@@ -15,4 +15,7 @@ internal data class TrainingState(
   val elapsedMillis: Long = 0L,
   val errorCount: Int = 0,
   val lastFeedback: CellFeedback? = null,
+  val boardRevision: Long = 0L,
+  val feedbackBoardRevision: Long = 0L,
+  val isBoardTransitioning: Boolean = false,
 )
