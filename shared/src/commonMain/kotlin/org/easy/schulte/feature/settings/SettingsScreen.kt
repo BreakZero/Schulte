@@ -107,6 +107,7 @@ internal fun SettingsScreen(
         KeyValueRow(stringResource(Res.string.settings_default_grid), state.selectedGrid.titleText())
         KeyValueRow(stringResource(Res.string.settings_default_age_group), state.selectedAgeGroup.titleText())
         KeyValueRow(stringResource(Res.string.settings_default_mark_mode), state.selectedMarkMode.titleText())
+        KeyValueRow(stringResource(Res.string.settings_default_layout_mode), state.selectedLayoutMode.titleText())
         SwitchRow(
           title = stringResource(Res.string.settings_assist_title),
           subtitle = stringResource(Res.string.settings_assist_subtitle),

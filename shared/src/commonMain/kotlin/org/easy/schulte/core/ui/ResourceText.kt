@@ -5,6 +5,7 @@ import org.easy.schulte.core.model.report.enums.ScoreLevel
 import org.easy.schulte.core.model.settings.enums.SettingsMessage
 import org.easy.schulte.core.model.training.enums.AgeGroup
 import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.LayoutMode
 import org.easy.schulte.core.model.training.enums.MarkMode
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -27,6 +28,12 @@ internal fun MarkMode.trainingTitleText(): String = stringResource(trainingTitle
 
 @Composable
 internal fun MarkMode.descriptionText(): String = stringResource(descriptionResource)
+
+@Composable
+internal fun LayoutMode.titleText(): String = stringResource(titleResource)
+
+@Composable
+internal fun LayoutMode.descriptionText(): String = stringResource(descriptionResource)
 
 @Composable
 internal fun ScoreLevel.titleText(): String = stringResource(titleResource)
@@ -81,6 +88,18 @@ private val MarkMode.descriptionResource: StringResource
   get() = when (this) {
     MarkMode.BriefFeedbackOnly -> Res.string.mark_mode_standard_description
     MarkMode.AssistedMarking -> Res.string.mark_mode_assisted_description
+  }
+
+private val LayoutMode.titleResource: StringResource
+  get() = when (this) {
+    LayoutMode.Static -> Res.string.layout_mode_static_title
+    LayoutMode.ShuffleAfterCorrectTap -> Res.string.layout_mode_dynamic_title
+  }
+
+private val LayoutMode.descriptionResource: StringResource
+  get() = when (this) {
+    LayoutMode.Static -> Res.string.layout_mode_static_description
+    LayoutMode.ShuffleAfterCorrectTap -> Res.string.layout_mode_dynamic_description
   }
 
 private val ScoreLevel.titleResource: StringResource

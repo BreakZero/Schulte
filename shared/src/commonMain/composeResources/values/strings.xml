@@ -7,7 +7,8 @@
     <string name="config_daily_tip_body">保持自然呼吸，尽量不要移动视线中心</string>
     <string name="section_grid_spec">方格规格</string>
     <string name="section_age_group">年龄段</string>
-    <string name="section_training_mode">训练模式</string>
+    <string name="section_training_mode">标记模式</string>
+    <string name="section_layout_mode">棋盘模式</string>
     <string name="action_start_training">开始训练</string>
 
     <string name="grid_spec_three_title">3x3</string>
@@ -28,6 +29,10 @@
     <string name="mark_mode_assisted_title">辅助模式</string>
     <string name="mark_mode_assisted_training_title">辅助训练</string>
     <string name="mark_mode_assisted_description">显示已完成标记，成绩仅供练习参考</string>
+    <string name="layout_mode_static_title">静态模式</string>
+    <string name="layout_mode_static_description">数字位置保持不变，用于静态成绩评级</string>
+    <string name="layout_mode_dynamic_title">动态模式</string>
+    <string name="layout_mode_dynamic_description">每次正确点击后重新排列，持续训练视觉搜索；不参与静态成绩评级</string>
 
     <string name="training_current_target">当前目标</string>
     <string name="training_current_target_value">请点击 %1$d</string>
@@ -93,7 +98,8 @@
     <string name="section_training_settings">训练设置</string>
     <string name="settings_default_grid">默认方格规格</string>
     <string name="settings_default_age_group">默认年龄段</string>
-    <string name="settings_default_mark_mode">默认训练模式</string>
+    <string name="settings_default_mark_mode">默认标记模式</string>
+    <string name="settings_default_layout_mode">默认棋盘模式</string>
     <string name="settings_assist_title">辅助模式显示已完成标记</string>
     <string name="settings_assist_subtitle">开启后成绩仅作为练习参考</string>
     <string name="section_ai_settings">AI 设置</string>

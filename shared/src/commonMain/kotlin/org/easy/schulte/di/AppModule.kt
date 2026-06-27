@@ -14,7 +14,9 @@ import org.easy.schulte.core.data.TrainingRecordStore
 import org.easy.schulte.core.data.TrainingRecordsRepository
 import org.easy.schulte.core.data.TrainingRepository
 import org.easy.schulte.core.domain.AiAnalysisGenerator
+import org.easy.schulte.core.domain.BoardShuffler
 import org.easy.schulte.core.domain.TrainingReportCalculator
+import org.easy.schulte.core.domain.TrainingStateMachine
 import org.easy.schulte.core.network.AccountApi
 import org.easy.schulte.core.network.AccountApiConfig
 import org.easy.schulte.core.network.createSchulteHttpClient
@@ -44,6 +46,8 @@ internal fun appModule(databaseDriverFactory: DatabaseDriverFactory) = module {
   single<AccountRepository> { get<InMemorySchulteRepository>() }
   single<AiAnalysisRepository> { get<InMemorySchulteRepository>() }
   singleOf(::TrainingReportCalculator)
+  single { BoardShuffler() }
+  singleOf(::TrainingStateMachine)
   singleOf(::AiAnalysisGenerator)
   viewModelOf(::ConfigViewModel)
   viewModelOf(::TrainingViewModel)

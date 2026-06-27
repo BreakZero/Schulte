@@ -41,7 +41,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.easy.schulte.core.model.report.enums.ScoreLevel
-import org.easy.schulte.core.model.training.enums.MarkMode
 import org.jetbrains.compose.resources.painterResource
 import schulte.shared.generated.resources.*
 
@@ -127,7 +126,8 @@ internal fun SelectCard(
 @Composable
 internal fun ModeCard(
   selected: Boolean,
-  mode: MarkMode,
+  title: String,
+  description: String,
   onClick: () -> Unit,
 ) {
   Card(
@@ -149,9 +149,14 @@ internal fun ModeCard(
           .background(if (selected) FocusBlue else Color.Transparent, CircleShape)
           .border(1.dp, if (selected) FocusBlue else QuietText, CircleShape),
       )
-      Column {
-        Text(mode.titleText(), fontWeight = FontWeight.SemiBold, color = Color(0xFF172033))
-        Text(mode.descriptionText(), color = QuietText, fontSize = 13.sp)
+      Column(modifier = Modifier.weight(1f)) {
+        Text(title, fontWeight = FontWeight.SemiBold, color = Color(0xFF172033))
+        Text(
+          text = description,
+          color = QuietText,
+          fontSize = 13.sp,
+          lineHeight = 19.sp,
+        )
       }
     }
   }

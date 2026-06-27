@@ -10,13 +10,13 @@ import kotlinx.coroutines.launch
 import org.easy.schulte.core.data.TrainingRepository
 import org.easy.schulte.core.domain.TrainingReportCalculator
 import org.easy.schulte.core.domain.TrainingReportInput
-import org.easy.schulte.core.model.training.enums.MarkMode
+import org.easy.schulte.core.domain.TrainingStateMachine
 import org.easy.schulte.state.trainingStateIn
-import kotlin.random.Random
 
 internal class TrainingViewModel(
   private val repository: TrainingRepository,
   private val reportCalculator: TrainingReportCalculator,
+  private val stateMachine: TrainingStateMachine,
 ) : ViewModel() {
   val state = repository.trainingStateIn(viewModelScope)
 
@@ -35,8 +35,14 @@ internal class TrainingViewModel(
 
   fun startTraining() {
     val configuration = repository.currentConfiguration()
+    val previousBoard = repository.currentTrainingState().numbers
     timerJob?.cancel()
-    repository.startTraining((1..configuration.selectedGrid.count).shuffled(Random.Default))
+    repository.startTraining(
+      stateMachine.createInitialBoard(
+        numberCount = configuration.selectedGrid.count,
+        previousBoard = previousBoard,
+      ),
+    )
     timerJob = viewModelScope.launch {
       val startedAt = kotlin.time.TimeSource.Monotonic.markNow()
       while (true) {
@@ -60,28 +66,18 @@ internal class TrainingViewModel(
   private fun onCellClick(value: Int) {
     val current = repository.currentTrainingState()
     val configuration = repository.currentConfiguration()
-    if (current.numbers.isEmpty()) return
+    val result = stateMachine.onCellTap(
+      current = current,
+      value = value,
+      totalCount = configuration.selectedGrid.count,
+      markMode = configuration.selectedMarkMode,
+      layoutMode = configuration.selectedLayoutMode,
+    ) ?: return
 
-    if (value == current.currentTarget) {
-      val nextTarget = current.currentTarget + 1
-      val nextCompleted = if (configuration.selectedMarkMode == MarkMode.AssistedMarking) {
-        current.completedNumbers + value
-      } else {
-        current.completedNumbers
-      }
-      repository.recordCorrectCell(
-        value = value,
-        completedNumbers = nextCompleted,
-        nextTarget = nextTarget,
-      )
-      clearFeedbackLater(value)
-
-      if (value == configuration.selectedGrid.count) {
-        completeTraining()
-      }
-    } else {
-      repository.recordIncorrectCell(value)
-      clearFeedbackLater(value)
+    repository.applyCellTap(result)
+    clearFeedbackLater(value)
+    if (result.isCompleted) {
+      completeTraining()
     }
   }
 

@@ -32,6 +32,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.easy.schulte.core.model.records.TrainingRecord
 import org.easy.schulte.core.model.training.enums.AgeGroup
 import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.LayoutMode
 import org.easy.schulte.core.model.training.enums.MarkMode
 import org.easy.schulte.core.ui.FocusBlue
 import org.easy.schulte.core.ui.InfoCard
@@ -42,6 +43,7 @@ import org.easy.schulte.core.ui.SchulteScaffold
 import org.easy.schulte.core.ui.ScoreBadge
 import org.easy.schulte.core.ui.SectionTitle
 import org.easy.schulte.core.ui.SelectCard
+import org.easy.schulte.core.ui.descriptionText
 import org.easy.schulte.core.ui.difficultyText
 import org.easy.schulte.core.ui.formatSecondsText
 import org.easy.schulte.core.ui.titleText
@@ -142,8 +144,20 @@ internal fun ConfigScreen(
         MarkMode.entries.forEach { mode ->
           ModeCard(
             selected = state.selectedMarkMode == mode,
-            mode = mode,
+            title = mode.titleText(),
+            description = mode.descriptionText(),
             onClick = { onAction(ConfigAction.SelectMarkMode(mode)) },
+          )
+        }
+      }
+      SectionTitle(stringResource(Res.string.section_layout_mode))
+      Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        LayoutMode.entries.forEach { mode ->
+          ModeCard(
+            selected = state.selectedLayoutMode == mode,
+            title = mode.titleText(),
+            description = mode.descriptionText(),
+            onClick = { onAction(ConfigAction.SelectLayoutMode(mode)) },
           )
         }
       }

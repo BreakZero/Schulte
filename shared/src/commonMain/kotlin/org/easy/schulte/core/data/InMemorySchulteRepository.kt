@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import org.easy.schulte.core.domain.TrainingTapResult
 import org.easy.schulte.core.model.account.AccountForm
 import org.easy.schulte.core.model.account.UserAccount
 import org.easy.schulte.core.model.account.enums.AccountMessage
@@ -32,7 +33,6 @@ import org.easy.schulte.core.model.runtime.TrainingRuntimeState
 import org.easy.schulte.core.model.runtime.currentUser
 import org.easy.schulte.core.model.runtime.unlinkedLocalRecordCount
 import org.easy.schulte.core.model.settings.enums.SettingsMessage
-import org.easy.schulte.core.model.training.CellFeedback
 import org.easy.schulte.core.model.training.enums.AgeGroup
 import org.easy.schulte.core.model.training.enums.GridSpec
 import org.easy.schulte.core.model.training.enums.LayoutMode
@@ -135,21 +135,14 @@ internal class InMemorySchulteRepository(
     mutableTrainingState.update { it.copy(elapsedMillis = elapsedMillis) }
   }
 
-  override fun recordCorrectCell(value: Int, completedNumbers: Set<Int>, nextTarget: Int) {
+  override fun applyCellTap(result: TrainingTapResult) {
     mutableTrainingState.update {
       it.copy(
-        currentTarget = nextTarget,
-        completedNumbers = completedNumbers,
-        lastFeedback = CellFeedback(value, isCorrect = true),
-      )
-    }
-  }
-
-  override fun recordIncorrectCell(value: Int) {
-    mutableTrainingState.update {
-      it.copy(
-        errorCount = it.errorCount + 1,
-        lastFeedback = CellFeedback(value, isCorrect = false),
+        numbers = result.numbers,
+        currentTarget = result.currentTarget,
+        completedNumbers = result.completedNumbers,
+        errorCount = result.errorCount,
+        lastFeedback = result.feedback,
       )
     }
   }
