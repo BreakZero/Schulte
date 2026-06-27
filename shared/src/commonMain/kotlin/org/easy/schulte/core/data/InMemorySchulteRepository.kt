@@ -453,6 +453,7 @@ internal class InMemorySchulteRepository(
       gridSize = report.gridSpec.size,
       ageGroupName = report.ageGroup.name,
       markModeName = report.markMode.name,
+      layoutModeName = report.layoutMode.name,
     )
     val previousRecord = sameConditionRecords.firstOrNull()
     val previousBest = sameConditionRecords.minByOrNull { it.elapsedTimeMillis }
@@ -472,6 +473,7 @@ internal class InMemorySchulteRepository(
       gridSpec = report.gridSpec,
       ageGroup = report.ageGroup,
       markMode = report.markMode,
+      layoutMode = report.layoutMode,
       elapsedTimeMillis = report.elapsedMillis,
       errorCount = report.errorCount,
       scoreLevel = report.scoreLevel,

@@ -12,6 +12,7 @@ import org.easy.schulte.core.model.records.enums.ImprovementStatus
 import org.easy.schulte.core.model.report.enums.ScoreLevel
 import org.easy.schulte.core.model.training.enums.AgeGroup
 import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.LayoutMode
 import org.easy.schulte.core.model.training.enums.MarkMode
 import org.easy.schulte.db.Training_record
 import org.easy.schulte.db.User_account
@@ -34,8 +35,9 @@ internal class SqlDelightTrainingRecordStore(
     gridSize: Int,
     ageGroupName: String,
     markModeName: String,
+    layoutModeName: String,
   ): List<TrainingRecord> = queries
-    .selectByConditions(gridSize.toLong(), ageGroupName, markModeName)
+    .selectByConditions(gridSize.toLong(), ageGroupName, markModeName, layoutModeName)
     .executeAsList()
     .map(::mapRecord)
 
@@ -48,6 +50,7 @@ internal class SqlDelightTrainingRecordStore(
         grid_size = record.gridSpec.size.toLong(),
         age_group = record.ageGroup.name,
         mark_mode = record.markMode.name,
+        layout_mode = record.layoutMode.name,
         elapsed_time_millis = record.elapsedTimeMillis,
         error_count = record.errorCount.toLong(),
         score_level = record.scoreLevel.name,
@@ -104,6 +107,7 @@ internal class SqlDelightTrainingRecordStore(
     gridSpec = GridSpec.entries.first { it.size == row.grid_size.toInt() },
     ageGroup = AgeGroup.valueOf(row.age_group),
     markMode = MarkMode.valueOf(row.mark_mode),
+    layoutMode = LayoutMode.valueOf(row.layout_mode),
     elapsedTimeMillis = row.elapsed_time_millis,
     errorCount = row.error_count.toInt(),
     scoreLevel = ScoreLevel.valueOf(row.score_level),

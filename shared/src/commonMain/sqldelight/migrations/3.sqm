@@ -1,0 +1,7 @@
+ALTER TABLE training_record
+ADD COLUMN layout_mode TEXT NOT NULL DEFAULT 'Static';
+
+DROP INDEX training_record_conditions_idx;
+
+CREATE INDEX training_record_conditions_idx
+ON training_record(grid_size, age_group, mark_mode, layout_mode, created_at);

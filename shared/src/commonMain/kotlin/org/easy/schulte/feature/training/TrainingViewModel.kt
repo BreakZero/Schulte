@@ -101,6 +101,7 @@ internal class TrainingViewModel(
         gridSpec = configuration.selectedGrid,
         ageGroup = configuration.selectedAgeGroup,
         markMode = configuration.selectedMarkMode,
+        layoutMode = configuration.selectedLayoutMode,
         elapsedMillis = current.elapsedMillis,
         errorCount = current.errorCount,
       ),

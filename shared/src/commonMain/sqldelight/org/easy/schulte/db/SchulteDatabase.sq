@@ -5,6 +5,7 @@ CREATE TABLE training_record (
   grid_size INTEGER NOT NULL,
   age_group TEXT NOT NULL,
   mark_mode TEXT NOT NULL,
+  layout_mode TEXT NOT NULL DEFAULT 'Static',
   elapsed_time_millis INTEGER NOT NULL,
   error_count INTEGER NOT NULL,
   score_level TEXT NOT NULL,
@@ -33,7 +34,7 @@ CREATE TABLE configuration_entry (
 );
 
 CREATE INDEX training_record_conditions_idx
-ON training_record(grid_size, age_group, mark_mode, created_at);
+ON training_record(grid_size, age_group, mark_mode, layout_mode, created_at);
 
 selectAll:
 SELECT *
@@ -43,7 +44,7 @@ ORDER BY created_at DESC;
 selectByConditions:
 SELECT *
 FROM training_record
-WHERE grid_size = ? AND age_group = ? AND mark_mode = ?
+WHERE grid_size = ? AND age_group = ? AND mark_mode = ? AND layout_mode = ?
 ORDER BY created_at DESC;
 
 insertRecord:
@@ -54,6 +55,7 @@ INSERT OR REPLACE INTO training_record(
   grid_size,
   age_group,
   mark_mode,
+  layout_mode,
   elapsed_time_millis,
   error_count,
   score_level,
@@ -63,7 +65,7 @@ INSERT OR REPLACE INTO training_record(
   time_delta_millis,
   error_delta
 )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 updateUnownedRecordsOwner:
 UPDATE training_record

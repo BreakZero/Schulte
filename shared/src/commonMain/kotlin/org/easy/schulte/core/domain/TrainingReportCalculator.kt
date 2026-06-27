@@ -4,12 +4,14 @@ import org.easy.schulte.core.model.report.TrainingReport
 import org.easy.schulte.core.model.report.enums.ScoreLevel
 import org.easy.schulte.core.model.training.enums.AgeGroup
 import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.LayoutMode
 import org.easy.schulte.core.model.training.enums.MarkMode
 import kotlin.math.max
 
 internal class TrainingReportCalculator {
   fun createReport(input: TrainingReportInput): TrainingReport {
-    val isOfficial = input.markMode == MarkMode.BriefFeedbackOnly
+    val isOfficial = input.layoutMode == LayoutMode.Static &&
+      input.markMode == MarkMode.BriefFeedbackOnly
     val level = if (isOfficial) {
       scoreLevel(input.gridSpec, input.ageGroup, input.elapsedMillis)
     } else {
@@ -19,6 +21,7 @@ internal class TrainingReportCalculator {
       gridSpec = input.gridSpec,
       ageGroup = input.ageGroup,
       markMode = input.markMode,
+      layoutMode = input.layoutMode,
       elapsedMillis = max(input.elapsedMillis, 10L),
       errorCount = input.errorCount,
       scoreLevel = level,
@@ -32,6 +35,7 @@ internal data class TrainingReportInput(
   val gridSpec: GridSpec,
   val ageGroup: AgeGroup,
   val markMode: MarkMode,
+  val layoutMode: LayoutMode,
   val elapsedMillis: Long,
   val errorCount: Int,
 )

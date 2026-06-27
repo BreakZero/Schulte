@@ -43,6 +43,9 @@ kotlin {
       implementation(libs.ktor.client.cio)
       implementation(libs.sqldelight.android.driver)
     }
+    getByName("androidHostTest").dependencies {
+      implementation(libs.sqldelight.sqlite.driver)
+    }
     commonMain.dependencies {
       implementation(libs.compose.runtime)
       implementation(libs.compose.foundation)
