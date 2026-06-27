@@ -131,6 +131,7 @@ private fun toConfigState(
   selectedGrid = configuration.selectedGrid ?: ConfigState().selectedGrid,
   selectedAgeGroup = configuration.selectedAgeGroup ?: ConfigState().selectedAgeGroup,
   selectedMarkMode = configuration.selectedMarkMode ?: ConfigState().selectedMarkMode,
+  selectedLayoutMode = configuration.selectedLayoutMode ?: ConfigState().selectedLayoutMode,
   latestRecord = records.recordSummary.latestRecord,
   isLoggedIn = account.isLoggedIn,
   hasRecords = records.records.isNotEmpty(),
@@ -142,6 +143,7 @@ private fun toTrainingState(
 ): TrainingState = TrainingState(
   selectedGrid = configuration.selectedGrid ?: TrainingState().selectedGrid,
   selectedMarkMode = configuration.selectedMarkMode ?: TrainingState().selectedMarkMode,
+  selectedLayoutMode = configuration.selectedLayoutMode ?: TrainingState().selectedLayoutMode,
   numbers = training.numbers,
   currentTarget = training.currentTarget,
   completedNumbers = training.completedNumbers,
@@ -181,6 +183,7 @@ private fun toSettingsState(
     selectedGrid = configuration.selectedGrid ?: defaultState.selectedGrid,
     selectedAgeGroup = configuration.selectedAgeGroup ?: defaultState.selectedAgeGroup,
     selectedMarkMode = configuration.selectedMarkMode ?: defaultState.selectedMarkMode,
+    selectedLayoutMode = configuration.selectedLayoutMode ?: defaultState.selectedLayoutMode,
     aiSettings = configuration.aiSettings ?: defaultState.aiSettings,
     apiKeyVisible = settings.apiKeyVisible,
     settingsMessage = settings.settingsMessage,

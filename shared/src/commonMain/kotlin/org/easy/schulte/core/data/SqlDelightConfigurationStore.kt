@@ -16,6 +16,7 @@ import org.easy.schulte.core.model.records.enums.RecordModeFilter
 import org.easy.schulte.core.model.records.enums.RecordTimeFilter
 import org.easy.schulte.core.model.training.enums.AgeGroup
 import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.LayoutMode
 import org.easy.schulte.core.model.training.enums.MarkMode
 import org.easy.schulte.core.platform.currentTimeMillis
 
@@ -62,6 +63,7 @@ internal class SqlDelightConfigurationStore(
     KEY_SELECTED_GRID -> selectedGrid.name
     KEY_SELECTED_AGE_GROUP -> selectedAgeGroup.name
     KEY_SELECTED_MARK_MODE -> selectedMarkMode.name
+    KEY_SELECTED_LAYOUT_MODE -> selectedLayoutMode.name
     KEY_ASSISTED_MARKING_ENABLED -> aiSettings.assistedMarkingEnabled.toString()
     KEY_AI_ENABLED -> aiSettings.aiEnabled.toString()
     KEY_AI_API_KEY -> aiSettings.apiKey
@@ -78,6 +80,7 @@ private fun Map<String, String>.toConfiguration(): AppConfiguration = AppConfigu
   selectedGrid = enumValue(KEY_SELECTED_GRID, GridSpec.Five),
   selectedAgeGroup = enumValue(KEY_SELECTED_AGE_GROUP, AgeGroup.Adult),
   selectedMarkMode = enumValue(KEY_SELECTED_MARK_MODE, MarkMode.BriefFeedbackOnly),
+  selectedLayoutMode = enumValue(KEY_SELECTED_LAYOUT_MODE, LayoutMode.Static),
   aiSettings = AiSettings(
     assistedMarkingEnabled = booleanValue(KEY_ASSISTED_MARKING_ENABLED, false),
     aiEnabled = booleanValue(KEY_AI_ENABLED, false),
@@ -94,6 +97,7 @@ private const val GLOBAL_FEATURE = "global"
 private const val KEY_SELECTED_GRID = "selected_grid"
 private const val KEY_SELECTED_AGE_GROUP = "selected_age_group"
 private const val KEY_SELECTED_MARK_MODE = "selected_mark_mode"
+private const val KEY_SELECTED_LAYOUT_MODE = "selected_layout_mode"
 private const val KEY_ASSISTED_MARKING_ENABLED = "assisted_marking_enabled"
 private const val KEY_AI_ENABLED = "ai_enabled"
 private const val KEY_AI_API_KEY = "ai_api_key"
@@ -107,6 +111,7 @@ private val KEY_VALUES = listOf(
   KEY_SELECTED_GRID,
   KEY_SELECTED_AGE_GROUP,
   KEY_SELECTED_MARK_MODE,
+  KEY_SELECTED_LAYOUT_MODE,
   KEY_ASSISTED_MARKING_ENABLED,
   KEY_AI_ENABLED,
   KEY_AI_API_KEY,

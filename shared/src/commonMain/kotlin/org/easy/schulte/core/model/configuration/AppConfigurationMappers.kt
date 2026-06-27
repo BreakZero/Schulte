@@ -10,6 +10,7 @@ fun AppConfiguration.toFeatureConfiguration(feature: ConfigurationFeature): Feat
     selectedGrid = selectedGrid,
     selectedAgeGroup = selectedAgeGroup,
     selectedMarkMode = selectedMarkMode,
+    selectedLayoutMode = selectedLayoutMode,
   )
 
   ConfigurationFeature.Report,
@@ -24,6 +25,7 @@ fun AppConfiguration.toFeatureConfiguration(feature: ConfigurationFeature): Feat
     selectedGrid = selectedGrid,
     selectedAgeGroup = selectedAgeGroup,
     selectedMarkMode = selectedMarkMode,
+    selectedLayoutMode = selectedLayoutMode,
     aiSettings = aiSettings,
   )
 

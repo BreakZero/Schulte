@@ -26,6 +26,8 @@ internal class ConfigViewModel(
 
       is ConfigAction.SelectMarkMode -> repository.selectMarkMode(action.markMode)
 
+      is ConfigAction.SelectLayoutMode -> repository.selectLayoutMode(action.layoutMode)
+
       ConfigAction.StartTraining -> sendEvent(ConfigEvent.StartTraining)
 
       ConfigAction.OpenRecords -> sendEvent(ConfigEvent.OpenRecords)

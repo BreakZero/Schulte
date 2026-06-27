@@ -7,6 +7,7 @@ import org.easy.schulte.core.model.records.enums.RecordModeFilter
 import org.easy.schulte.core.model.records.enums.RecordTimeFilter
 import org.easy.schulte.core.model.training.enums.AgeGroup
 import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.LayoutMode
 import org.easy.schulte.core.model.training.enums.MarkMode
 
 data class FeatureConfiguration(
@@ -14,6 +15,7 @@ data class FeatureConfiguration(
   val selectedGrid: GridSpec? = null,
   val selectedAgeGroup: AgeGroup? = null,
   val selectedMarkMode: MarkMode? = null,
+  val selectedLayoutMode: LayoutMode? = null,
   val aiSettings: AiSettings? = null,
   val recordGridFilter: RecordGridFilter? = null,
   val recordModeFilter: RecordModeFilter? = null,

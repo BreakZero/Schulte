@@ -35,6 +35,7 @@ import org.easy.schulte.core.model.settings.enums.SettingsMessage
 import org.easy.schulte.core.model.training.CellFeedback
 import org.easy.schulte.core.model.training.enums.AgeGroup
 import org.easy.schulte.core.model.training.enums.GridSpec
+import org.easy.schulte.core.model.training.enums.LayoutMode
 import org.easy.schulte.core.model.training.enums.MarkMode
 import org.easy.schulte.core.network.AccountApi
 import org.easy.schulte.core.network.toAccountErrorMessage
@@ -98,6 +99,10 @@ internal class InMemorySchulteRepository(
 
   override fun selectMarkMode(markMode: MarkMode) {
     updateConfiguration { copy(selectedMarkMode = markMode) }
+  }
+
+  override fun selectLayoutMode(layoutMode: LayoutMode) {
+    updateConfiguration { copy(selectedLayoutMode = layoutMode) }
   }
 
   override fun clearSettingsMessage() {
