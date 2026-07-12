@@ -1,83 +1,37 @@
 package org.easy.schulte.core.domain
 
-import org.easy.schulte.core.model.ai.AiAnalysis
+import org.easy.schulte.core.model.ai.AiAnalysisRecommendation
+import org.easy.schulte.core.model.ai.AiErrorGuidance
+import org.easy.schulte.core.model.ai.AiSpeedGuidance
+import org.easy.schulte.core.model.ai.AiTrainingSuggestion
 import org.easy.schulte.core.model.report.TrainingReport
 import org.easy.schulte.core.model.report.enums.ScoreLevel
-import org.easy.schulte.core.model.training.enums.GridSpec
 import org.easy.schulte.core.model.training.enums.MarkMode
-import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.getString
-import schulte.shared.generated.resources.*
 
 internal class AiAnalysisGenerator {
-  suspend fun createLocalAiAnalysis(report: TrainingReport): AiAnalysis {
+  fun createLocalAiAnalysis(report: TrainingReport): AiAnalysisRecommendation {
     val target = report.nextTargetSeconds ?: report.elapsedSeconds.toInt().coerceAtLeast(1)
-    return AiAnalysis(
-      summary = getString(
-        Res.string.local_ai_summary,
-        getString(report.gridSpec.titleResource),
-        getString(report.markMode.titleResource),
-        formatSecondsResource(report.elapsedMillis),
-        report.errorCount,
-        getString(report.scoreLevel.titleResource),
-      ),
-      speed = if (report.scoreLevel == ScoreLevel.Excellent) {
-        getString(Res.string.local_ai_speed_excellent)
+    return AiAnalysisRecommendation(
+      gridSpec = report.gridSpec,
+      markMode = report.markMode,
+      elapsedMillis = report.elapsedMillis,
+      errorCount = report.errorCount,
+      scoreLevel = report.scoreLevel,
+      speedGuidance = if (report.scoreLevel == ScoreLevel.Excellent) {
+        AiSpeedGuidance.Excellent
       } else {
-        getString(Res.string.local_ai_speed_improvable)
+        AiSpeedGuidance.Improvable
       },
-      errors = if (report.errorCount == 0) {
-        getString(Res.string.local_ai_errors_none)
+      errorGuidance = if (report.errorCount == 0) {
+        AiErrorGuidance.NoErrors
       } else {
-        getString(Res.string.local_ai_errors_with_count, report.errorCount)
+        AiErrorGuidance.ErrorsPresent
       },
-      nextTimeGoal = getString(Res.string.local_ai_next_time_goal, target),
-      nextErrorGoal = if (report.errorCount == 0) {
-        getString(Res.string.local_ai_next_error_goal_none)
-      } else {
-        getString(Res.string.local_ai_next_error_goal_with_count, (report.errorCount - 1).coerceAtLeast(0))
-      },
-      recommendedSpec = getString(
-        Res.string.local_ai_recommended_spec,
-        getString(report.gridSpec.titleResource),
-        getString(MarkMode.BriefFeedbackOnly.titleResource),
-      ),
-      suggestions = listOf(
-        getString(Res.string.local_ai_suggestion_daily),
-        getString(Res.string.local_ai_suggestion_accuracy_first),
-        getString(Res.string.local_ai_suggestion_upgrade),
-      ),
+      nextTimeGoalSeconds = target,
+      nextErrorGoalCount = (report.errorCount - 1).coerceAtLeast(0),
+      recommendedGridSpec = report.gridSpec,
+      recommendedMarkMode = MarkMode.BriefFeedbackOnly,
+      suggestions = AiTrainingSuggestion.entries,
     )
   }
 }
-
-private suspend fun formatSecondsResource(millis: Long): String {
-  val seconds = millis / 1000
-  val centis = (millis % 1000) / 10
-  return getString(Res.string.seconds_format, seconds, centis.twoDigits())
-}
-
-private fun Long.twoDigits(): String = if (this < 10) "0$this" else toString()
-
-private val GridSpec.titleResource: StringResource
-  get() = when (this) {
-    GridSpec.Three -> Res.string.grid_spec_three_title
-    GridSpec.Four -> Res.string.grid_spec_four_title
-    GridSpec.Five -> Res.string.grid_spec_five_title
-    GridSpec.Seven -> Res.string.grid_spec_seven_title
-  }
-
-private val MarkMode.titleResource: StringResource
-  get() = when (this) {
-    MarkMode.BriefFeedbackOnly -> Res.string.mark_mode_standard_title
-    MarkMode.AssistedMarking -> Res.string.mark_mode_assisted_title
-  }
-
-private val ScoreLevel.titleResource: StringResource
-  get() = when (this) {
-    ScoreLevel.Excellent -> Res.string.score_level_excellent
-    ScoreLevel.Good -> Res.string.score_level_good
-    ScoreLevel.Pass -> Res.string.score_level_pass
-    ScoreLevel.Below -> Res.string.score_level_below
-    ScoreLevel.Practice -> Res.string.score_level_practice
-  }

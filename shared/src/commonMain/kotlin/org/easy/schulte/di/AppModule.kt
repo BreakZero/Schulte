@@ -31,6 +31,7 @@ import org.easy.schulte.core.security.SecureAccountSessionStore
 import org.easy.schulte.core.security.SecureSecretStore
 import org.easy.schulte.feature.account.AccountViewModel
 import org.easy.schulte.feature.advice.AdviceViewModel
+import org.easy.schulte.feature.advice.AiAnalysisTextFormatter
 import org.easy.schulte.feature.config.ConfigViewModel
 import org.easy.schulte.feature.records.TrainingRecordsViewModel
 import org.easy.schulte.feature.report.ReportViewModel
@@ -65,6 +66,7 @@ internal fun appModule(
   singleOf(::TrainingReportCalculator)
   single { TrainingExecutionContext() }
   singleOf(::AiAnalysisGenerator)
+  singleOf(::AiAnalysisTextFormatter)
   viewModelOf(::ConfigViewModel)
   viewModelOf(::TrainingViewModel)
   viewModelOf(::ReportViewModel)

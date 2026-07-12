@@ -13,6 +13,7 @@ import org.easy.schulte.state.adviceStateIn
 internal class AdviceViewModel(
   private val repository: AiAnalysisRepository,
   private val aiAnalysisGenerator: AiAnalysisGenerator,
+  private val aiAnalysisTextFormatter: AiAnalysisTextFormatter,
 ) : ViewModel() {
   val state = repository.adviceStateIn(viewModelScope)
 
@@ -35,8 +36,8 @@ internal class AdviceViewModel(
 
     repository.markAiAnalysisLoading()
     delay(700)
-    val analysis = aiAnalysisGenerator.createLocalAiAnalysis(report)
-    repository.setAiAnalysis(analysis)
+    val recommendation = aiAnalysisGenerator.createLocalAiAnalysis(report)
+    repository.setAiAnalysis(aiAnalysisTextFormatter.format(recommendation))
     sendEvent(AdviceEvent.AiAnalysisCompleted)
   }
 
