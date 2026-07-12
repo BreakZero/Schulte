@@ -44,7 +44,9 @@ class IosSecureSecretStore : SecureSecretStore {
       errSecSuccess -> (result.ptr.pointed.value?.let(::CFBridgingRelease) as? NSData)
         ?.toByteArray()
         ?.decodeToString()
+
       errSecItemNotFound -> null
+
       else -> null
     }
   }
