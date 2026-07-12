@@ -1,8 +1,10 @@
 package org.easy.schulte.feature.training
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -12,18 +14,26 @@ import org.easy.schulte.core.domain.TrainingReportCalculator
 import org.easy.schulte.core.domain.TrainingReportInput
 import org.easy.schulte.core.model.training.enums.MarkMode
 import org.easy.schulte.state.trainingStateIn
-import kotlin.random.Random
 
-internal class TrainingViewModel(
+internal open class TrainingViewModel(
   private val repository: TrainingRepository,
   private val reportCalculator: TrainingReportCalculator,
+  private val executionContext: TrainingExecutionContext,
 ) : ViewModel() {
-  val state = repository.trainingStateIn(viewModelScope)
+  private val scope = CoroutineScope(SupervisorJob() + executionContext.dispatcher)
 
-  private val _events = Channel<TrainingEvent>()
+  val state = repository.trainingStateIn(scope)
+
+  private val _events = Channel<TrainingEvent>(Channel.BUFFERED)
+
+  /**
+   * One-shot navigation effects. Effects are buffered until one active collector consumes them;
+   * they are not replayed after consumption, so a recreated screen must derive durable UI from state.
+   */
   val events = _events.receiveAsFlow()
 
   private var timerJob: Job? = null
+  private val feedbackJobs = mutableSetOf<Job>()
 
   fun onAction(action: TrainingAction) {
     when (action) {
@@ -33,31 +43,35 @@ internal class TrainingViewModel(
     }
   }
 
-  fun startTraining() = viewModelScope.launch {
+  fun startTraining() = scope.launch {
     val configuration = repository.currentConfiguration()
+    cancelTrainingJobs()
+    repository.startTraining(executionContext.random.shuffle((1..configuration.selectedGrid.count).toList()))
+    startTimer()
+  }
+
+  fun stopTraining() = scope.launch {
+    cancelTrainingJobs()
+    repository.exitTraining()
+    _events.trySend(TrainingEvent.Exited)
+  }
+
+  fun disposeTraining() {
+    cancelTrainingJobs()
+  }
+
+  private fun startTimer(elapsedOffsetMillis: Long = 0L) {
     timerJob?.cancel()
-    repository.startTraining((1..configuration.selectedGrid.count).shuffled(Random.Default))
-    timerJob = viewModelScope.launch {
-      val startedAt = kotlin.time.TimeSource.Monotonic.markNow()
+    val startedAtMillis = executionContext.clock.nowMillis() - elapsedOffsetMillis
+    timerJob = scope.launch {
       while (true) {
-        repository.updateElapsedMillis(startedAt.elapsedNow().inWholeMilliseconds)
-        delay(33)
+        repository.updateElapsedMillis(executionContext.clock.nowMillis() - startedAtMillis)
+        delay(TIMER_TICK_MILLIS)
       }
     }
   }
 
-  fun stopTraining() {
-    timerJob?.cancel()
-    repository.exitTraining()
-    sendEvent(TrainingEvent.Exited)
-  }
-
-  fun disposeTraining() {
-    timerJob?.cancel()
-    repository.exitTraining()
-  }
-
-  private fun onCellClick(value: Int) = viewModelScope.launch {
+  private fun onCellClick(value: Int) = scope.launch {
     val current = repository.currentTrainingState()
     val configuration = repository.currentConfiguration()
     if (current.numbers.isEmpty()) return@launch
@@ -69,16 +83,10 @@ internal class TrainingViewModel(
       } else {
         current.completedNumbers
       }
-      repository.recordCorrectCell(
-        value = value,
-        completedNumbers = nextCompleted,
-        nextTarget = nextTarget,
-      )
+      repository.recordCorrectCell(value, nextCompleted, nextTarget)
       clearFeedbackLater(value)
 
-      if (value == configuration.selectedGrid.count) {
-        completeTraining()
-      }
+      if (value == configuration.selectedGrid.count) completeTraining()
     } else {
       repository.recordIncorrectCell(value)
       clearFeedbackLater(value)
@@ -86,14 +94,16 @@ internal class TrainingViewModel(
   }
 
   private fun clearFeedbackLater(value: Int) {
-    viewModelScope.launch {
-      delay(180)
+    val job = scope.launch {
+      delay(FEEDBACK_CLEAR_MILLIS)
       repository.clearFeedbackIfMatches(value)
     }
+    feedbackJobs += job
+    job.invokeOnCompletion { feedbackJobs -= job }
   }
 
   private suspend fun completeTraining() {
-    timerJob?.cancel()
+    cancelTrainingJobs()
     val current = repository.currentTrainingState()
     val configuration = repository.currentConfiguration()
     val report = reportCalculator.createReport(
@@ -106,17 +116,27 @@ internal class TrainingViewModel(
       ),
     )
     repository.finishTraining(report)
-    sendEvent(TrainingEvent.Completed(report))
+    _events.trySend(TrainingEvent.Completed(report))
   }
 
-  private fun sendEvent(event: TrainingEvent) {
-    viewModelScope.launch {
-      _events.send(event)
-    }
+  private fun cancelTrainingJobs() {
+    timerJob?.cancel()
+    timerJob = null
+    feedbackJobs.toList().forEach(Job::cancel)
+    feedbackJobs.clear()
   }
+
+  internal fun clearForTest() = onCleared()
 
   override fun onCleared() {
     disposeTraining()
+    _events.close()
+    scope.cancel()
     super.onCleared()
+  }
+
+  private companion object {
+    const val TIMER_TICK_MILLIS = 33L
+    const val FEEDBACK_CLEAR_MILLIS = 180L
   }
 }

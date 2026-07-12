@@ -35,6 +35,7 @@ import org.easy.schulte.feature.config.ConfigViewModel
 import org.easy.schulte.feature.records.TrainingRecordsViewModel
 import org.easy.schulte.feature.report.ReportViewModel
 import org.easy.schulte.feature.settings.SettingsViewModel
+import org.easy.schulte.feature.training.TrainingExecutionContext
 import org.easy.schulte.feature.training.TrainingViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -62,6 +63,7 @@ internal fun appModule(
   single<AccountRepository> { AccountRepositoryImpl(get(), get(), get()) }
   single<AiAnalysisRepository> { AiAnalysisRepositoryImpl(get()) }
   singleOf(::TrainingReportCalculator)
+  single { TrainingExecutionContext() }
   singleOf(::AiAnalysisGenerator)
   viewModelOf(::ConfigViewModel)
   viewModelOf(::TrainingViewModel)

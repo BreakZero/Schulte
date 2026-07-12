@@ -25,8 +25,10 @@ internal class ReportViewModel(
       ReportAction.RestartTraining -> sendEvent(ReportEvent.RestartTraining)
 
       ReportAction.BackToConfig -> {
-        trainingRepository.exitTraining()
-        sendEvent(ReportEvent.BackToConfig)
+        viewModelScope.launch {
+          trainingRepository.exitTraining()
+          sendEvent(ReportEvent.BackToConfig)
+        }
       }
 
       ReportAction.OpenSettings -> {

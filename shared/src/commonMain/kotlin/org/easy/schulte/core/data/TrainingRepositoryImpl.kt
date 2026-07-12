@@ -16,7 +16,8 @@ internal class TrainingRepositoryImpl(
   private val sharedState: SchulteSharedState,
 ) : TrainingRepository,
   FeatureStateRepository by sharedState {
-  override fun startTraining(numbers: List<Int>) {
+
+  override suspend fun startTraining(numbers: List<Int>) {
     sharedState.mutableTrainingState.update {
       it.copy(
         numbers = numbers,
@@ -38,11 +39,11 @@ internal class TrainingRepositoryImpl(
     sharedState.mutableAccountState.update { it.copy(accountMessage = null) }
   }
 
-  override fun updateElapsedMillis(elapsedMillis: Long) {
+  override suspend fun updateElapsedMillis(elapsedMillis: Long) {
     sharedState.mutableTrainingState.update { it.copy(elapsedMillis = elapsedMillis) }
   }
 
-  override fun recordCorrectCell(value: Int, completedNumbers: Set<Int>, nextTarget: Int) {
+  override suspend fun recordCorrectCell(value: Int, completedNumbers: Set<Int>, nextTarget: Int) {
     sharedState.mutableTrainingState.update {
       it.copy(
         currentTarget = nextTarget,
@@ -52,13 +53,13 @@ internal class TrainingRepositoryImpl(
     }
   }
 
-  override fun recordIncorrectCell(value: Int) {
+  override suspend fun recordIncorrectCell(value: Int) {
     sharedState.mutableTrainingState.update {
       it.copy(errorCount = it.errorCount + 1, lastFeedback = CellFeedback(value, isCorrect = false))
     }
   }
 
-  override fun clearFeedbackIfMatches(value: Int) {
+  override suspend fun clearFeedbackIfMatches(value: Int) {
     sharedState.mutableTrainingState.update {
       if (it.lastFeedback?.value == value) it.copy(lastFeedback = null) else it
     }
@@ -78,7 +79,7 @@ internal class TrainingRepositoryImpl(
     }
   }
 
-  override fun exitTraining() {
+  override suspend fun exitTraining() {
     sharedState.mutableTrainingState.update { it.copy(lastFeedback = null) }
   }
 
