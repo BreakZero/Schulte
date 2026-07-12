@@ -10,7 +10,7 @@ internal class SettingsRepositoryImpl(
   private val sharedState: SchulteSharedState,
 ) : SettingsRepository,
   FeatureStateRepository by sharedState {
-  override fun updateAiSettings(block: AiSettings.() -> AiSettings) {
+  override suspend fun updateAiSettings(block: AiSettings.() -> AiSettings) {
     val nextConfiguration = sharedState.currentConfiguration().let {
       it.copy(aiSettings = it.aiSettings.block())
     }
@@ -18,7 +18,7 @@ internal class SettingsRepositoryImpl(
     sharedState.mutableSettingsState.update { it.copy(settingsMessage = null) }
   }
 
-  override fun updateAiApiKey(value: String) {
+  override suspend fun updateAiApiKey(value: String) {
     sharedState.aiApiKeyStore.save(value)
     sharedState.mutableSettingsState.update {
       it.copy(apiKeyInput = value, hasApiKey = sharedState.aiApiKeyStore.hasApiKey(), settingsMessage = null)
@@ -30,7 +30,7 @@ internal class SettingsRepositoryImpl(
     sharedState.mutableSettingsState.update { it.copy(apiKeyVisible = !it.apiKeyVisible) }
   }
 
-  override fun clearAiSettings() {
+  override suspend fun clearAiSettings() {
     sharedState.aiApiKeyStore.clear()
     sharedState.configurationStore.updateConfiguration(
       sharedState.currentConfiguration().copy(
@@ -45,7 +45,7 @@ internal class SettingsRepositoryImpl(
     }
   }
 
-  override fun saveSettings() {
+  override suspend fun saveSettings() {
     val currentConfiguration = sharedState.currentConfiguration()
     val nextConfiguration = currentConfiguration.copy(
       selectedMarkMode = if (currentConfiguration.aiSettings.assistedMarkingEnabled) {
@@ -66,7 +66,7 @@ internal class SettingsRepositoryImpl(
     sharedState.mutableSettingsState.update { it.copy(settingsMessage = null) }
   }
 
-  override fun isAiConfigured(): Boolean {
+  override suspend fun isAiConfigured(): Boolean {
     val settings = sharedState.currentConfiguration().aiSettings
     return settings.aiEnabled && settings.baseUrl.isNotBlank() && settings.modelName.isNotBlank() &&
       sharedState.aiApiKeyStore.hasApiKey()
@@ -80,7 +80,7 @@ internal class SettingsRepositoryImpl(
     sharedState.mutableSettingsState.update { it.copy(showClearRecordsDialog = false) }
   }
 
-  override fun clearTrainingRecords() {
+  override suspend fun clearTrainingRecords() {
     sharedState.recordStore.clearRecords()
     sharedState.mutableReportState.update { it.copy(progressComparison = null) }
     sharedState.mutableSettingsState.update {

@@ -52,16 +52,16 @@ internal class SchulteSharedState(
 
   override fun currentSettingsState(): SettingsRuntimeState = settingsState.value
 
-  override fun currentRecordsState(): TrainingRecordsRuntimeState = TrainingRecordsRuntimeState()
+  override suspend fun currentRecordsState(): TrainingRecordsRuntimeState = TrainingRecordsRuntimeState()
     .withRecords(recordStore.getAllRecords(), now = currentTimeMillis())
 
-  override fun currentAccountState(): AccountRuntimeState = mutableAccountState.value.copy(
+  override suspend fun currentAccountState(): AccountRuntimeState = mutableAccountState.value.copy(
     accounts = recordStore.getAccounts(),
   )
 
-  override fun currentConfiguration(): AppConfiguration = configurationStore.getConfiguration()
+  override suspend fun currentConfiguration(): AppConfiguration = configurationStore.getConfiguration()
 
-  override fun currentFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration = configurationStore
+  override suspend fun currentFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration = configurationStore
     .getFeatureConfiguration(feature)
     .withAiConfigured()
 

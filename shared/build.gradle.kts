@@ -62,6 +62,7 @@ kotlin {
       implementation(libs.koin.compose.viewmodel)
       implementation(libs.sqldelight.runtime)
       implementation(libs.sqldelight.coroutines.extensions)
+      implementation(libs.kotlinx.coroutines.core)
     }
     iosMain.dependencies {
       implementation(libs.ktor.client.darwin)
@@ -73,6 +74,7 @@ kotlin {
     val androidHostTest by getting {
       dependencies {
         implementation(libs.sqldelight.sqlite.driver)
+        implementation(libs.kotlinx.coroutines.test)
       }
     }
   }

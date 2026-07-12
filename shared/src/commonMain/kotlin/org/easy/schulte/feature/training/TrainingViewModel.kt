@@ -33,7 +33,7 @@ internal class TrainingViewModel(
     }
   }
 
-  fun startTraining() {
+  fun startTraining() = viewModelScope.launch {
     val configuration = repository.currentConfiguration()
     timerJob?.cancel()
     repository.startTraining((1..configuration.selectedGrid.count).shuffled(Random.Default))
@@ -57,10 +57,10 @@ internal class TrainingViewModel(
     repository.exitTraining()
   }
 
-  private fun onCellClick(value: Int) {
+  private fun onCellClick(value: Int) = viewModelScope.launch {
     val current = repository.currentTrainingState()
     val configuration = repository.currentConfiguration()
-    if (current.numbers.isEmpty()) return
+    if (current.numbers.isEmpty()) return@launch
 
     if (value == current.currentTarget) {
       val nextTarget = current.currentTarget + 1
@@ -92,7 +92,7 @@ internal class TrainingViewModel(
     }
   }
 
-  private fun completeTraining() {
+  private suspend fun completeTraining() {
     timerJob?.cancel()
     val current = repository.currentTrainingState()
     val configuration = repository.currentConfiguration()

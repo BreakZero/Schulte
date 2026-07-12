@@ -5,7 +5,7 @@ import org.easy.schulte.core.model.training.enums.GridSpec
 import org.easy.schulte.core.model.training.enums.MarkMode
 
 internal interface ConfigurationRepository : FeatureStateRepository {
-  fun selectGrid(spec: GridSpec)
-  fun selectAgeGroup(ageGroup: AgeGroup)
-  fun selectMarkMode(markMode: MarkMode)
+  suspend fun selectGrid(spec: GridSpec)
+  suspend fun selectAgeGroup(ageGroup: AgeGroup)
+  suspend fun selectMarkMode(markMode: MarkMode)
 }

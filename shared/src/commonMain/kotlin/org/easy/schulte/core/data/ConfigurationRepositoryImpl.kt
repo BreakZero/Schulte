@@ -8,19 +8,19 @@ internal class ConfigurationRepositoryImpl(
   private val sharedState: SchulteSharedState,
 ) : ConfigurationRepository,
   FeatureStateRepository by sharedState {
-  override fun selectGrid(spec: GridSpec) {
+  override suspend fun selectGrid(spec: GridSpec) {
     updateConfiguration { copy(selectedGrid = spec) }
   }
 
-  override fun selectAgeGroup(ageGroup: AgeGroup) {
+  override suspend fun selectAgeGroup(ageGroup: AgeGroup) {
     updateConfiguration { copy(selectedAgeGroup = ageGroup) }
   }
 
-  override fun selectMarkMode(markMode: MarkMode) {
+  override suspend fun selectMarkMode(markMode: MarkMode) {
     updateConfiguration { copy(selectedMarkMode = markMode) }
   }
 
-  private fun updateConfiguration(block: org.easy.schulte.core.model.configuration.AppConfiguration.() -> org.easy.schulte.core.model.configuration.AppConfiguration) {
+  private suspend fun updateConfiguration(block: org.easy.schulte.core.model.configuration.AppConfiguration.() -> org.easy.schulte.core.model.configuration.AppConfiguration) {
     sharedState.configurationStore.updateConfiguration(sharedState.currentConfiguration().block())
   }
 }

@@ -125,7 +125,7 @@ internal class AccountRepositoryImpl(
     }
   }
 
-  override fun requestLinkLocalRecords() {
+  override suspend fun requestLinkLocalRecords() {
     sharedState.mutableAccountState.update {
       it.copy(showLinkLocalRecordsDialog = sharedState.currentRecordsState().unlinkedLocalRecordCount > 0)
     }
@@ -209,7 +209,7 @@ internal class AccountRepositoryImpl(
     sharedState.mutableAccountState.update { it.copy(accountIsSubmitting = false) }
   }
 
-  private fun upsertCurrentAccount(account: UserAccount, message: AccountMessage) {
+  private suspend fun upsertCurrentAccount(account: UserAccount, message: AccountMessage) {
     sharedState.recordStore.insertAccount(account)
     sharedState.mutableAccountState.update {
       val accounts = it.accounts.filterNot { existing -> existing.userId == account.userId } + account

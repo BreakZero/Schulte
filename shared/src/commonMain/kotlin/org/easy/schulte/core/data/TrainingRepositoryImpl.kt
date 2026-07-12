@@ -64,7 +64,7 @@ internal class TrainingRepositoryImpl(
     }
   }
 
-  override fun finishTraining(report: TrainingReport) {
+  override suspend fun finishTraining(report: TrainingReport) {
     val comparison = createTrainingRecord(report)
     sharedState.recordStore.insertRecord(comparison.currentRecord)
     sharedState.mutableTrainingState.update { it.copy(elapsedMillis = report.elapsedMillis, lastFeedback = null) }
@@ -82,7 +82,7 @@ internal class TrainingRepositoryImpl(
     sharedState.mutableTrainingState.update { it.copy(lastFeedback = null) }
   }
 
-  private fun createTrainingRecord(report: TrainingReport): ProgressComparison {
+  private suspend fun createTrainingRecord(report: TrainingReport): ProgressComparison {
     val createdAt = currentTimeMillis()
     val sameConditionRecords = sharedState.recordStore.getRecordsForConditions(
       gridSize = report.gridSpec.size,

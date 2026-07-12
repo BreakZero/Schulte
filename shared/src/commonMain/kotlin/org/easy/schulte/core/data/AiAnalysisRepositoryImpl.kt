@@ -8,7 +8,7 @@ internal class AiAnalysisRepositoryImpl(
   private val sharedState: SchulteSharedState,
 ) : AiAnalysisRepository,
   FeatureStateRepository by sharedState {
-  override fun isAiConfigured(): Boolean {
+  override suspend fun isAiConfigured(): Boolean {
     val settings = sharedState.currentConfiguration().aiSettings
     return settings.aiEnabled && settings.baseUrl.isNotBlank() && settings.modelName.isNotBlank() &&
       sharedState.aiApiKeyStore.hasApiKey()

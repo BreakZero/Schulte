@@ -26,20 +26,18 @@ internal class AdviceViewModel(
     }
   }
 
-  fun generateAiAnalysis() {
-    val report = repository.currentReportState().report ?: return
+  fun generateAiAnalysis() = viewModelScope.launch {
+    val report = repository.currentReportState().report ?: return@launch
     if (!repository.isAiConfigured()) {
       repository.markAiAnalysisNeedsSettings()
-      return
+      return@launch
     }
 
     repository.markAiAnalysisLoading()
-    viewModelScope.launch {
-      delay(700)
-      val analysis = aiAnalysisGenerator.createLocalAiAnalysis(report)
-      repository.setAiAnalysis(analysis)
-      sendEvent(AdviceEvent.AiAnalysisCompleted)
-    }
+    delay(700)
+    val analysis = aiAnalysisGenerator.createLocalAiAnalysis(report)
+    repository.setAiAnalysis(analysis)
+    sendEvent(AdviceEvent.AiAnalysisCompleted)
   }
 
   private fun sendEvent(event: AdviceEvent) {

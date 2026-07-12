@@ -8,6 +8,6 @@ internal interface TrainingRepository : FeatureStateRepository {
   fun recordCorrectCell(value: Int, completedNumbers: Set<Int>, nextTarget: Int)
   fun recordIncorrectCell(value: Int)
   fun clearFeedbackIfMatches(value: Int)
-  fun finishTraining(report: TrainingReport)
+  suspend fun finishTraining(report: TrainingReport)
   fun exitTraining()
 }

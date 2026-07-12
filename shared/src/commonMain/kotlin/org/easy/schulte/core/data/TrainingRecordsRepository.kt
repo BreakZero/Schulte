@@ -5,7 +5,7 @@ import org.easy.schulte.core.model.records.enums.RecordModeFilter
 import org.easy.schulte.core.model.records.enums.RecordTimeFilter
 
 internal interface TrainingRecordsRepository : FeatureStateRepository {
-  fun selectRecordGridFilter(filter: RecordGridFilter)
-  fun selectRecordModeFilter(filter: RecordModeFilter)
-  fun selectRecordTimeFilter(filter: RecordTimeFilter)
+  suspend fun selectRecordGridFilter(filter: RecordGridFilter)
+  suspend fun selectRecordModeFilter(filter: RecordModeFilter)
+  suspend fun selectRecordTimeFilter(filter: RecordTimeFilter)
 }

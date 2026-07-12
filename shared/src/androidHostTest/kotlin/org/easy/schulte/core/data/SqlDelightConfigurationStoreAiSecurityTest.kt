@@ -1,6 +1,7 @@
 package org.easy.schulte.core.data
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import kotlinx.coroutines.test.runTest
 import org.easy.schulte.core.model.ai.AiSettings
 import org.easy.schulte.core.model.configuration.AppConfiguration
 import org.easy.schulte.core.security.AiApiKeyStore
@@ -13,7 +14,7 @@ import kotlin.test.assertNull
 
 class SqlDelightConfigurationStoreAiSecurityTest {
   @Test
-  fun savingAiSettingsKeepsApiKeyOutOfConfigurationEntriesAndRestoresItFromSecureStore() {
+  fun savingAiSettingsKeepsApiKeyOutOfConfigurationEntriesAndRestoresItFromSecureStore() = runTest {
     val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
     SchulteDatabase.Schema.create(driver)
     val databaseProvider = SchulteDatabaseProvider(FixedDriverFactory(driver))
@@ -52,7 +53,7 @@ class SqlDelightConfigurationStoreAiSecurityTest {
   }
 
   @Test
-  fun clearingAiApiKeyRemovesSecureValueAndLegacyDatabaseEntry() {
+  fun clearingAiApiKeyRemovesSecureValueAndLegacyDatabaseEntry() = runTest {
     val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
     SchulteDatabase.Schema.create(driver)
     val databaseProvider = SchulteDatabaseProvider(FixedDriverFactory(driver))
@@ -69,13 +70,13 @@ class SqlDelightConfigurationStoreAiSecurityTest {
     apiKeyStore.clear()
 
     assertNull(apiKeyStore.read())
+    assertFalse(store.getConfiguration().aiSettings.aiEnabled)
     assertFalse(
       databaseProvider.database.schulteDatabaseQueries
         .selectFeatureConfigurations("global")
         .executeAsList()
         .any { it.config_key == "ai_api_key" },
     )
-    assertFalse(store.getConfiguration().aiSettings.aiEnabled)
   }
 }
 

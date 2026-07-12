@@ -1,6 +1,7 @@
 package org.easy.schulte.di
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import kotlinx.coroutines.test.runTest
 import org.easy.schulte.core.data.AccountRepository
 import org.easy.schulte.core.data.AiAnalysisRepository
 import org.easy.schulte.core.data.ConfigurationRepository
@@ -37,7 +38,7 @@ class RepositoryCompositionTest {
   }
 
   @Test
-  fun featureRepositoriesPreserveAccountSettingsAndTrainingStateAtTheirBoundaries() {
+  fun featureRepositoriesPreserveAccountSettingsAndTrainingStateAtTheirBoundaries() = runTest {
     val koin = repositoryKoin().koin
     val accountRepository = koin.get<AccountRepository>()
     val settingsRepository = koin.get<SettingsRepository>()

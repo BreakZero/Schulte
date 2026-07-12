@@ -4,6 +4,7 @@ import org.easy.schulte.core.data.AccountRepository
 import org.easy.schulte.core.data.AccountRepositoryImpl
 import org.easy.schulte.core.data.AiAnalysisRepository
 import org.easy.schulte.core.data.AiAnalysisRepositoryImpl
+import org.easy.schulte.core.data.AppDispatchers
 import org.easy.schulte.core.data.ConfigurationRepository
 import org.easy.schulte.core.data.ConfigurationRepositoryImpl
 import org.easy.schulte.core.data.ConfigurationStore
@@ -44,14 +45,15 @@ internal fun appModule(
   secureSecretStore: SecureSecretStore,
 ) = module {
   single { SchulteDatabaseProvider(databaseDriverFactory) }
+  single { AppDispatchers() }
   single<SecureSecretStore> { secureSecretStore }
   single<AccountSessionStore> { SecureAccountSessionStore(get()) }
   single { AiApiKeyStore(get()) }
   single { createSchulteHttpClient() }
   single { AccountApiConfig() }
   single { AccountApi(get(), get()) }
-  single<TrainingRecordStore> { SqlDelightTrainingRecordStore(get()) }
-  single<ConfigurationStore> { SqlDelightConfigurationStore(get()) }
+  single<TrainingRecordStore> { SqlDelightTrainingRecordStore(get(), get()) }
+  single<ConfigurationStore> { SqlDelightConfigurationStore(get(), get()) }
   single { SchulteSharedState(get(), get(), get(), get()) }
   single<ConfigurationRepository> { ConfigurationRepositoryImpl(get()) }
   single<TrainingRepository> { TrainingRepositoryImpl(get()) }
