@@ -18,6 +18,7 @@ import org.easy.schulte.core.domain.TrainingReportCalculator
 import org.easy.schulte.core.network.AccountApi
 import org.easy.schulte.core.network.AccountApiConfig
 import org.easy.schulte.core.network.createSchulteHttpClient
+import org.easy.schulte.core.security.SecureSecretStore
 import org.easy.schulte.feature.account.AccountViewModel
 import org.easy.schulte.feature.advice.AdviceViewModel
 import org.easy.schulte.feature.config.ConfigViewModel
@@ -29,8 +30,12 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
-internal fun appModule(databaseDriverFactory: DatabaseDriverFactory) = module {
+internal fun appModule(
+  databaseDriverFactory: DatabaseDriverFactory,
+  secureSecretStore: SecureSecretStore,
+) = module {
   single { SchulteDatabaseProvider(databaseDriverFactory) }
+  single<SecureSecretStore> { secureSecretStore }
   single { createSchulteHttpClient() }
   single { AccountApiConfig() }
   single { AccountApi(get(), get()) }
