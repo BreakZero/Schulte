@@ -74,6 +74,11 @@ Before modifying code, determine which layer is affected:
 - Do not add JVM-only libraries to commonMain.
 - Do not assume the project supports desktop, web, or other platforms.
 
+## Verification Before Commit
+
+- Before committing any Kotlin or Gradle change, run `./gradlew ktlintCheck --no-daemon` and fix all reported Code Style violations.
+- Run the narrowest relevant test or build task before committing; report commands and results.
+
 ## Output Style
 
 When completing a task, always summarize:

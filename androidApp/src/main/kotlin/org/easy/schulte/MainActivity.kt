@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import org.easy.schulte.core.data.AndroidDatabaseDriverFactory
+import org.easy.schulte.core.security.AndroidSecureSecretStore
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -12,7 +13,10 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
 
     setContent {
-      App(AndroidDatabaseDriverFactory(this))
+      App(
+        databaseDriverFactory = AndroidDatabaseDriverFactory(this),
+        secureSecretStore = AndroidSecureSecretStore(this),
+      )
     }
   }
 }
