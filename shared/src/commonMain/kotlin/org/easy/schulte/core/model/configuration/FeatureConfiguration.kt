@@ -15,6 +15,7 @@ data class FeatureConfiguration(
   val selectedAgeGroup: AgeGroup? = null,
   val selectedMarkMode: MarkMode? = null,
   val aiSettings: AiSettings? = null,
+  val aiConfigured: Boolean? = null,
   val recordGridFilter: RecordGridFilter? = null,
   val recordModeFilter: RecordModeFilter? = null,
   val recordTimeFilter: RecordTimeFilter? = null,

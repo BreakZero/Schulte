@@ -37,8 +37,12 @@ import org.easy.schulte.core.model.training.enums.AgeGroup
 import org.easy.schulte.core.model.training.enums.GridSpec
 import org.easy.schulte.core.model.training.enums.MarkMode
 import org.easy.schulte.core.network.AccountApi
+import org.easy.schulte.core.network.AuthSession
 import org.easy.schulte.core.network.toAccountErrorMessage
 import org.easy.schulte.core.platform.currentTimeMillis
+import org.easy.schulte.core.security.AccountSession
+import org.easy.schulte.core.security.AccountSessionStore
+import org.easy.schulte.core.security.AiApiKeyStore
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -46,19 +50,26 @@ internal class InMemorySchulteRepository(
   private val recordStore: TrainingRecordStore,
   private val configurationStore: ConfigurationStore,
   private val accountApi: AccountApi,
+  private val accountSessionStore: AccountSessionStore,
+  private val aiApiKeyStore: AiApiKeyStore,
 ) : ConfigurationRepository,
   TrainingRepository,
   SettingsRepository,
   TrainingRecordsRepository,
   AccountRepository,
   AiAnalysisRepository {
-  private var accessToken: String = ""
-  private var refreshToken: String = ""
+  private val restoredSession = accountSessionStore.read()
+  private var accessToken: String = restoredSession?.accessToken.orEmpty()
+  private var refreshToken: String = restoredSession?.refreshToken.orEmpty()
 
   private val mutableTrainingState = MutableStateFlow(TrainingRuntimeState())
   private val mutableReportState = MutableStateFlow(ReportRuntimeState())
-  private val mutableSettingsState = MutableStateFlow(SettingsRuntimeState())
-  private val mutableAccountState = MutableStateFlow(AccountRuntimeState())
+  private val mutableSettingsState = MutableStateFlow(
+    SettingsRuntimeState(hasApiKey = aiApiKeyStore.hasApiKey()),
+  )
+  private val mutableAccountState = MutableStateFlow(
+    AccountRuntimeState(currentUserId = restoredSession?.userId),
+  )
 
   override val trainingState = mutableTrainingState.asStateFlow()
   override val reportState = mutableReportState.asStateFlow()
@@ -84,9 +95,13 @@ internal class InMemorySchulteRepository(
 
   override fun currentConfiguration(): AppConfiguration = configurationStore.getConfiguration()
 
-  override fun currentFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration = configurationStore.getFeatureConfiguration(feature)
+  override fun currentFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration = configurationStore
+    .getFeatureConfiguration(feature)
+    .withAiConfigured()
 
-  override fun observeFeatureConfiguration(feature: ConfigurationFeature): Flow<FeatureConfiguration> = configurationStore.observeFeatureConfiguration(feature)
+  override fun observeFeatureConfiguration(feature: ConfigurationFeature): Flow<FeatureConfiguration> = configurationStore
+    .observeFeatureConfiguration(feature)
+    .map { it.withAiConfigured() }
 
   override fun selectGrid(spec: GridSpec) {
     updateConfiguration { copy(selectedGrid = spec) }
@@ -186,15 +201,23 @@ internal class InMemorySchulteRepository(
     mutableSettingsState.update { it.copy(settingsMessage = null) }
   }
 
+  override fun updateAiApiKey(value: String) {
+    aiApiKeyStore.save(value)
+    mutableSettingsState.update {
+      it.copy(apiKeyInput = value, hasApiKey = aiApiKeyStore.hasApiKey(), settingsMessage = null)
+    }
+    configurationStore.updateConfiguration(currentConfiguration())
+  }
+
   override fun toggleApiKeyVisibility() {
     mutableSettingsState.update { it.copy(apiKeyVisible = !it.apiKeyVisible) }
   }
 
   override fun clearAiSettings() {
+    aiApiKeyStore.clear()
     val nextConfiguration = currentConfiguration().copy(
       aiSettings = AiSettings(
         aiEnabled = false,
-        apiKey = "",
         baseUrl = "",
         modelName = "gpt-4o-mini",
       ),
@@ -202,6 +225,8 @@ internal class InMemorySchulteRepository(
     configurationStore.updateConfiguration(nextConfiguration)
     mutableSettingsState.update {
       it.copy(
+        apiKeyInput = "",
+        hasApiKey = false,
         settingsMessage = SettingsMessage.AiCleared,
       )
     }
@@ -227,6 +252,11 @@ internal class InMemorySchulteRepository(
 
   override fun setSettingsMessage(message: SettingsMessage) {
     mutableSettingsState.update { it.copy(settingsMessage = message) }
+  }
+
+  override fun isAiConfigured(): Boolean {
+    val settings = currentConfiguration().aiSettings
+    return settings.aiEnabled && settings.baseUrl.isNotBlank() && settings.modelName.isNotBlank() && aiApiKeyStore.hasApiKey()
   }
 
   override fun selectRecordGridFilter(filter: RecordGridFilter) {
@@ -311,8 +341,7 @@ internal class InMemorySchulteRepository(
         gender = form.gender,
         acceptedTerms = form.agreementAccepted,
       )
-      accessToken = session.accessToken
-      refreshToken = session.refreshToken
+      saveSession(session)
       upsertCurrentAccount(session.user, AccountMessage.Registered)
     }
   }
@@ -328,8 +357,7 @@ internal class InMemorySchulteRepository(
         registrationId = form.registerId.trim(),
         password = form.password,
       )
-      accessToken = session.accessToken
-      refreshToken = session.refreshToken
+      saveSession(session)
       upsertCurrentAccount(session.user, AccountMessage.LoggedIn)
     }
   }
@@ -352,7 +380,6 @@ internal class InMemorySchulteRepository(
         ).copy(
           userId = user.userId,
           registerId = user.registerId,
-          password = user.password,
         )
       } else {
         user.copy(nickname = nickname, gender = form.gender)
@@ -407,6 +434,7 @@ internal class InMemorySchulteRepository(
     }
     accessToken = ""
     refreshToken = ""
+    accountSessionStore.clear()
     mutableAccountState.update {
       it.copy(
         currentUserId = null,
@@ -491,6 +519,24 @@ internal class InMemorySchulteRepository(
   private fun updateConfiguration(block: AppConfiguration.() -> AppConfiguration) {
     val nextConfiguration = currentConfiguration().block()
     configurationStore.updateConfiguration(nextConfiguration)
+  }
+
+  private fun FeatureConfiguration.withAiConfigured(): FeatureConfiguration = copy(
+    aiConfigured = aiSettings?.let {
+      it.aiEnabled && it.baseUrl.isNotBlank() && it.modelName.isNotBlank() && aiApiKeyStore.hasApiKey()
+    },
+  )
+
+  private fun saveSession(session: AuthSession) {
+    accessToken = session.accessToken
+    refreshToken = session.refreshToken
+    accountSessionStore.save(
+      AccountSession(
+        accessToken = session.accessToken,
+        refreshToken = session.refreshToken,
+        userId = session.user.userId,
+      ),
+    )
   }
 
   private suspend fun submitAccountRequest(block: suspend () -> Unit) {

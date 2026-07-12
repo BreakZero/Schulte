@@ -48,7 +48,7 @@ internal class AccountApi(
         ),
       )
     }.body<JsonObject>()
-    return response.toAuthSession(fallbackNickname = nickname, fallbackGender = gender, password = password)
+    return response.toAuthSession(fallbackNickname = nickname, fallbackGender = gender)
   }
 
   suspend fun login(
@@ -65,7 +65,7 @@ internal class AccountApi(
         ),
       )
     }.body<JsonObject>()
-    return response.toAuthSession(fallbackRegisterId = registrationId, password = password)
+    return response.toAuthSession(fallbackRegisterId = registrationId)
   }
 
   suspend fun me(accessToken: String): UserAccount {
@@ -73,7 +73,7 @@ internal class AccountApi(
       header(HttpHeaders.Accept, ContentType.Application.Json)
       bearerAuth(accessToken)
     }.body<JsonObject>()
-    return response.userPayload().toUserAccount(password = "")
+    return response.userPayload().toUserAccount()
   }
 
   suspend fun updateMe(
@@ -93,7 +93,7 @@ internal class AccountApi(
         ),
       )
     }.body<JsonObject>()
-    return response.userPayload().toUserAccount(password = "")
+    return response.userPayload().toUserAccount()
   }
 
   suspend fun logout(accessToken: String, refreshToken: String) {
@@ -203,7 +203,6 @@ private fun JsonObject.toAuthSession(
   fallbackRegisterId: String = "",
   fallbackNickname: String = "",
   fallbackGender: Gender = Gender.Private,
-  password: String,
 ): AuthSession {
   val userObject = nestedObject("user") ?: nestedObject("account") ?: this
   val tokenObject = nestedObject("tokens") ?: nestedObject("token") ?: this
@@ -214,7 +213,6 @@ private fun JsonObject.toAuthSession(
     fallbackRegisterId = registerId,
     fallbackNickname = fallbackNickname,
     fallbackGender = fallbackGender,
-    password = password,
   )
   return AuthSession(
     accessToken = tokenObject.string("accessToken", "access_token") ?: "",
@@ -229,12 +227,10 @@ private fun JsonObject.toUserAccount(
   fallbackRegisterId: String = "",
   fallbackNickname: String = "",
   fallbackGender: Gender = Gender.Private,
-  password: String,
 ): UserAccount = UserAccount(
   userId = string("userId", "id") ?: fallbackRegisterId.ifBlank { "remote_${currentTimeMillis()}" },
   registerId = string("registrationId", "registerId", "registrationID") ?: fallbackRegisterId,
   nickname = string("nickname", "name") ?: fallbackNickname.ifBlank { "舒尔特用户" },
-  password = password,
   gender = string("gender")?.toGender() ?: fallbackGender,
   createdAt = currentTimeMillis(),
 )

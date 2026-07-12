@@ -24,6 +24,10 @@ internal class SqlDelightConfigurationStore(
 ) : ConfigurationStore {
   private val queries = databaseProvider.database.schulteDatabaseQueries
 
+  init {
+    queries.deleteConfigurationByKey(KEY_AI_API_KEY)
+  }
+
   override fun getConfiguration(): AppConfiguration = readConfiguration()
 
   override fun getFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration = getConfiguration().toFeatureConfiguration(feature)
@@ -64,7 +68,6 @@ internal class SqlDelightConfigurationStore(
     KEY_SELECTED_MARK_MODE -> selectedMarkMode.name
     KEY_ASSISTED_MARKING_ENABLED -> aiSettings.assistedMarkingEnabled.toString()
     KEY_AI_ENABLED -> aiSettings.aiEnabled.toString()
-    KEY_AI_API_KEY -> aiSettings.apiKey
     KEY_AI_BASE_URL -> aiSettings.baseUrl
     KEY_AI_MODEL_NAME -> aiSettings.modelName
     KEY_RECORD_GRID_FILTER -> recordGridFilter.name
@@ -81,7 +84,6 @@ private fun Map<String, String>.toConfiguration(): AppConfiguration = AppConfigu
   aiSettings = AiSettings(
     assistedMarkingEnabled = booleanValue(KEY_ASSISTED_MARKING_ENABLED, false),
     aiEnabled = booleanValue(KEY_AI_ENABLED, false),
-    apiKey = get(KEY_AI_API_KEY).orEmpty(),
     baseUrl = get(KEY_AI_BASE_URL).orEmpty(),
     modelName = get(KEY_AI_MODEL_NAME) ?: "gpt-4o-mini",
   ),
@@ -109,7 +111,6 @@ private val KEY_VALUES = listOf(
   KEY_SELECTED_MARK_MODE,
   KEY_ASSISTED_MARKING_ENABLED,
   KEY_AI_ENABLED,
-  KEY_AI_API_KEY,
   KEY_AI_BASE_URL,
   KEY_AI_MODEL_NAME,
   KEY_RECORD_GRID_FILTER,

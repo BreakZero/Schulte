@@ -161,7 +161,7 @@ private fun toReportState(
   currentUserNickname = account.currentUser?.nickname.orEmpty(),
   progressComparison = report.progressComparison,
   recordSummary = records.recordSummary,
-  aiConfigured = configuration.aiSettings?.isConfigured ?: false,
+  aiConfigured = configuration.aiConfigured ?: false,
   aiAnalysisState = report.aiAnalysisState,
 )
 
@@ -182,6 +182,8 @@ private fun toSettingsState(
     selectedAgeGroup = configuration.selectedAgeGroup ?: defaultState.selectedAgeGroup,
     selectedMarkMode = configuration.selectedMarkMode ?: defaultState.selectedMarkMode,
     aiSettings = configuration.aiSettings ?: defaultState.aiSettings,
+    apiKeyInput = settings.apiKeyInput,
+    hasApiKey = settings.hasApiKey,
     apiKeyVisible = settings.apiKeyVisible,
     settingsMessage = settings.settingsMessage,
     showClearRecordsDialog = settings.showClearRecordsDialog,

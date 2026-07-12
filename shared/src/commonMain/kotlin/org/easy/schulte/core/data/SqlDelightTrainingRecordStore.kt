@@ -79,7 +79,6 @@ internal class SqlDelightTrainingRecordStore(
       user_id = account.userId,
       register_id = account.registerId,
       nickname = account.nickname,
-      password = account.password,
       gender = account.gender.name,
       created_at = account.createdAt,
     )
@@ -118,7 +117,6 @@ internal class SqlDelightTrainingRecordStore(
     userId = row.user_id,
     registerId = row.register_id,
     nickname = row.nickname,
-    password = row.password,
     gender = org.easy.schulte.core.model.account.enums.Gender.valueOf(row.gender),
     createdAt = row.created_at,
   )
