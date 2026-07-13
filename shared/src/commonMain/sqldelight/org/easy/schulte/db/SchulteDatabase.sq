@@ -19,7 +19,6 @@ CREATE TABLE user_account (
   user_id TEXT NOT NULL PRIMARY KEY,
   register_id TEXT NOT NULL UNIQUE,
   nickname TEXT NOT NULL,
-  password TEXT NOT NULL,
   gender TEXT NOT NULL,
   created_at INTEGER NOT NULL
 );
@@ -80,11 +79,10 @@ INSERT OR REPLACE INTO user_account(
   user_id,
   register_id,
   nickname,
-  password,
   gender,
   created_at
 )
-VALUES (?, ?, ?, ?, ?, ?);
+VALUES (?, ?, ?, ?, ?);
 
 updateAccountProfile:
 UPDATE user_account
@@ -111,6 +109,10 @@ selectFeatureConfigurations:
 SELECT *
 FROM configuration_entry
 WHERE feature = ?;
+
+deleteConfigurationByKey:
+DELETE FROM configuration_entry
+WHERE config_key = ?;
 
 upsertConfiguration:
 INSERT OR REPLACE INTO configuration_entry(

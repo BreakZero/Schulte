@@ -21,9 +21,9 @@ internal interface FeatureStateRepository {
   fun currentTrainingState(): TrainingRuntimeState
   fun currentReportState(): ReportRuntimeState
   fun currentSettingsState(): SettingsRuntimeState
-  fun currentRecordsState(): TrainingRecordsRuntimeState
-  fun currentAccountState(): AccountRuntimeState
-  fun currentConfiguration(): AppConfiguration
-  fun currentFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration
+  suspend fun currentRecordsState(): TrainingRecordsRuntimeState
+  suspend fun currentAccountState(): AccountRuntimeState
+  suspend fun currentConfiguration(): AppConfiguration
+  suspend fun currentFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration
   fun observeFeatureConfiguration(feature: ConfigurationFeature): Flow<FeatureConfiguration>
 }

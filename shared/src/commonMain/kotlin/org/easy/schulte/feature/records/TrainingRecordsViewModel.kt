@@ -20,9 +20,9 @@ internal class TrainingRecordsViewModel(
     when (action) {
       TrainingRecordsAction.Back -> sendEvent(TrainingRecordsEvent.Back)
       TrainingRecordsAction.StartTraining -> sendEvent(TrainingRecordsEvent.StartTraining)
-      is TrainingRecordsAction.SelectGridFilter -> repository.selectRecordGridFilter(action.filter)
-      is TrainingRecordsAction.SelectModeFilter -> repository.selectRecordModeFilter(action.filter)
-      is TrainingRecordsAction.SelectTimeFilter -> repository.selectRecordTimeFilter(action.filter)
+      is TrainingRecordsAction.SelectGridFilter -> viewModelScope.launch { repository.selectRecordGridFilter(action.filter) }
+      is TrainingRecordsAction.SelectModeFilter -> viewModelScope.launch { repository.selectRecordModeFilter(action.filter) }
+      is TrainingRecordsAction.SelectTimeFilter -> viewModelScope.launch { repository.selectRecordTimeFilter(action.filter) }
     }
   }
 

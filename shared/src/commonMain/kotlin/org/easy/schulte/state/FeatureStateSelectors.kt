@@ -35,11 +35,7 @@ internal fun FeatureStateRepository.configStateIn(scope: CoroutineScope): StateF
   ::toConfigState,
 ).stateIn(
   scope = scope,
-  initialValue = toConfigState(
-    currentFeatureConfiguration(ConfigurationFeature.Config),
-    currentRecordsState(),
-    currentAccountState(),
-  ),
+  initialValue = toConfigState(FeatureConfiguration(ConfigurationFeature.Config), TrainingRecordsRuntimeState(), AccountRuntimeState()),
 )
 
 internal fun FeatureStateRepository.trainingStateIn(scope: CoroutineScope): StateFlow<TrainingState> = combine(
@@ -48,10 +44,7 @@ internal fun FeatureStateRepository.trainingStateIn(scope: CoroutineScope): Stat
   ::toTrainingState,
 ).stateIn(
   scope = scope,
-  initialValue = toTrainingState(
-    currentFeatureConfiguration(ConfigurationFeature.Training),
-    currentTrainingState(),
-  ),
+  initialValue = toTrainingState(FeatureConfiguration(ConfigurationFeature.Training), currentTrainingState()),
 )
 
 internal fun FeatureStateRepository.reportStateIn(scope: CoroutineScope): StateFlow<ReportState> = combine(
@@ -62,12 +55,7 @@ internal fun FeatureStateRepository.reportStateIn(scope: CoroutineScope): StateF
   ::toReportState,
 ).stateIn(
   scope = scope,
-  initialValue = toReportState(
-    currentFeatureConfiguration(ConfigurationFeature.Report),
-    currentReportState(),
-    currentRecordsState(),
-    currentAccountState(),
-  ),
+  initialValue = toReportState(FeatureConfiguration(ConfigurationFeature.Report), currentReportState(), TrainingRecordsRuntimeState(), AccountRuntimeState()),
 )
 
 internal fun FeatureStateRepository.adviceStateIn(scope: CoroutineScope): StateFlow<AdviceState> = reportState
@@ -85,12 +73,7 @@ internal fun FeatureStateRepository.settingsStateIn(scope: CoroutineScope): Stat
   ::toSettingsState,
 ).stateIn(
   scope = scope,
-  initialValue = toSettingsState(
-    currentFeatureConfiguration(ConfigurationFeature.Settings),
-    currentSettingsState(),
-    currentRecordsState(),
-    currentAccountState(),
-  ),
+  initialValue = toSettingsState(FeatureConfiguration(ConfigurationFeature.Settings), currentSettingsState(), TrainingRecordsRuntimeState(), AccountRuntimeState()),
 )
 
 internal fun FeatureStateRepository.trainingRecordsStateIn(scope: CoroutineScope): StateFlow<TrainingRecordsState> = combine(
@@ -100,11 +83,7 @@ internal fun FeatureStateRepository.trainingRecordsStateIn(scope: CoroutineScope
   ::toTrainingRecordsState,
 ).stateIn(
   scope = scope,
-  initialValue = toTrainingRecordsState(
-    currentFeatureConfiguration(ConfigurationFeature.Records),
-    currentRecordsState(),
-    currentAccountState(),
-  ),
+  initialValue = toTrainingRecordsState(FeatureConfiguration(ConfigurationFeature.Records), TrainingRecordsRuntimeState(), AccountRuntimeState()),
 )
 
 internal fun FeatureStateRepository.accountStateIn(scope: CoroutineScope): StateFlow<AccountState> = combine(
@@ -113,7 +92,7 @@ internal fun FeatureStateRepository.accountStateIn(scope: CoroutineScope): State
   ::toAccountState,
 ).stateIn(
   scope = scope,
-  initialValue = toAccountState(currentAccountState(), currentRecordsState()),
+  initialValue = toAccountState(AccountRuntimeState(), TrainingRecordsRuntimeState()),
 )
 
 private fun <T> Flow<T>.stateIn(scope: CoroutineScope, initialValue: T): StateFlow<T> = distinctUntilChanged()
@@ -161,7 +140,7 @@ private fun toReportState(
   currentUserNickname = account.currentUser?.nickname.orEmpty(),
   progressComparison = report.progressComparison,
   recordSummary = records.recordSummary,
-  aiConfigured = configuration.aiSettings?.isConfigured ?: false,
+  aiConfigured = configuration.aiConfigured ?: false,
   aiAnalysisState = report.aiAnalysisState,
 )
 
@@ -182,6 +161,8 @@ private fun toSettingsState(
     selectedAgeGroup = configuration.selectedAgeGroup ?: defaultState.selectedAgeGroup,
     selectedMarkMode = configuration.selectedMarkMode ?: defaultState.selectedMarkMode,
     aiSettings = configuration.aiSettings ?: defaultState.aiSettings,
+    apiKeyInput = settings.apiKeyInput,
+    hasApiKey = settings.hasApiKey,
     apiKeyVisible = settings.apiKeyVisible,
     settingsMessage = settings.settingsMessage,
     showClearRecordsDialog = settings.showClearRecordsDialog,

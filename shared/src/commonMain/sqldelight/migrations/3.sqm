@@ -1,0 +1,15 @@
+CREATE TABLE user_account_v3 (
+  user_id TEXT NOT NULL PRIMARY KEY,
+  register_id TEXT NOT NULL UNIQUE,
+  nickname TEXT NOT NULL,
+  gender TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+
+INSERT INTO user_account_v3(user_id, register_id, nickname, gender, created_at)
+SELECT user_id, register_id, nickname, gender, created_at
+FROM user_account;
+
+DROP TABLE user_account;
+
+ALTER TABLE user_account_v3 RENAME TO user_account;

@@ -3,6 +3,7 @@ package org.easy.schulte.core.data
 import org.easy.schulte.core.model.ai.AiAnalysis
 
 internal interface AiAnalysisRepository : FeatureStateRepository {
+  suspend fun isAiConfigured(): Boolean
   fun markAiAnalysisNeedsSettings()
   fun markAiAnalysisLoading()
   fun setAiAnalysis(analysis: AiAnalysis)

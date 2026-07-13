@@ -13,7 +13,7 @@ internal interface AccountRepository : FeatureStateRepository {
   suspend fun registerAccount()
   suspend fun loginAccount()
   suspend fun updateCurrentProfile()
-  fun requestLinkLocalRecords()
+  suspend fun requestLinkLocalRecords()
   suspend fun linkLocalRecords()
   fun dismissLinkLocalRecords()
   fun requestLogout()

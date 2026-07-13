@@ -24,28 +24,28 @@ internal class SettingsViewModel(
       SettingsAction.OpenProfile -> sendEvent(SettingsEvent.OpenProfile)
       is SettingsAction.ToggleAiEnabled -> updateSettings { copy(aiEnabled = action.enabled) }
       is SettingsAction.ToggleAssistSetting -> updateSettings { copy(assistedMarkingEnabled = action.enabled) }
-      is SettingsAction.UpdateApiKey -> updateSettings { copy(apiKey = action.value) }
+      is SettingsAction.UpdateApiKey -> viewModelScope.launch { repository.updateAiApiKey(action.value) }
       is SettingsAction.UpdateBaseUrl -> updateSettings { copy(baseUrl = action.value) }
       is SettingsAction.UpdateModelName -> updateSettings { copy(modelName = action.value) }
       SettingsAction.ToggleApiKeyVisibility -> repository.toggleApiKeyVisibility()
       SettingsAction.TestAiConnection -> testAiConnection()
-      SettingsAction.ClearAiSettings -> repository.clearAiSettings()
+      SettingsAction.ClearAiSettings -> viewModelScope.launch { repository.clearAiSettings() }
       SettingsAction.RequestClearTrainingRecords -> repository.requestClearTrainingRecords()
       SettingsAction.CancelClearTrainingRecords -> repository.cancelClearTrainingRecords()
-      SettingsAction.ConfirmClearTrainingRecords -> repository.clearTrainingRecords()
-      SettingsAction.SaveSettings -> repository.saveSettings()
+      SettingsAction.ConfirmClearTrainingRecords -> viewModelScope.launch { repository.clearTrainingRecords() }
+      SettingsAction.SaveSettings -> viewModelScope.launch { repository.saveSettings() }
     }
   }
 
   private fun updateSettings(block: AiSettings.() -> AiSettings) {
-    repository.updateAiSettings(block)
+    viewModelScope.launch { repository.updateAiSettings(block) }
   }
 
-  private fun testAiConnection() {
+  private fun testAiConnection() = viewModelScope.launch {
     val settings = repository.currentConfiguration().aiSettings
     val message = if (!settings.aiEnabled) {
       SettingsMessage.EnableAiFirst
-    } else if (settings.apiKey.isBlank() || settings.baseUrl.isBlank()) {
+    } else if (!repository.currentSettingsState().hasApiKey || settings.baseUrl.isBlank()) {
       SettingsMessage.MissingApiConfig
     } else if (settings.modelName.isBlank()) {
       SettingsMessage.MissingModel

@@ -6,13 +6,13 @@ import org.easy.schulte.core.model.records.TrainingRecord
 
 internal interface TrainingRecordStore {
   fun observeAllRecords(): Flow<List<TrainingRecord>>
-  fun getAllRecords(): List<TrainingRecord>
-  fun getRecordsForConditions(gridSize: Int, ageGroupName: String, markModeName: String): List<TrainingRecord>
-  fun insertRecord(record: TrainingRecord)
-  fun clearRecords()
+  suspend fun getAllRecords(): List<TrainingRecord>
+  suspend fun getRecordsForConditions(gridSize: Int, ageGroupName: String, markModeName: String): List<TrainingRecord>
+  suspend fun insertRecord(record: TrainingRecord)
+  suspend fun clearRecords()
   fun observeAccounts(): Flow<List<UserAccount>>
-  fun getAccounts(): List<UserAccount>
-  fun insertAccount(account: UserAccount)
-  fun updateAccountProfile(account: UserAccount)
-  fun updateUnownedRecordsOwner(userId: String)
+  suspend fun getAccounts(): List<UserAccount>
+  suspend fun insertAccount(account: UserAccount)
+  suspend fun updateAccountProfile(account: UserAccount)
+  suspend fun updateUnownedRecordsOwner(userId: String)
 }

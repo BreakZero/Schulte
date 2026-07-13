@@ -4,13 +4,15 @@ import org.easy.schulte.core.model.ai.AiSettings
 import org.easy.schulte.core.model.settings.enums.SettingsMessage
 
 internal interface SettingsRepository : FeatureStateRepository {
-  fun updateAiSettings(block: AiSettings.() -> AiSettings)
+  suspend fun updateAiSettings(block: AiSettings.() -> AiSettings)
+  suspend fun updateAiApiKey(value: String)
   fun toggleApiKeyVisibility()
-  fun clearAiSettings()
-  fun saveSettings()
+  suspend fun clearAiSettings()
+  suspend fun saveSettings()
   fun setSettingsMessage(message: SettingsMessage)
   fun clearSettingsMessage()
+  suspend fun isAiConfigured(): Boolean
   fun requestClearTrainingRecords()
   fun cancelClearTrainingRecords()
-  fun clearTrainingRecords()
+  suspend fun clearTrainingRecords()
 }

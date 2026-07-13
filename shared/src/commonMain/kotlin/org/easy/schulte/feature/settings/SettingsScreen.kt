@@ -124,7 +124,7 @@ internal fun SettingsScreen(
         )
         if (state.aiSettings.aiEnabled) {
           OutlinedTextField(
-            value = state.aiSettings.apiKey,
+            value = state.apiKeyInput,
             onValueChange = { onAction(SettingsAction.UpdateApiKey(it)) },
             modifier = Modifier.fillMaxWidth(),
             label = { Text(stringResource(Res.string.settings_api_key)) },

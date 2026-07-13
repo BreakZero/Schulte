@@ -2,10 +2,9 @@ package org.easy.schulte.core.data
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import org.easy.schulte.core.model.ai.AiSettings
 import org.easy.schulte.core.model.configuration.AppConfiguration
 import org.easy.schulte.core.model.configuration.FeatureConfiguration
@@ -21,24 +20,29 @@ import org.easy.schulte.core.platform.currentTimeMillis
 
 internal class SqlDelightConfigurationStore(
   databaseProvider: SchulteDatabaseProvider,
+  private val appDispatchers: AppDispatchers = AppDispatchers(),
 ) : ConfigurationStore {
   private val queries = databaseProvider.database.schulteDatabaseQueries
 
-  override fun getConfiguration(): AppConfiguration = readConfiguration()
+  override suspend fun getConfiguration(): AppConfiguration = withContext(appDispatchers.database) {
+    queries.deleteConfigurationByKey(KEY_AI_API_KEY)
+    readConfiguration()
+  }
 
-  override fun getFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration = getConfiguration().toFeatureConfiguration(feature)
+  override suspend fun getFeatureConfiguration(feature: ConfigurationFeature): FeatureConfiguration = getConfiguration()
+    .toFeatureConfiguration(feature)
 
   override fun observeFeatureConfiguration(feature: ConfigurationFeature): Flow<FeatureConfiguration> = queries
     .selectFeatureConfigurations(GLOBAL_FEATURE)
     .asFlow()
-    .mapToList(Dispatchers.IO)
+    .mapToList(appDispatchers.database)
     .map { rows ->
       rows.associate { it.config_key to it.config_value }
         .toConfiguration()
         .toFeatureConfiguration(feature)
     }
 
-  override fun updateConfiguration(configuration: AppConfiguration) {
+  override suspend fun updateConfiguration(configuration: AppConfiguration) = withContext(appDispatchers.database) {
     queries.transaction {
       KEY_VALUES.forEach { key ->
         queries.upsertConfiguration(
@@ -64,7 +68,6 @@ internal class SqlDelightConfigurationStore(
     KEY_SELECTED_MARK_MODE -> selectedMarkMode.name
     KEY_ASSISTED_MARKING_ENABLED -> aiSettings.assistedMarkingEnabled.toString()
     KEY_AI_ENABLED -> aiSettings.aiEnabled.toString()
-    KEY_AI_API_KEY -> aiSettings.apiKey
     KEY_AI_BASE_URL -> aiSettings.baseUrl
     KEY_AI_MODEL_NAME -> aiSettings.modelName
     KEY_RECORD_GRID_FILTER -> recordGridFilter.name
@@ -81,7 +84,6 @@ private fun Map<String, String>.toConfiguration(): AppConfiguration = AppConfigu
   aiSettings = AiSettings(
     assistedMarkingEnabled = booleanValue(KEY_ASSISTED_MARKING_ENABLED, false),
     aiEnabled = booleanValue(KEY_AI_ENABLED, false),
-    apiKey = get(KEY_AI_API_KEY).orEmpty(),
     baseUrl = get(KEY_AI_BASE_URL).orEmpty(),
     modelName = get(KEY_AI_MODEL_NAME) ?: "gpt-4o-mini",
   ),
@@ -109,7 +111,6 @@ private val KEY_VALUES = listOf(
   KEY_SELECTED_MARK_MODE,
   KEY_ASSISTED_MARKING_ENABLED,
   KEY_AI_ENABLED,
-  KEY_AI_API_KEY,
   KEY_AI_BASE_URL,
   KEY_AI_MODEL_NAME,
   KEY_RECORD_GRID_FILTER,

@@ -42,7 +42,7 @@ internal class AccountViewModel(
 
       AccountAction.OpenAiSettings -> sendEvent(AccountEvent.OpenAiSettings)
 
-      AccountAction.OpenPkSoon -> {
+      AccountAction.OpenPkSoon -> viewModelScope.launch {
         if (repository.currentAccountState().isLoggedIn) {
           sendEvent(AccountEvent.OpenPkSoon)
         } else {
@@ -88,7 +88,7 @@ internal class AccountViewModel(
 
       AccountAction.CopyRegisterId -> repository.markRegisterIdCopied()
 
-      AccountAction.RequestLinkLocalRecords -> repository.requestLinkLocalRecords()
+      AccountAction.RequestLinkLocalRecords -> viewModelScope.launch { repository.requestLinkLocalRecords() }
 
       AccountAction.LinkLocalRecords -> {
         viewModelScope.launch {

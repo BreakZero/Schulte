@@ -20,11 +20,11 @@ internal class ConfigViewModel(
 
   fun onAction(action: ConfigAction) {
     when (action) {
-      is ConfigAction.SelectGrid -> repository.selectGrid(action.spec)
+      is ConfigAction.SelectGrid -> viewModelScope.launch { repository.selectGrid(action.spec) }
 
-      is ConfigAction.SelectAgeGroup -> repository.selectAgeGroup(action.ageGroup)
+      is ConfigAction.SelectAgeGroup -> viewModelScope.launch { repository.selectAgeGroup(action.ageGroup) }
 
-      is ConfigAction.SelectMarkMode -> repository.selectMarkMode(action.markMode)
+      is ConfigAction.SelectMarkMode -> viewModelScope.launch { repository.selectMarkMode(action.markMode) }
 
       ConfigAction.StartTraining -> sendEvent(ConfigEvent.StartTraining)
 

@@ -11,6 +11,8 @@ internal data class SettingsState(
   val selectedAgeGroup: AgeGroup = AgeGroup.Adult,
   val selectedMarkMode: MarkMode = MarkMode.BriefFeedbackOnly,
   val aiSettings: AiSettings = AiSettings(),
+  val apiKeyInput: String = "",
+  val hasApiKey: Boolean = false,
   val apiKeyVisible: Boolean = false,
   val settingsMessage: SettingsMessage? = null,
   val showClearRecordsDialog: Boolean = false,

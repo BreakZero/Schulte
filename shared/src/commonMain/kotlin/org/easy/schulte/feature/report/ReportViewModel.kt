@@ -25,8 +25,10 @@ internal class ReportViewModel(
       ReportAction.RestartTraining -> sendEvent(ReportEvent.RestartTraining)
 
       ReportAction.BackToConfig -> {
-        trainingRepository.exitTraining()
-        sendEvent(ReportEvent.BackToConfig)
+        viewModelScope.launch {
+          trainingRepository.exitTraining()
+          sendEvent(ReportEvent.BackToConfig)
+        }
       }
 
       ReportAction.OpenSettings -> {
@@ -38,8 +40,8 @@ internal class ReportViewModel(
 
       ReportAction.OpenRecords -> sendEvent(ReportEvent.OpenRecords)
 
-      ReportAction.GenerateAiAnalysis -> {
-        if (aiAnalysisRepository.currentConfiguration().aiSettings.isConfigured) {
+      ReportAction.GenerateAiAnalysis -> viewModelScope.launch {
+        if (aiAnalysisRepository.isAiConfigured()) {
           sendEvent(ReportEvent.GenerateAiAnalysis)
         } else {
           aiAnalysisRepository.markAiAnalysisNeedsSettings()
