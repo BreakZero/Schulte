@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -47,12 +46,14 @@ import schulte.shared.generated.resources.*
 
 @Composable
 internal fun ScoreBadge(scoreLevel: ScoreLevel) {
+  val colors = MaterialTheme.colorScheme
+  val statusColors = MaterialTheme.schulteStatusColors
   val color = when (scoreLevel) {
-    ScoreLevel.Excellent -> SuccessGreen
-    ScoreLevel.Good -> FocusBlue
-    ScoreLevel.Pass -> WarningAmber
-    ScoreLevel.Below -> ErrorRed
-    ScoreLevel.Practice -> QuietText
+    ScoreLevel.Excellent -> statusColors.success
+    ScoreLevel.Good -> colors.primary
+    ScoreLevel.Pass -> statusColors.warning
+    ScoreLevel.Below -> colors.error
+    ScoreLevel.Practice -> colors.onSurfaceVariant
   }
   Box(
     modifier = Modifier
@@ -71,10 +72,10 @@ internal fun InfoCard(title: String, body: String) {
       title,
       style = MaterialTheme.typography.titleMedium,
       fontWeight = FontWeight.SemiBold,
-      color = Color(0xFF162033),
+      color = MaterialTheme.colorScheme.onSurface,
     )
     Spacer(Modifier.height(6.dp))
-    Text(body, color = QuietText, lineHeight = 21.sp)
+    Text(body, color = MaterialTheme.colorScheme.onSurfaceVariant, lineHeight = 21.sp)
   }
 }
 
@@ -82,9 +83,10 @@ internal fun InfoCard(title: String, body: String) {
 internal fun SchulteCard(content: @Composable ColumnScope.() -> Unit) {
   Card(
     modifier = Modifier.fillMaxWidth(),
-    colors = CardDefaults.cardColors(containerColor = CardBackground),
-    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-    shape = RoundedCornerShape(8.dp),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    shape = MaterialTheme.shapes.medium,
+    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     content = {
       Column(
         modifier = Modifier.padding(16.dp),
@@ -107,9 +109,18 @@ internal fun SelectCard(
     modifier = modifier
       .height(78.dp)
       .clickable(onClick = onClick),
-    shape = RoundedCornerShape(8.dp),
-    border = BorderStroke(1.dp, if (selected) FocusBlue else LineColor),
-    colors = CardDefaults.cardColors(containerColor = if (selected) Color(0xFFEAF4FF) else CardBackground),
+    shape = MaterialTheme.shapes.medium,
+    border = BorderStroke(
+      1.dp,
+      if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+    ),
+    colors = CardDefaults.cardColors(
+      containerColor = if (selected) {
+        MaterialTheme.colorScheme.primaryContainer
+      } else {
+        MaterialTheme.colorScheme.surfaceContainerLow
+      },
+    ),
   ) {
     Column(
       modifier = Modifier
@@ -118,8 +129,8 @@ internal fun SelectCard(
       verticalArrangement = Arrangement.Center,
       horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-      Text(title, fontWeight = FontWeight.Bold, color = Color(0xFF172033), maxLines = 1)
-      Text(subtitle, color = QuietText, fontSize = 12.sp, maxLines = 1)
+      Text(title, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
+      Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, maxLines = 1)
     }
   }
 }
@@ -134,9 +145,18 @@ internal fun ModeCard(
     modifier = Modifier
       .fillMaxWidth()
       .clickable(onClick = onClick),
-    shape = RoundedCornerShape(8.dp),
-    border = BorderStroke(1.dp, if (selected) FocusBlue else LineColor),
-    colors = CardDefaults.cardColors(containerColor = if (selected) Color(0xFFEAF4FF) else CardBackground),
+    shape = MaterialTheme.shapes.medium,
+    border = BorderStroke(
+      1.dp,
+      if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+    ),
+    colors = CardDefaults.cardColors(
+      containerColor = if (selected) {
+        MaterialTheme.colorScheme.primaryContainer
+      } else {
+        MaterialTheme.colorScheme.surfaceContainerLow
+      },
+    ),
   ) {
     Row(
       modifier = Modifier.padding(14.dp),
@@ -146,12 +166,19 @@ internal fun ModeCard(
       Box(
         modifier = Modifier
           .size(18.dp)
-          .background(if (selected) FocusBlue else Color.Transparent, CircleShape)
-          .border(1.dp, if (selected) FocusBlue else QuietText, CircleShape),
+          .background(
+            if (selected) MaterialTheme.colorScheme.primary else Color.Transparent,
+            CircleShape,
+          )
+          .border(
+            1.dp,
+            if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+            CircleShape,
+          ),
       )
       Column {
-        Text(mode.titleText(), fontWeight = FontWeight.SemiBold, color = Color(0xFF172033))
-        Text(mode.descriptionText(), color = QuietText, fontSize = 13.sp)
+        Text(mode.titleText(), fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+        Text(mode.descriptionText(), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
       }
     }
   }
@@ -161,8 +188,9 @@ internal fun ModeCard(
 internal fun StatCard(title: String, value: String, modifier: Modifier = Modifier) {
   Card(
     modifier = modifier.height(76.dp),
-    shape = RoundedCornerShape(8.dp),
-    colors = CardDefaults.cardColors(containerColor = CardBackground),
+    shape = MaterialTheme.shapes.medium,
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
   ) {
     Column(
       modifier = Modifier
@@ -170,10 +198,10 @@ internal fun StatCard(title: String, value: String, modifier: Modifier = Modifie
         .padding(10.dp),
       verticalArrangement = Arrangement.Center,
     ) {
-      Text(title, color = QuietText, fontSize = 12.sp, maxLines = 1)
+      Text(title, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, maxLines = 1)
       Text(
         value,
-        color = Color(0xFF162033),
+        color = MaterialTheme.colorScheme.onSurface,
         fontWeight = FontWeight.SemiBold,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
@@ -191,11 +219,11 @@ internal fun KeyValueRow(label: String, value: String) {
     horizontalArrangement = Arrangement.SpaceBetween,
     verticalAlignment = Alignment.CenterVertically,
   ) {
-    Text(label, color = QuietText)
+    Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant)
     Spacer(Modifier.width(16.dp))
     Text(
       value,
-      color = Color(0xFF172033),
+      color = MaterialTheme.colorScheme.onSurface,
       fontWeight = FontWeight.Medium,
       textAlign = TextAlign.End,
     )
@@ -217,8 +245,8 @@ internal fun SwitchRow(
     verticalAlignment = Alignment.CenterVertically,
   ) {
     Column(modifier = Modifier.weight(1f)) {
-      Text(title, color = Color(0xFF172033), fontWeight = FontWeight.Medium)
-      Text(subtitle, color = QuietText, fontSize = 13.sp)
+      Text(title, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium)
+      Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
     }
     Switch(checked = checked, onCheckedChange = onCheckedChange)
   }
@@ -230,7 +258,7 @@ internal fun SectionTitle(text: String) {
     text = text,
     style = MaterialTheme.typography.titleMedium,
     fontWeight = FontWeight.SemiBold,
-    color = Color(0xFF172033),
+    color = MaterialTheme.colorScheme.onSurface,
   )
 }
 
@@ -245,8 +273,8 @@ internal fun SchulteScaffold(
   Scaffold(
     modifier = Modifier
       .fillMaxSize(),
-    containerColor = PageBackground,
-    contentWindowInsets = WindowInsets(),
+    containerColor = MaterialTheme.colorScheme.background,
+    contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
     topBar = {
       TopAppBar(
         title = {
@@ -268,7 +296,12 @@ internal fun SchulteScaffold(
           }
         },
         actions = actions,
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = PageBackground),
+        colors = TopAppBarDefaults.topAppBarColors(
+          containerColor = MaterialTheme.colorScheme.background,
+          titleContentColor = MaterialTheme.colorScheme.onBackground,
+          navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
+          actionIconContentColor = MaterialTheme.colorScheme.onBackground,
+        ),
       )
     },
   ) { padding ->

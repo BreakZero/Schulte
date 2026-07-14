@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import org.easy.schulte.core.data.DatabaseDriverFactory
 import org.easy.schulte.core.security.SecureSecretStore
-import org.easy.schulte.core.ui.PageBackground
+import org.easy.schulte.core.ui.SchulteTheme
 import org.easy.schulte.di.appModule
 import org.easy.schulte.navigation.SchulteNavGraph
 import org.koin.compose.KoinApplication
@@ -23,7 +23,7 @@ fun App(
       modules(appModule(databaseDriverFactory, secureSecretStore))
     },
   ) {
-    MaterialTheme {
+    SchulteTheme {
       SchulteRoot()
     }
   }
@@ -33,7 +33,7 @@ fun App(
 internal fun SchulteRoot() {
   Surface(
     modifier = Modifier.fillMaxSize(),
-    color = PageBackground,
+    color = MaterialTheme.colorScheme.background,
   ) {
     SchulteNavGraph(modifier = Modifier.fillMaxSize())
   }
