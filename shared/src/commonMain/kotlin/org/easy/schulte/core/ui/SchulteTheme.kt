@@ -14,43 +14,41 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// Chinese ink-wash palette: xuan-paper whitespace and five ink densities.
-// Cinnabar is reserved only for destructive/error semantics.
-internal val FocusBlue = Color(0xFF252521) // 焦墨
-internal val FocusTeal = Color(0xFF454540) // 浓墨
-internal val PageBackground = Color(0xFFF8F6F0) // 宣纸白
-internal val CardBackground = Color(0xFFFFFDF8) // 净纸
-internal val QuietText = Color(0xFF62625D) // 中墨
-internal val LineColor = Color(0xFFD2CFC6) // 淡墨
-internal val SuccessGreen = Color(0xFF3B3B37) // 墨黑语义成功
-internal val WarningAmber = Color(0xFF696861) // 灰墨语义提醒
-internal val ErrorRed = Color(0xFFA2372A) // 朱砂，仅错误/危险操作
+internal val FocusBlue = Color(0xFF2477D4)
+internal val FocusTeal = Color(0xFF1C8C87)
+internal val PageBackground = Color(0xFFF5F8FB)
+internal val CardBackground = Color(0xFFFFFFFF)
+internal val QuietText = Color(0xFF5E6A78)
+internal val LineColor = Color(0xFFE2E8F0)
+internal val SuccessGreen = Color(0xFF1C8E5A)
+internal val WarningAmber = Color(0xFFB7791F)
+internal val ErrorRed = Color(0xFFD14B4B)
 
 internal val SchulteColorScheme: ColorScheme = lightColorScheme(
   primary = FocusBlue,
   onPrimary = Color.White,
-  primaryContainer = Color(0xFFE3E1DA),
-  onPrimaryContainer = Color(0xFF252521),
+  primaryContainer = Color(0xFFD8E9FF),
+  onPrimaryContainer = Color(0xFF00345E),
   secondary = FocusTeal,
   onSecondary = Color.White,
-  secondaryContainer = Color(0xFFE9E7E0),
-  onSecondaryContainer = Color(0xFF30302C),
-  tertiary = Color(0xFF696861),
+  secondaryContainer = Color(0xFFC8F2EE),
+  onSecondaryContainer = Color(0xFF003C39),
+  tertiary = Color(0xFF765A00),
   onTertiary = Color.White,
-  tertiaryContainer = Color(0xFFEEEBE4),
-  onTertiaryContainer = Color(0xFF32322E),
+  tertiaryContainer = Color(0xFFFFE08A),
+  onTertiaryContainer = Color(0xFF261900),
   error = ErrorRed,
   onError = Color.White,
-  errorContainer = Color(0xFFF3DED9),
-  onErrorContainer = Color(0xFF4C1712),
+  errorContainer = Color(0xFFFFDAD6),
+  onErrorContainer = Color(0xFF410002),
   background = PageBackground,
-  onBackground = Color(0xFF252521),
+  onBackground = Color(0xFF172033),
   surface = CardBackground,
-  onSurface = Color(0xFF252521),
-  surfaceVariant = Color(0xFFE9E7E0),
+  onSurface = Color(0xFF172033),
+  surfaceVariant = Color(0xFFDDE3EA),
   onSurfaceVariant = QuietText,
-  outline = Color(0xFFAAA8A0),
-  outlineVariant = Color(0xFFDCD9D1),
+  outline = LineColor,
+  outlineVariant = Color(0xFFC2C8D0),
 )
 
 internal val SchulteTypography = Typography(
@@ -86,10 +84,10 @@ internal data class SchulteStatusColors(
 private val DefaultSchulteStatusColors = SchulteStatusColors(
   success = SuccessGreen,
   onSuccess = Color.White,
-  successContainer = Color(0xFFE5E3DC),
+  successContainer = Color(0xFFB9F7D0),
   warning = WarningAmber,
   onWarning = Color.White,
-  warningContainer = Color(0xFFECEAE3),
+  warningContainer = Color(0xFFFFE09A),
 )
 
 private val LocalSchulteStatusColors = staticCompositionLocalOf { DefaultSchulteStatusColors }
